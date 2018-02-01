@@ -102,7 +102,6 @@ body {
 #header .title a{
     color: #111;
     text-decoration: none;
-    cursor: auto;
 }
 
 #header .nav{
@@ -129,7 +128,6 @@ body {
     color: #111;
     word-wrap: break-word;
     text-decoration: underline;
-    cursor: auto;
 }
 
 #header .nav  ul li a:hover{
