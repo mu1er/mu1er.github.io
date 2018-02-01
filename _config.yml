@@ -1,9 +1,9 @@
 encoding: utf-8
 
 # seo
-title: Mu1er'Blog
-description: Mu1er'Blog
-keywords: Blog,Python,Go,Html,Css,Js
+title: Mu1er
+description: Mu1er Blog
+keywords: jekyll blog,Python,Go,Html,Css,Js
 author: Mu1er
 
 # "","/blog"
