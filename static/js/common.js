@@ -12,7 +12,7 @@
     function bubble(ev) {
 
         var span = document.createElement('span');
-        span.innerText = clickTips[parseInt(Math.random() * clickTips.length)];
+        //span.innerText = clickTips[parseInt(Math.random() * clickTips.length)];
 
         span.setAttribute("style", "z-index:999;position:absolute;left:" + ev.pageX + "px;top:" + (ev.pageY - 20) + "px;animation-duration:1s;" +
             "animation-fill-mode:both;animation-name:fadeOutUp;");
