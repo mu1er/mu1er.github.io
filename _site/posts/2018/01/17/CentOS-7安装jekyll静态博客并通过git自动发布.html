@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Mu1er,jekyll"/>
+		<meta name="author" content="Mu1er" />
+		<meta name="description" content="CentOS 7安装jekyll静态博客并通过git自动发布"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<title>CentOS 7安装jekyll静态博客并通过git自动发布-Mu1er'Blog</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">Mu1er'Blog</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">CentOS 7安装jekyll静态博客并通过git自动发布</h1>
+		
+		<div class="main"><h3 id="通过scl安装ruby-23">通过SCL安装Ruby 2.3</h3>
+<p>jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. Install a package with repository for your system:</span>
+<span class="c"># On CentOS, install package centos-release-scl available in CentOS repository:</span>
+yum <span class="nb">install </span>centos-release-scl
+
+<span class="c"># 2. Install the collection:</span>
+yum <span class="nb">install </span>rh-ruby23
+
+<span class="c"># 3. Show available connections</span>
+scl <span class="nt">--list</span>
+</code></pre></div></div>
+
+<h3 id="jekyll安装">jekyll安装</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. 启用 ruby2.3环境</span>
+scl <span class="nb">enable </span>rh-ruby23 bash
+
+<span class="c"># 2. 安装jekyll及插件</span>
+gem <span class="nb">install </span>jekyll jekyll-paginate
+</code></pre></div></div>
+
+<h3 id="jekyll主题">jekyll主题</h3>
+<p>我们使用的主题来自 <a href="http://huxpro.github.io/">huxpro.github.io</a>，并做了定制 可以从<a href="https://github.com/Huxpro/huxpro.github.io">github</a>下载，效果图如下： 
+<img src="http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/1.jpg" alt="" /></p>
+
+<h3 id="nginx服务设置">nginx服务设置</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#安装nginx</span>
+yum <span class="nb">install</span> <span class="nt">-y</span> nginx
+
+<span class="c">#创建nginx的root目录</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> /var/www/html
+
+<span class="c">#设置nginx根目录对于git服务可写</span>
+<span class="nb">chown</span> <span class="nt">-R</span> git.git /var/www/html
+<span class="c"># /etc/nginx/nginx.conf</span>
+<span class="c">#</span>
+<span class="c"># For more information on configuration, see:</span>
+<span class="c">#   * Official English Documentation: http://nginx.org/en/docs/</span>
+<span class="c">#   * Official Russian Documentation: http://nginx.org/ru/docs/</span>
+
+user nginx<span class="p">;</span>
+worker_processes auto<span class="p">;</span>
+error_log /var/log/nginx/error.log<span class="p">;</span>
+pid /run/nginx.pid<span class="p">;</span>
+
+<span class="c"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</span>
+include /usr/share/nginx/modules/<span class="k">*</span>.conf<span class="p">;</span>
+
+events <span class="o">{</span>
+    worker_connections 1024<span class="p">;</span>
+<span class="o">}</span>
+
+http <span class="o">{</span>
+    log_format main     <span class="s1">'[$time_local] $remote_addr $server_name "$request" '</span>
+                        <span class="s1">'$status $body_bytes_sent "$http_referer" '</span>
+                        <span class="s1">'"$http_user_agent" "$http_x_forwarded_for" '</span>
+                        <span class="s1">'$upstream_addr $request_time $upstream_response_time'</span><span class="p">;</span>
+    <span class="c">#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</span>
+    <span class="c">#                  '$status $body_bytes_sent "$http_referer" '</span>
+    <span class="c">#                  '"$http_user_agent" "$http_x_forwarded_for"';</span>
+
+    access_log  /var/log/nginx/access.log  main<span class="p">;</span>
+
+    sendfile            on<span class="p">;</span>
+    tcp_nopush          on<span class="p">;</span>
+    tcp_nodelay         on<span class="p">;</span>
+    keepalive_timeout   65<span class="p">;</span>
+    types_hash_max_size 2048<span class="p">;</span>
+
+    include             /etc/nginx/mime.types<span class="p">;</span>
+    default_type        application/octet-stream<span class="p">;</span>
+
+    <span class="c"># Load modular configuration files from the /etc/nginx/conf.d directory.</span>
+    <span class="c"># See http://nginx.org/en/docs/ngx_core_module.html#include</span>
+    <span class="c"># for more information.</span>
+    include /etc/nginx/conf.d/<span class="k">*</span>.conf<span class="p">;</span>
+
+    server <span class="o">{</span>
+        listen       80 default_server<span class="p">;</span>
+        listen       <span class="o">[</span>::]:80 default_server<span class="p">;</span>
+        server_name  _<span class="p">;</span>
+        root         /usr/share/nginx/html<span class="p">;</span>
+
+        <span class="c"># Load configuration files for the default server block.</span>
+        include /etc/nginx/default.d/<span class="k">*</span>.conf<span class="p">;</span>
+
+        location / <span class="o">{</span>
+            root         /var/www/html<span class="p">;</span>
+        <span class="o">}</span>
+
+        error_page 404 /404.html<span class="p">;</span>
+            location <span class="o">=</span> /40x.html <span class="o">{</span>
+        <span class="o">}</span>
+
+        error_page 500 502 503 504 /50x.html<span class="p">;</span>
+            location <span class="o">=</span> /50x.html <span class="o">{</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="git服务设置">git服务设置</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 添加git用户, 并将shell设置为git-shell</span>
+useradd git <span class="nt">--shell</span> /usr/bin/git-shell
+
+<span class="c"># 创建git仓库</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> /home/git/blog.git
+git init <span class="nt">--bare</span> /home/git/blog.git
+<span class="nb">chown</span> <span class="nt">-R</span> git.git /home/git/blog.git
+
+<span class="c">#!/bin/bash</span>
+<span class="c"># hooks/post-receive</span>
+
+scl <span class="nb">enable </span>rh-ruby23 - <span class="o">&lt;&lt;</span> <span class="sh">\</span><span class="no">EOF</span><span class="sh">
+git clone /home/git/blog.git /tmp/tmp-blog-build-repo
+jekyll build -s /tmp/tmp-blog-build-repo -d /var/www/html
+</span><span class="no">EOF
+
+</span><span class="nb">rm</span> <span class="nt">-Rf</span> /tmp/tmp-blog-build-repo
+<span class="nb">exit</span>
+</code></pre></div></div>
+</div>
+	</div>
+	  <div id="container"></div>
+  <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+  <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+  <script>
+  var gitment = new Gitment({
+    id: '页面 ID', // 可选。默认为 location.href
+    owner: 'ma1ive',
+    repo: 'ma1ive.github.io',
+    oauth: {
+      client_id: '6f3a2a47d74871f143e4',
+      client_secret: '077b332eb247a810aa9b22b2b0835b0121b764da',
+    },
+  })
+  gitment.render('container')
+  </script>
+
+	<div style="margin-bottom:3em;"></div>
+	<a href="#" id="totop">Top</a>
+<footer  style="text-align:center;">Copyright ©2018  <a href="/sitemap.xml">Sitemap</a> Powered by ❤ <a href="http://jekyll.com.cn/">mu1er</a></footer>
+<script>
+//ta.qq.com不用了
+//mta.qq.com
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

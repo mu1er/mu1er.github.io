@@ -1,0 +1,22 @@
+encoding: utf-8
+
+# seo
+title: Mu1er'Blog
+description: Mu1er'Blog
+keywords: Blog,Python,Go,Html,Css,Js
+author: Mu1er
+
+# "","/blog"
+context: ""
+scheme: "https"
+domain: "ma1ive.github.io"
+
+## 文章url前缀 context/自定义，下面的context为''
+permalink: /posts/:year/:month/:day/:title.html
+
+copyright: 2018
+beianhao: ""
+
+coderay:
+  coderay_tab_width: 4
+port: 4001
