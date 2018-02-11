@@ -7,9 +7,9 @@ title: 关于我
 
 + 喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事
 
-+ QQ : 937576339
++ QQ : [937576339](http://wpa.qq.com/msgrd?v=3&uin=937576339&site=qq&menu=yes)
 
-+ Email : ma1ive@qq.com
++ Email : [ma1ive@qq.com]
 
 + GitHub : [Mu1er](https://github.com/ma1ive)
 
