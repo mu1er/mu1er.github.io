@@ -1,6 +1,6 @@
 ### Mu1er
-> 喜欢技术,笨鸟先飞,不懂得太多,喜欢琢磨.还望各位师傅不吝传教
-> 博客主题来自[tmaize](http://blog.tmaize.net/),喜欢这种简约的风格
+##### 喜欢技术,笨鸟先飞,不懂得太多,喜欢琢磨.还望各位师傅不吝传教
+##### 博客主题来自[tmaize](http://blog.tmaize.net/),喜欢这种简约的风格
 + QQ : [937576339](http://wpa.qq.com/msgrd?v=3&uin=937576339&site=qq&menu=yes)
 + ...
 + .....
