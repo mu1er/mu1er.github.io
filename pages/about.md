@@ -3,7 +3,7 @@ layout: other
 title: 关于我
 ---
 
-> Mu1er
+> 张阳阳_Mu1er
 
 + 喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事
 
