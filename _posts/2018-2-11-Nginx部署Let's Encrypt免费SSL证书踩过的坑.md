@@ -88,3 +88,25 @@ rm /etc/letsencrypt/renewal/www.example.com.conf
 ```
 letsencrypt certonly --webroot -w /var/www/example -d your_url_address -d www.your_url_address
 ```
+
+# 自动续期脚本
+```
+//这个脚本放在和let's encrypt目录同级的目录下
+#!/bin/sh
+# This script renews all the Let's Encrypt certificates with a validity < 30 days
+
+if ! /opt/letsencrypt/letsencrypt-auto renew > /var/log/letsencrypt/renew.log 2>&1 ; then
+    echo Automated renewal failed:
+    cat /var/log/letsencrypt/renew.log
+    exit 1
+fi
+```
+**权限**
+```
+chmod +x renewCerts.sh
+```
+**cron脚本**
+```
+//每个月凌晨1点运行
+0 0 1 * * /bin/sh /opt/renewCerts.sh
+```
