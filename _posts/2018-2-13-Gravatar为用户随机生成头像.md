@@ -4,6 +4,8 @@ title: Gravatar为用户随机生成头像
 categories: []
 ---
 
+> 今天在群里看到有人发这个Gravatar为用户随机生成图像的方法,索性干脆写出来,为防止以后要用找不到
+
 # What Is Gravatar?
 [Gravatar](http://cn.gravatar.com/)是Globally Recognized Avatar的缩写,是gravatar推出的一项服务，意为“全球通用头像”。如果在Gravatar的服务器上放置了你自己的头像，那么在任何支持Gravatar的blog或者留言本上留言时，只要提供你与这个头像关联的email地址，就能够显示出你的Gravatar头像来。
 
