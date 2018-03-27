@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: VMware下扩展ubuntu虚拟机根目录分区
@@ -6,14 +5,14 @@ categories: [linux]
 ---
 
 
-原文链接：[http://t.cn/RzCP9E2](http://t.cn/RzCP9E2)
+**原文链接**：[http://t.cn/RzCP9E2](http://t.cn/RzCP9E2)
 > 作者输入命令时都用“sudo bash”，用sudo或者su就可以了。
 
 > 涉及到磁盘分区表删除，最好先备份整个虚拟机！
 
 --------
 
-#### 检查文件系统：
+### 检查文件系统：
 ```
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
@@ -27,8 +26,7 @@ none            497M   76K  496M   1% /run/shm
 root@ubuntu:~# 
 ```
 
-#### 检查磁盘分区表：
-
+### 检查磁盘分区表：
 ```
 root@ubuntu:~# fdisk -l /dev/sda
 Disk /dev/sda: 10.7 GB, 10737418240 bytes
@@ -45,19 +43,15 @@ Device Boot      Start         End      Blocks   Id  System
 root@ubuntu:~# 
 ```
 
-
 记住上面显示的交换分区大小（Blocks的数目），这里就是1046528。如果交换分区和根目录不在一个磁盘(比如/dev/sdb），就不要记了。在本文，交换分区在/dev/sda，需要重新分区。
 
-#### 先关闭linux：
-
+### 先关闭linux：
 ```
 root@ubuntu:~# shutdown -h now
 ```
-
 在虚拟机设置，硬盘，实用工具下选择扩展。扩展虚拟机的最大磁盘大小，这里将磁盘设置为15G，然后重启。
 
 重新设置分区表要删除所有的旧分区、关闭系统的swap:
-
 ```
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
@@ -77,7 +71,6 @@ root@ubuntu:~#
 
 
 接下来的步骤会删除/dev/sda1和/dev/sda2，一定要记住分区表的起始位置，这里是2048！
-
 ```
 root@ubuntu:~# fdisk /dev/sda
 
@@ -117,7 +110,6 @@ Command (m for help):
 
 
 不要退出fdisk，接着创建新分区
-
 ```
 Command (m for help): n
 Partition type:
@@ -144,7 +136,6 @@ Using default value 31457279
 
 
 注意记得创建交换分区，大小别搞错，这里是1046528（31457279-30410571=1046528），即要留一部分block用于创建swap。修改sda2的分区类型为82，即交换分区。
-
 ```
 Command (m for help): p
 
@@ -176,15 +167,13 @@ Syncing disks.
 root@ubuntu:~# 
 ```
 
-#### 重启虚拟机：
-
+### 重启虚拟机：
 ```
 root@ubuntu:~# shutdown -r now
 ```
 
 
 交换分区挂载需要UUID标识符。创建新的交换分区不会匹配旧的UUID，导致重启无法挂载swap分区。这里主要有两种解决方法：在/etc/fstab里写入新的UUID，或者直接将旧的UUID覆盖在新分区上，这里选择后者。 awk命令用来显示旧的UUID，dd命令确保分区没数据。
-
 ```
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
@@ -214,8 +203,7 @@ Swap:          510          7        503
 root@ubuntu:~#
 ```
 
-#### 最后，调整分区大小：
-
+### 最后，调整分区大小：
 ```
 root@ubuntu:~# df -h
 Filesystem      Size  Used Avail Use% Mounted on
