@@ -1,8 +1,8 @@
-
 ---
 layout:post
 title:XMLHTTPRequest状态status完整列表
 categories:[HTTP]
+
 ---
 
    AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
