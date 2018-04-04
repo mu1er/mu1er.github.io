@@ -1,4 +1,5 @@
 ---
+
 layout:post
 title:XMLHTTPRequest状态status完整列表
 categories:[HTTP]
@@ -6,7 +7,7 @@ categories:[HTTP]
 ---
 
 
-AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+### AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
        当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）
 　　Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
 
@@ -14,7 +15,7 @@ AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要�
 
 　　当用户试图通过 HTTP 访问一台正在运行 Internet 信息服务 (IIS) 的服务器上的内容时，IIS 返回一个表示该请求的状态的数字代码。状态代码可以指明具体请求是否已成功，还可以揭示请求失败的确切原因。
 
-## 1xx - 信息提示
+### 1xx - 信息提示
 
 这些状态代码表示临时的响应。客户端在收到常规响应之前，应准备接收一个或多个 1xx 响应。
 
@@ -23,7 +24,7 @@ AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要�
 　· 100 - Continue 初始的请求已经接受，客户应当继续发送请求的其余部分。（HTTP 1.1新） 
 　· 101 - Switching Protocols 服务器将遵从客户的请求转换到另外一种协议（HTTP 1.1新） 
 
-## 2xx - 成功
+### 2xx - 成功
 
 这类状态代码表明服务器成功地接受了客户端请求。
 　· 200 - OK 一切正常，对GET和POST请求的应答文档跟在后面。 
@@ -34,7 +35,7 @@ AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要�
 　· 205 - Reset Content 没有新的内容，但浏览器应该重置它所显示的内容。用来强制浏览器清除表单输入内容（HTTP 1.1新）。 
 　· 206 - Partial Content 客户发送了一个带有Range头的GET请求，服务器完成了它（HTTP 1.1新）。 
 
-## 3xx - 重定向
+### 3xx - 重定向
 
 客户端浏览器必须采取更多操作来实现请求。例如，浏览器可能不得不请求服务器上的不同的页面，或通过<a id="vad_2" onmouseover="if(typeof(showTitle)!='undefined'){this.title='';window.clearTimeout(hideTO);showTitle(event, this, 2,'');}" title="网络游戏没攻略？ @Vogate.com" style="font-size: 1em" onclick="" onmouseout="if(typeof(showTitle)!='undefined'){mouseIsOverLayer = false; mouseOverWhileLoad = false; hideTO = window.setTimeout('checkIfMouseOverLayer()',500);}" href="http://action.vogate.com/click/click.php?ads_id=3503&site_id=6235007045040803&click=1&url=http%3A//www.766.com%7C%u73A9%u6E38%u620F%u641E%u4E0D%u5B9A%u653B%u7565%u600E%u4E48%u529E%uFF1F%3Bhttp%3A//pao.766.com%7C%u8DD1%u8DD1%u5361%u4E01%u8F66%u624B%u628A%u624B%u6559%u4F60%u6F02%u79FB%u7EDD%u62DB%uFF01%3Bhttp%3A//www.ro2x.com%7C%u4F60%u7EDD%u5BF9%u6CA1%u770B%u8FC7%u8FD9%u4E48%u5F3A%u7684RO2%u6570%u636E%u5E93%uFF01%3Bhttp%3A//tu.766.com%7C%u4E3A%u4EC0%u4E48%u6BCF%u5929%u90FD%u6709%u8FD9%u4E48%u591A%u7537%u4EBA%u6765%u8FD9%u91CC%uFF1F%3Bhttp%3A//chd.766.com%7C%u73A9%u5F69%u8679%u5C9B%u6765%u8FD9%u91CC%u770B%u3002%u8981%u4EC0%u4E48%u6709%u4EC0%u4E48%uFF01&v=0&k=%u4EE3%u7406&s=http%3A//www.023si.com/html/79/t-13279.html&rn=942481" target="_blank">代理服务器重复该请求。
 　· 300 - Multiple Choices 客户请求的文档可以在多个位置找到，这些位置已经在返回的文档内列出。如果服务器要提出优先选择，则应该在Location应答头指明。 
@@ -45,7 +46,7 @@ AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要�
 　· 305 - Use Proxy 客户请求的文档应该通过Location头所指明的代理服务器提取（HTTP 1.1新）。 
 　· 307 - Temporary Redirect 和302（Found）相同。许多浏览器会错误地响应302应答进行重定向，即使原来的请求是POST，即使它实际上只能在POST请求的应答是303时才能重定向。由于这个原因，HTTP 1.1新增了307，以便更加清除地区分几个状态代码：当出现303应答时，浏览器可以跟随重定向的GET和POST请求；如果是307应答，则浏览器只能跟随对GET请求的重定向。（HTTP 1.1新） 
 
-## 4xx - 客户端错误
+### 4xx - 客户端错误
 
 发生错误，客户端似乎有问题。例如，客户端请求不存在的页面，客户端未提供有效的身份验证信息。
 
@@ -101,7 +102,7 @@ AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要�
 　· 417 – 执行失败。
 　· 423 – 锁定的错误。
 
-## 5xx - 服务器错误
+### 5xx - 服务器错误
 
 服务器由于遇到错误而不能完成该请求。
 
