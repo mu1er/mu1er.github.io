@@ -1,5 +1,4 @@
 ---
-
 layout:post
 title:XMLHTTPRequest状态status完整列表
 categories:[HTTP]
