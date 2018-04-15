@@ -9,7 +9,7 @@ title: 关于我
 
 + QQ : [937576339](http://wpa.qq.com/msgrd?v=3&uin=937576339&site=qq&menu=yes)
 
-+ Email : [ma1ive@qq.com](mailto:ma1ive@qq.com)<a href="mailto:ma1ive@qq.com">Email</a>
++ Email : [ma1ive@qq.com]
 
 + GitHub : [Mu1er](https://github.com/mu1er)
 
