@@ -1,6 +1,6 @@
 ---
-layout:post
-title:Golang生成SSL证书以及服务器私钥
+layout: post
+title: Golang生成SSL证书以及服务器私钥
 categories: [golang]
 ---
 
