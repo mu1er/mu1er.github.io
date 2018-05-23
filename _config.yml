@@ -9,7 +9,7 @@ author: Mu1er
 # "","/blog"
 context: ""
 scheme: "https"
-domain: "ma1ive.github.io"
+domain: "mu1er.github.io"
 
 ## 文章url前缀 context/自定义，下面的context为''
 permalink: /posts/:year/:month/:day/:title.html
