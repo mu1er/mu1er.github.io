@@ -9,14 +9,14 @@ layout: default
     <h2>Links List</h2>
 </div>
 
-<main class="links-content">
+<main class="tags-content" style="margin-top:1px">
     <ul class="links-list">
         {% for link in site.data.links %}
         <li>
-            <a class="link-style" href="{{ link.url }}" title="{{ link.title }}">{{ link.title }}  |  {{ link.desc }}</a>
+            <a class="link-style" href="{{ link.url }}" title="{{ link.desc }}">{{ link.title }}  |  {{ link.desc }}</a>
         </li>
         {% endfor%}
-        <span>-----------------------------------------------------------------------------------------</span>
+        <hr />
         <li style="display: inline;">
             <a class="team-style" href="https://moo.fish/" title="MooFish">MooFish--摸鱼俱乐部</a>
         </li>
