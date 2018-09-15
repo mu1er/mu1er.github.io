@@ -121,3 +121,21 @@ pre[class*="language-"] {
 	cursor: help;
 }
 
+.links-content{
+	width: 695px;
+	margin: 0 auto;
+}
+.links-list{
+	padding: 40px 0;
+}
+
+.link-style{
+	display: block;
+    margin-top: 5px;
+    text-align: center;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+	text-overflow: ellipsis;
+	text-decoration: underline;
+}
