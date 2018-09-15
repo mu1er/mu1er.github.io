@@ -1,17 +1,13 @@
-<header id="header">
-    <a class="logo" href="{{site.context}}/" title="Blog"></a>
-    <div class="title"><a href="{{site.context}}/" class="nav-a">{{ site.title }}</a></div>
-    <nav class="nav" id="nav">
+<header class="g-header">
+    <div class="g-logo">
+      <a href="{{ "/" | relative_url }}"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
         <ul>
-            <li><a href="{{site.context}}/" class="nav-a">Blog</a><span>·</span></li>
-            <li><a href="{{site.context}}/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
-<!--             <li><a href="{{site.context}}/pages/search.html" class="nav-a">Search</a><span>·</span></li> -->
-            <li><a href="{{site.context}}/pages/links.html" class="nav-a">Links</a><span>·</span></li>
-<!--             <li><a href="{{site.context}}/pages/chat.html" class="nav-a">Chat</a><span>·</span></li> -->
-            <li><a href="{{site.context}}/pages/about.html" class="nav-a">About</a></li>
-	    ---
-	    <li><a href="https://moo.fish/" class="nav-a">Moo.Fish</a></li>
+            {% for i in site.nav %}
+            <li><a href="{{ i[1] }}">{{ i[0] }}</a></li>
+            {% endfor %}
         </ul>
     </nav>
-	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
 </header>
