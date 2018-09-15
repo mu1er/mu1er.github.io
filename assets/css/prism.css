@@ -126,16 +126,22 @@ pre[class*="language-"] {
 	margin: 0 auto;
 }
 .links-list{
-	padding: 40px 0;
+	margin-top: 30px;
+	padding: 30px 20px;
+    background-color: #fff;
+    border: 1px solid #e7eaf1;
+    border-radius: 3px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0,37,55,.06);
 }
-
-.link-style{
-	display: block;
-    margin-top: 5px;
+.links-list li{
+    margin-top: 10px;
     text-align: center;
     font-size: 16px;
+}
+.link-style{
+	display: block;
     white-space: nowrap;
     overflow: hidden;
 	text-overflow: ellipsis;
-	text-decoration: underline;
 }
