@@ -6,7 +6,7 @@ layout: default
 {% include header.html %}
 
 <div class="g-banner tags-banner {{ site.postPatterns | prepend: 'post-pattern-' }} {{ site.theme-color | prepend: 'bgcolor-' }}" data-theme="{{ site.theme-color }}">
-    <h2>LINKS</h2>
+    <h2>Links List</h2>
 </div>
 
 <main class="links-content">
@@ -16,6 +16,10 @@ layout: default
             <a class="link-style" href="{{ link.url }}" title="{{ link.title }}">{{ link.title }}  |  {{ link.desc }}</a>
         </li>
         {% endfor%}
+        <span>-----------------------------------------------------------------------------------------</span>
+        <li class="teams-style">
+            <a class="team-style" href="https://moo.fish/" title="MooFish">MooFish--摸鱼俱乐部</a>
+        </li>
     </ul>
 </main>
     

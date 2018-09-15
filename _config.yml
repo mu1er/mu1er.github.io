@@ -12,7 +12,6 @@ nav:
   home: '/'
   tags: '/tags.html'
   links: '/links.html'
-  about: '/about.html'
 
 # Footer
 footer:
