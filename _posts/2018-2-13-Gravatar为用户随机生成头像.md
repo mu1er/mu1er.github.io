@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Gravatar为用户随机生成头像
-categories: []
+tags: []
 ---
 
 > 今天在群里看到有人发这个Gravatar为用户随机生成图像的方法,索性干脆记下来,为防止以后要用找不到

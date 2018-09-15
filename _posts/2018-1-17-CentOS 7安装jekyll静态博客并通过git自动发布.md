@@ -1,7 +1,7 @@
 ---
 layout: post
 title: CentOS 7安装jekyll静态博客并通过git自动发布
-categories: jekyll
+tags: jekyll
 ---
 ### 通过SCL安装Ruby 2.3
 jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:

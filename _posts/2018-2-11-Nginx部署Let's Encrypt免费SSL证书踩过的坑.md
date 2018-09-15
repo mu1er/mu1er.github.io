@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Nginx部署Let's Encrypt免费SSL证书踩过的坑
-categories: [SSL]
+tags: [SSL]
 ---
 
 ### 申请Let's Encrypt永久免费SSL证书

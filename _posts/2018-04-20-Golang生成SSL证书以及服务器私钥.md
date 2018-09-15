@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Golang生成SSL证书以及服务器私钥
-categories: [golang]
+tags: [golang]
 ---
 
 > SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: VMware下扩展ubuntu虚拟机根目录分区
-categories: [linux]
+tags: [linux]
 ---
 
 
