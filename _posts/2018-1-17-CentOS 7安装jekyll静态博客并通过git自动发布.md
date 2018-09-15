@@ -6,7 +6,7 @@ tags: jekyll
 ### 通过SCL安装Ruby 2.3
 jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:
 
-```sh
+```bash
 # 1. Install a package with repository for your system:
 # On CentOS, install package centos-release-scl available in CentOS repository:
 yum install centos-release-scl
@@ -19,7 +19,7 @@ scl --list
 ```
 
 ### jekyll安装
-```sh
+```bash
 # 1. 启用 ruby2.3环境
 scl enable rh-ruby23 bash
 
@@ -32,7 +32,7 @@ gem install jekyll jekyll-paginate
 ![](http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/1.jpg)
 
 ### nginx服务设置
-```sh
+```bash
 #安装nginx
 yum install -y nginx
 
@@ -109,7 +109,7 @@ http {
 ```
 
 ### git服务设置
-```sh
+```bash
 # 添加git用户, 并将shell设置为git-shell
 useradd git --shell /usr/bin/git-shell
 

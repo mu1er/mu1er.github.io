@@ -13,7 +13,7 @@ tags: [linux]
 --------
 
 ### 检查文件系统：
-```
+```bash
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
 root@ubuntu:~# df -h
@@ -27,7 +27,7 @@ root@ubuntu:~#
 ```
 
 ### 检查磁盘分区表：
-```
+```bash
 root@ubuntu:~# fdisk -l /dev/sda
 Disk /dev/sda: 10.7 GB, 10737418240 bytes
 255 heads, 63 sectors/track, 1305 cylinders, total 20971520 sectors
@@ -46,13 +46,13 @@ root@ubuntu:~#
 记住上面显示的交换分区大小（Blocks的数目），这里就是1046528。如果交换分区和根目录不在一个磁盘(比如/dev/sdb），就不要记了。在本文，交换分区在/dev/sda，需要重新分区。
 
 ### 先关闭linux：
-```
+```bash
 root@ubuntu:~# shutdown -h now
 ```
 在虚拟机设置，硬盘，实用工具下选择扩展。扩展虚拟机的最大磁盘大小，这里将磁盘设置为15G，然后重启。
 
 重新设置分区表要删除所有的旧分区、关闭系统的swap:
-```
+```bash
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
 root@ubuntu:~# free -m
@@ -71,7 +71,7 @@ root@ubuntu:~#
 
 
 接下来的步骤会删除/dev/sda1和/dev/sda2，一定要记住分区表的起始位置，这里是2048！
-```
+```bash
 root@ubuntu:~# fdisk /dev/sda
 
 Command (m for help): p
@@ -110,7 +110,7 @@ Command (m for help):
 
 
 不要退出fdisk，接着创建新分区
-```
+```bash
 Command (m for help): n
 Partition type:
    p   primary (0 primary, 0 extended, 4 free)
@@ -136,7 +136,7 @@ Using default value 31457279
 
 
 注意记得创建交换分区，大小别搞错，这里是1046528（31457279-30410571=1046528），即要留一部分block用于创建swap。修改sda2的分区类型为82，即交换分区。
-```
+```bash
 Command (m for help): p
 
 Disk /dev/sda: 16.1 GB, 16106127360 bytes
@@ -168,13 +168,13 @@ root@ubuntu:~#
 ```
 
 ### 重启虚拟机：
-```
+```bash
 root@ubuntu:~# shutdown -r now
 ```
 
 
 交换分区挂载需要UUID标识符。创建新的交换分区不会匹配旧的UUID，导致重启无法挂载swap分区。这里主要有两种解决方法：在/etc/fstab里写入新的UUID，或者直接将旧的UUID覆盖在新分区上，这里选择后者。 awk命令用来显示旧的UUID，dd命令确保分区没数据。
-```
+```bash
 cruz@ubuntu:~$ sudo bash
 [sudo] password for cruz: 
 root@ubuntu:~#  awk '/swap/ { print $1 }' /etc/fstab
@@ -204,7 +204,7 @@ root@ubuntu:~#
 ```
 
 ### 最后，调整分区大小：
-```
+```bash
 root@ubuntu:~# df -h
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1       9.0G  2.8G  5.8G  33% /

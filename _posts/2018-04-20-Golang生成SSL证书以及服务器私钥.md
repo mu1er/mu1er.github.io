@@ -17,7 +17,7 @@ BER 的一个子集。 DER 只提供了一种编码 ASN.1 值的方法，这种�
 生成证书的方法并不复杂,因为 SSL 证书实际上就是一个将扩展密钥用
 法（extended key usage）设置成了服务器身份验证操作的`X.509`证书
 ### 配置证书信息
-```
+```go
 //生成一个比较长的随机整数来做序列号
 max := new(big.Int).Lsh(big.NewInt(1), 128)
 seriaNumber := rand.Int(rand.Reader, max)
@@ -41,22 +41,22 @@ template := x509.Certificate{
 	}
 ```
 ### 生成 RSA 私钥
-```
+```go
 pk, _ := rsa.GenerateKey(rand.Reader, 2048)
 ```
 私钥结构里面包含了一个能够公开访问的公钥，随后创建SSL证书的时候会用到
-```
+```go
 derBytes, _ := x509.CreateCertificate(rand.Reader, &template, &template,&pk.PublicKey, pk)
 ```
 `CreateCertificate`函数接受`Certificate`结构、公钥和私钥等多个参数，创建出一个经过 DER 编码格式化的字节切片 。后续代码的意图也非常简单明了，它们首先使用`encoding/pem`标准库将证书编码到`cert.pem`文件里面
-```
+```go
 certOut, _ := os.Create("cert.pem")
 pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 certOut.Close()
 ```
 
 然后继续以 PEM 编码的方式把之前生成的密钥编码并保存到`key.pem`文件里面：
-```
+```go
 keyOut, _ := os.Create("key.pem")
 pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(pk)})
 keyOut.Close()
