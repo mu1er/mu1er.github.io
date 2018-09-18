@@ -1,5 +1,5 @@
 # Site settings 配置站点
-title: 'Auuu Nya's Blog' 
+title: "Auuu Nya's Blog" 
 description: '喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事'
 keyword: 'go, python, javascript, html, css, php,'
 url: 'http://mu1er.cn' # your host
@@ -18,8 +18,8 @@ footer:
   since: 2017
 
 # Author 配置博主信息
-author: 'Mu1er'
-nickname: '张阳阳_Auuu'
+author: 'Auuu Nya'
+nickname: 'Mu1er'
 bio: '喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事'
 avatar: '/assets/img/profile.jpg'
 
