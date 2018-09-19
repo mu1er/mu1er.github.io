@@ -8,19 +8,27 @@ layout: default
 <div class="g-banner tags-banner {{ site.postPatterns | prepend: 'post-pattern-' }} {{ site.theme-color | prepend: 'bgcolor-' }}" data-theme="{{ site.theme-color }}">
     <h2>Links List</h2>
 </div>
-
-<main class="tags-content" style="margin-top:1px">
-    <ul class="links-list">
-        {% for link in site.data.links %}
-        <li>
-            <a class="link-style" href="{{ link.url }}" title="{{ link.desc }}">{{ link.title }}  |  {{ link.desc }}</a>
-        </li>
-        {% endfor%}
-        <hr />
-        <li style="display: inline;">
-            <a class="team-style" href="https://moo.fish/" title="MooFish">MooFish--摸鱼俱乐部</a>
-        </li>
-    </ul>
-</main>
+<div class="row">
+    <main class="tags-content" style="margin-top:1px">
+        <ul class="links-list">
+            {% for link in site.data.links.friends %}
+            <li>
+                <a class="link-style" href="{{ link.url }}" title="{{ link.title }}">{{ link.title }}</a>
+            </li>
+            {% endfor%}
+        
+            <div class="clear">
+                <hr />
+            </div>
+            <ul class="group-list">
+                {% for group in site.data.links.groups %}
+                <li>
+                    <a class="team-style" href="{{ group.url }}" title="{{ group.title }}">{{ group.title }}</a>
+                {% endfor%}
+                </li>
+            </ul>
+        </ul>
+    </main>
+</div>
     
 {% include footer.html %}
