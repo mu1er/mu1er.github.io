@@ -13,7 +13,7 @@ layout: default
         <ul class="links-list">
             {% for link in site.data.links.friends %}
             <li>
-                <a class="link-style" href="{{ link.url }}" title="{{ link.title }}">{{ link.title }}</a>
+                <a class="link-style" href="{{ link.url }}" title="{{ link.title }}" target="_blank">{{ link.title }}</a>
             </li>
             {% endfor%}
         
@@ -23,7 +23,7 @@ layout: default
             <ul class="group-list">
                 {% for group in site.data.links.groups %}
                 <li>
-                    <a class="team-style" href="{{ group.url }}" title="{{ group.title }}">{{ group.title }}</a>
+                    <a class="team-style" href="{{ group.url }}" title="{{ group.title }}" target="_blank">{{ group.title }}</a>
                 {% endfor%}
                 </li>
             </ul>
