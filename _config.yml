@@ -1,79 +1,26 @@
-# Site settings 配置站点
-title: "Auuu Nya's Blog" 
-description: '喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事'
-keyword: 'go, python, javascript, html, css, php,'
-url: 'http://mu1er.cn' # your host
+# Site settings
+name: Auuu Nya
+email: mu1er@qq.com
+author: Auuu Nya
+url: http://mu1er.com
+resume_site: https://github.com/mu1er
+github: https://github.com/mu1er/
+baseurl: "/mu1er"
+description: Actually, less is more!
+meta_description: Auuu Nya,Go,Python,HTML,Css,javascript
+motto: Auuu Nya Blog.
+banner: 选择自己所喜欢的,喜欢自己所选择的。
 
-# if you don't need baseurl, you should leave this value blank.
-baseurl: ''
+#permalink: /:categories/:year/:month/:day/:title/
+permalink: /:year/:month/:day/:title/
+paginate: 10
 
-# Navigation links
-nav:
-  home: '/'
-  tags: '/tags.html'
-  links: '/links.html'
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'Rakefile']
 
-# Footer
-footer:
-  since: 2017
-
-# Author 配置博主信息
-author: 'Auuu Nya'
-nickname: 'Mu1er'
-bio: '喜欢奇奇怪怪的东西，奇奇怪怪的人，奇奇怪怪的事'
-avatar: '/assets/img/profile.jpg'
-
-# Search
-search: true
-
-# Night mode
-nightMode: true
-
-# # Comments 评论功能
-# comments:
-#   disqus: false
-#   disqus_url: 'https://liaokeyu.disqus.com/embed.js'
-
-# MathJax 公式支持 by Ray-Eldath
-mathjax: true
-
-# Share
-social-share: false
-social-share-items: ['wechat', 'weibo', 'douban', 'twitter']
-
-# theme color 主题皮肤
-theme-color: 'default'  # pink or default
-
-# Post header background patterns (when the post no cover): circuitBoard, overlappingCircles, food, glamorous, ticTacToe, seaOfClouds
-postPatterns: 'circuitBoard'
-
-# SNS settings 配置社交网站
-# url: email, weibo, zhihu, twitter, instagram, juejin, github, douban, facebook, dribble, uicn, jianshu, medium, linkedin
-sns:
-  weibo: '//weibo.com/Ymalive'
-  github: '//github.com/mu1er'
-
-# Tags 设置标签
-recommend-tags: true # whether or not display recommend-tags on the sidebar
-recommend-condition-size: 12 # a tag will be recommended if the size of it is more than this value
+github_username: Mu1er
 
 # Build settings
-paginate: 6
-paginate_path: 'page:num'
-exclude: ['node_modules', 'dev', 'package.json', 'gulpfile.js', '.gitignore', 'README.md']
-
-# Markdown
 markdown: kramdown
-highlighter: rouge
-kramdown:
-  input: GFM
 
-# RSS
-RSS: false
+baidu_analysis: 94be4b0f9fc5d94cc0d0415ea6761ae9
 
-# Permalink
-# See: https://github.com/kaeyleo/jekyll-theme-H2O/issues/35
-permalink: /:year/:month/:day/:title.html
-
-# Plugins
-plugins: [jekyll-paginate]
