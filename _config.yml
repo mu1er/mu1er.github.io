@@ -1,12 +1,12 @@
 # Site settings
-name: Auuu Nya
+name: Auuu Nya Blog
 email: mu1er@qq.com
 author: Auuu Nya
 url: http://mu1er.com
 resume_site: https://github.com/mu1er
 github: https://github.com/mu1er/
 # baseurl: "/mu1er"
-description: Actually, less is more!
+description: I Like It!
 meta_description: Auuu Nya,Go,Python,HTML,Css,javascript
 motto: Auuu Nya Blog.
 banner: 选择自己所喜欢的,喜欢自己所选择的。
