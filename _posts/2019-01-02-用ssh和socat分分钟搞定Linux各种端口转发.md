@@ -1,11 +1,8 @@
-
------
-
+---
 layout: post
 title: 用ssh和socat分分钟搞定Linux各种端口转发
 tags: [linux,ssh]
-
------
+---
 
 ### 本地端口映射
 
