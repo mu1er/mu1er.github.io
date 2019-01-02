@@ -1,13 +1,16 @@
+
 -----
+
 layout: post
 title: 用ssh和socat分分钟搞定Linux各种端口转发
 tags: [linux,ssh]
+
 -----
 
 ### 本地端口映射
 
 小明写了一个Web服务，监听hosta上8080端口，小王现在想访问这个服务，有没有快速的方法? 
-[img](http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/2018-1-17/4.jpg)
+![img](http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/2018-1-17/4.jpg)
 
 其实很简单，小明只需要做这两件事情：
 
