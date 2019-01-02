@@ -16,7 +16,7 @@ tags: [linux,ssh]
 ```sh
 ssh -R 1080:localhost:8080 root@12.34.56.78
 ```
-这样，小王就可以愉快的用http://12.34.66.78:1080访问小明的服务了。
+这样，小王就可以愉快的用`http://12.34.66.78:1080`访问小明的服务了。
 
 远程Unix Socket映射
 除了将我们本地服务通过端口映射提供给其它人访问，我们还可以通过端口转发玩一些更high的。比如下面这条命令，它把监听在远程主机12.34.56.78上的mysql服务unix socket映射到本地的/var/run/mysqld.temp.sock，这样，小明就可以用mysql -S /var/run/mysqld/mysqld.temp.sock来访问远程主机的mysql服务了。
