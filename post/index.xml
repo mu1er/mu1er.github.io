@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Auuu Nya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-an</language>
-    <lastBuildDate>Wed, 02 Jan 2019 13:00:50 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 17 Jan 2019 15:35:55 +0800</lastBuildDate>
     
 	<atom:link href="http://mu1er.github.io/v/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Hello Hugo</title>
+      <link>http://mu1er.github.io/v/post/first/</link>
+      <pubDate>Thu, 17 Jan 2019 15:35:55 +0800</pubDate>
+      
+      <guid>http://mu1er.github.io/v/post/first/</guid>
+      <description>作为一个golang的半吊子开发人员，博客从Jekyll换成了Hugo。</description>
+    </item>
     
     <item>
       <title>用ssh和socat分分钟搞定Linux各种端口转发</title>
