@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-an">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  
+  <link rel="canonical" href="/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/" />
+  
+  <meta name="description" content="Git永久删除库中的文件">
+  
+  <title>
+	  
+	    Git永久删除库中的文件 | Auuu Nya Blog
+	  
+  </title>
+
+  
+  <meta property="og:site_name" content="Auuu Nya Blog" />
+  <meta property="og:locale" content="zh-an" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Git永久删除库中的文件" />
+  <meta property="og:description" content="Git永久删除库中的文件 | Auuu Nya Blog" />
+  <meta property="og:url" content="/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/" />
+  
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="/">Auuu Nya Blog</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="/" class="uk-button">Home</a>
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						Git永久删除库中的文件
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Sat, Mar 24, 2018 |  <a href="http://mu1er.github.io//tags/git" class="uk-button uk-button-mini">#git</a></p>
+
+          
+					<p>如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用<code>git rm</code>删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用<code>git clone</code>的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。</p>
+
+<h3 id="解决办法">解决办法</h3>
+
+<pre><code class="language-bash">#1. 确定文件从哪个commit引入的
+git log --pretty=oneline --branches -- bigfile
+
+#2. 让git重写每一个分支, 删除bigfile
+git filter-branch --force --index-filter \
+'git rm --cached --ignore-unmatch BIGFILE' \
+--prune-empty --tag-name-filter cat -- --all
+
+#3. 推送修改
+git push --all --force
+</code></pre>
+
+<h3 id="参数说明">参数说明</h3>
+
+<p><code>filter-branch</code> 是让git重写每一个分支，</p>
+
+<p><code>--force</code> 假如遇到冲突也让git强制执行， <code>--index-filter</code> 选项指定重写的时候应该执行什么命令，要执行的命令紧跟在它的后面，在这里就是<code>git rm --cached --ignore-unmatch bigfile</code> ，让git删除掉缓存的文件，如果有匹配的话。</p>
+
+<p><code>--prune-empty</code> 选项告诉git，如果因为重写导致某些<strong>commit</strong>变成了空（比如修改的文件全部被删除），那么忽略掉这个commit。</p>
+
+<p><code>--tag-name-filter</code> 表示对每一个tag如何重命名，重命名的命令紧跟在后面，当前的tag名会从标注输入送给后面的命令，用cat就表示保持tag名不变。</p>
+
+<p>紧跟着的<code>--</code> 表示分割符，最后的<code>--all</code> 表示对所有的文件都考虑在内。</p>
+          
+				</article>
+			</div>
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <ul class="uk-pagination">
+          
+            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">&lt; Previous</a></li>
+          
+          
+            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/">Next &gt;</a></li>
+          
+        </ul>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/">公钥操作&#43; git搭载新项目</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1">
+                      &copy; Copyright -2019  Auuu Nya
+                    </div>
+                    <div class="uk-width-1-1">
+                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+                    </div>
+                  </div>
+
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+</body>
+</html>
+
+
+

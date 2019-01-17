@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-an">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  
+  <link rel="canonical" href="/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/" />
+  
+  <meta name="description" content="Golang上传文件到七牛云">
+  
+  <title>
+	  
+	    Golang上传文件到七牛云 | Auuu Nya Blog
+	  
+  </title>
+
+  
+  <meta property="og:site_name" content="Auuu Nya Blog" />
+  <meta property="og:locale" content="zh-an" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Golang上传文件到七牛云" />
+  <meta property="og:description" content="Golang上传文件到七牛云 | Auuu Nya Blog" />
+  <meta property="og:url" content="/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/" />
+  
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="/">Auuu Nya Blog</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="/" class="uk-button">Home</a>
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						Golang上传文件到七牛云
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Tue, Feb 27, 2018 |  <a href="http://mu1er.github.io//tags/golang" class="uk-button uk-button-mini">#golang</a></p>
+
+          
+					<hr />
+
+<p>最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解</p>
+
+<hr />
+
+<h3 id="获取">获取</h3>
+
+<p>首先要获取的是七牛云官方的SDK</p>
+
+<pre><code class="language-go">go get -u github.com/qiniu/api.v7
+</code></pre>
+
+<h3 id="七牛云">七牛云</h3>
+
+<ul>
+<li><a href="https://www.qiniu.com/">七牛云</a>没有帐号的去注册一个帐号。</li>
+<li><a href="https://portal.qiniu.com/user/key">个人中心</a>有账号的直接进个人中心，去查看秘钥    AccessKey/SecretKey</li>
+</ul>
+
+<h3 id="代码">代码</h3>
+
+<p>一些常变量</p>
+
+<pre><code class="language-go">const (
+    //本地保存的文件夹名称
+    upload_path string = &quot;/files/&quot;
+)
+
+var (
+    //BUCKET是你在存储空间的名称
+    ACCESS_KEY = &quot;******EA09VCy5EfN_*******************&quot;
+    SECRET_KEY = &quot;******-yvwcYwImN6F*******************&quot;
+    BUCKET     = &quot;bucket&quot;
+)
+</code></pre>
+
+<h5 id="web-端代码"><code>WEB</code>端代码</h5>
+
+<p><strong>获取上传的文件</strong></p>
+
+<pre><code class="language-go">func uploadHandle(w http.ResponseWriter, r *http.Request) {
+    //从请求当中判断方法
+    if r.Method == &quot;GET&quot; {
+        tmp, err := template.ParseFiles(&quot;templates/upload.html&quot;)
+        if err != nil {
+            fmt.Println(&quot;模版渲染失败&quot;)
+        }
+        tmp.Execute(w, nil)
+    } else {
+        //获取文件内容 要这样获取
+        file, head, err := r.FormFile(&quot;file&quot;)
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+        defer file.Close()
+        //创建文件夹
+        pwd, _ := os.Getwd()
+        //文件夹存在的话会返回一个错误，可以用`_`抛出去
+        err = os.Mkdir(pwd+upload_path, os.ModePerm)
+        if err != nil {
+            fmt.Println(&quot;dir is create Error&quot;)
+        }
+        fW, err := os.Create(pwd + upload_path + head.Filename)
+        if err != nil {
+            fmt.Println(&quot;文件创建失败&quot;)
+            return
+        }
+        fmt.Println(*fW)
+        defer fW.Close()
+        //复制文件，保存到本地
+        _, err = io.Copy(fW, file)
+        if err != nil {
+            fmt.Println(&quot;文件保存失败&quot;)
+            return
+        }
+        //调用七牛上传函数
+        upload_qiniu(pwd + upload_path + head.Filename)
+        http.Redirect(w, r, &quot;/&quot;, http.StatusFound)
+    }
+}
+</code></pre>
+
+<p><strong>七牛云上传函数</strong></p>
+
+<pre><code class="language-go">func upload_qiniu(filePath string) {
+    key := &quot;github-x.png&quot;
+    //上传凭证,关于凭证这块大家可以去看看官方文档
+    putPolicy := storage.PutPolicy{
+        Scope: BUCKET,
+    }
+    mac := qbox.NewMac(ACCESS_KEY, SECRET_KEY)
+    upToken := putPolicy.UploadToken(mac)
+    cfg := storage.Config{}
+    //空间对应机房
+    //其中关于Zone对象和机房的关系如下：
+    //  机房  Zone对象
+    //  华东  storage.ZoneHuadong
+    //  华北  storage.ZoneHuabei
+    //  华南  storage.ZoneHuanan
+    //  北美  storage.ZoneBeimei
+    //七牛云存储空间设置首页有存储区域
+    cfg.Zone = &amp;storage.ZoneHuanan
+    //不启用HTTPS域名
+    cfg.UseHTTPS = false
+    //不使用CND加速
+    cfg.UseCdnDomains = false
+    //构建上传表单对象
+    formUploader := storage.NewFormUploader(&amp;cfg)
+    ret := storage.PutRet{}
+    // 可选
+    putExtra := storage.PutExtra{
+        Params: map[string]string{
+            &quot;x:name&quot;: &quot;github logo&quot;,
+        },
+    }
+    err := formUploader.PutFile(context.Background(), &amp;ret, upToken, key, filePath, &amp;putExtra)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    fmt.Println(ret.Key, ret.Hash)
+}
+</code></pre>
+
+<ul>
+<li><strong>整个代码最主要的是存储在本地的路径，然后在上传函数里面读取路径上传文件</strong></li>
+<li><strong>可能还会有其他的方便，快捷的方法，我也还在摸索中，这个算是这几天学习的一个总结，后续还会修改代码，做一些扩展</strong></li>
+<li><a href="https://github.com/ma1ive/Go/blob/master/qiniu/main.go">完整代码地址</a></li>
+</ul>
+          
+				</article>
+			</div>
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <ul class="uk-pagination">
+          
+            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/">&lt; Previous</a></li>
+          
+          
+            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">Next &gt;</a></li>
+          
+        </ul>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/">用Go编写封装自己的日志模块</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Golang生成静态页面文件</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/">Golang生成SSL证书以及服务器私钥</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">Golang基础学习整理</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/">Go语言扫描硬盘查找自己需要的文件</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Golang文件夹遍历Demo</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1">
+                      &copy; Copyright -2019  Auuu Nya
+                    </div>
+                    <div class="uk-width-1-1">
+                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+                    </div>
+                  </div>
+
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+</body>
+</html>
+
+
+
