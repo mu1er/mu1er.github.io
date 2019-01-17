@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-an">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  
+  <link rel="canonical" href="/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" />
+  
+  <meta name="description" content="CentOS 7安装jekyll静态博客并通过git自动发布">
+  
+  <title>
+	  
+	    CentOS 7安装jekyll静态博客并通过git自动发布 | Auuu Nya Blog
+	  
+  </title>
+
+  
+  <meta property="og:site_name" content="Auuu Nya Blog" />
+  <meta property="og:locale" content="zh-an" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CentOS 7安装jekyll静态博客并通过git自动发布" />
+  <meta property="og:description" content="CentOS 7安装jekyll静态博客并通过git自动发布 | Auuu Nya Blog" />
+  <meta property="og:url" content="/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" />
+  
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="/">Auuu Nya Blog</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="/" class="uk-button">Home</a>
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						CentOS 7安装jekyll静态博客并通过git自动发布
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Wed, Jan 17, 2018 |  <a href="http://mu1er.github.io/tags/jekyll" class="uk-button uk-button-mini">#jekyll</a></p>
+
+          
+					<h3 id="通过scl安装ruby-2-3">通过SCL安装Ruby 2.3</h3>
+
+<p>jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:</p>
+
+<pre><code class="language-bash"># 1. Install a package with repository for your system:
+# On CentOS, install package centos-release-scl available in CentOS repository:
+yum install centos-release-scl
+
+# 2. Install the collection:
+yum install rh-ruby23
+
+# 3. Show available connections
+scl --list
+</code></pre>
+
+<h3 id="jekyll安装">jekyll安装</h3>
+
+<pre><code class="language-bash"># 1. 启用 ruby2.3环境
+scl enable rh-ruby23 bash
+
+# 2. 安装jekyll及插件
+gem install jekyll jekyll-paginate
+</code></pre>
+
+<h3 id="jekyll主题">jekyll主题</h3>
+
+<p>我们使用的主题来自 <a href="http://huxpro.github.io/">huxpro.github.io</a>，并做了定制 可以从<a href="https://github.com/Huxpro/huxpro.github.io">github</a>下载，效果图如下：
+<img src="http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/1.jpg" alt="" /></p>
+
+<h3 id="nginx服务设置">nginx服务设置</h3>
+
+<pre><code class="language-bash">#安装nginx
+yum install -y nginx
+
+#创建nginx的root目录
+mkdir -p /var/www/html
+
+#设置nginx根目录对于git服务可写
+chown -R git.git /var/www/html
+# /etc/nginx/nginx.conf
+#
+# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /run/nginx.pid;
+
+# Load dynamic modules. See /usr/share/nginx/README.dynamic.
+include /usr/share/nginx/modules/*.conf;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    log_format main     '[$time_local] $remote_addr $server_name &quot;$request&quot; '
+                        '$status $body_bytes_sent &quot;$http_referer&quot; '
+                        '&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot; '
+                        '$upstream_addr $request_time $upstream_response_time';
+    #log_format  main  '$remote_addr - $remote_user [$time_local] &quot;$request&quot; '
+    #                  '$status $body_bytes_sent &quot;$http_referer&quot; '
+    #                  '&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf;
+
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        root         /usr/share/nginx/html;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+            root         /var/www/html;
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
+}
+</code></pre>
+
+<h3 id="git服务设置">git服务设置</h3>
+
+<pre><code class="language-bash"># 添加git用户, 并将shell设置为git-shell
+useradd git --shell /usr/bin/git-shell
+
+# 创建git仓库
+mkdir -p /home/git/blog.git
+git init --bare /home/git/blog.git
+chown -R git.git /home/git/blog.git
+
+#!/bin/bash
+# hooks/post-receive
+
+scl enable rh-ruby23 - &lt;&lt; \EOF
+git clone /home/git/blog.git /tmp/tmp-blog-build-repo
+jekyll build -s /tmp/tmp-blog-build-repo -d /var/www/html
+EOF
+
+rm -Rf /tmp/tmp-blog-build-repo
+exit
+</code></pre>
+          
+				</article>
+			</div>
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <ul class="uk-pagination">
+          
+            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/">&lt; Previous</a></li>
+          
+          
+            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/">Next &gt;</a></li>
+          
+        </ul>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1">
+                      &copy; Copyright -2019  Auuu Nya
+                    </div>
+                    <div class="uk-width-1-1">
+                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+                    </div>
+                  </div>
+
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+</body>
+</html>
+
+
+

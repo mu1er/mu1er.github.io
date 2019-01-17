@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-an">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  
+  <link rel="canonical" href="/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/" />
+  
+  <meta name="description" content="Golang基础学习整理">
+  
+  <title>
+	  
+	    Golang基础学习整理 | Auuu Nya Blog
+	  
+  </title>
+
+  
+  <meta property="og:site_name" content="Auuu Nya Blog" />
+  <meta property="og:locale" content="zh-an" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Golang基础学习整理" />
+  <meta property="og:description" content="Golang基础学习整理 | Auuu Nya Blog" />
+  <meta property="og:url" content="/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/" />
+  
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="/">Auuu Nya Blog</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="/" class="uk-button">Home</a>
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						Golang基础学习整理
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Wed, Feb 28, 2018 |  <a href="http://mu1er.github.io/tags/golang" class="uk-button uk-button-mini">#golang</a></p>
+
+          
+					<ol>
+<li><code>iota</code> iota是golang的一个关键字，此关键字用来声明enum的时候采用，默认从0开始，每遇到一个类似const就会重置为0。</li>
+<li>通过开头字母大小写来实现变量和函数的公有私有。例:
+<code>go
+//共有
+var Name string
+//私有
+var name string
+</code></li>
+</ol>
+
+<ol>
+<li>将数组作为函数参数进行传递时，实际传入的是该数组的副本。</li>
+<li>由于初始化数组时无法预知定义多大的空间，就需要使用类似动态数组的结构，go语言中采用<code>slice</code>来实现数组的切片，类似<strong>python</strong>中的切片，
+<code>slice</code>是一个引用类型，它总是指向一个底层的<strong>array</strong>，<code>slice</code>的声明类似<strong>array</strong>，只是不需要长度。当引用改变其中的元素时，其他所有的引用也会相应改变。
+常用内置函数: <strong>len</strong>获取长度，<strong>cap</strong>获取容量，<strong>append</strong>追加元素，并返回一个和<code>slice</code>一样类型的<code>slice</code>，<strong>copy</strong>函数从源<code>slice</code>的<strong>src</strong>中复制元素到目标dst，并且返回复制的元素个数。</li>
+<li>map类似python中的字典，格式为map[keyType]valueType。map无序，必须通过key去获取。长度不固定，是一种引用类型。len函数
+map不是安全的，在多个goroutine中使用时必须使用mutex lock</li>
+<li>make用于内建类型（map，slice，channel）的内存分配。new用于各种类型的内存分配。</li>
+<li>go中<code>switch</code>默认相当于每个<code>case</code>后面都加了<code>break</code>。但是可以通过加<code>fallthrough</code>强制执行后后面的代码。</li>
+<li><code>main</code>函数和<code>init</code>函数，在定义时不能有任何参数和返回值。</li>
+<li>导入包时加前缀_是为了引入该包，而不直接使用包里面的函数，只是调用包中的init函数。</li>
+<li><code>interface</code>是一组method签名的集合，可以通过<code>interface</code>来定义对象的一组行为。若某个对象实现了某个接口的所有方法，那么这个对象就实现了此接口。如果定义一个interface的变量，那么这个变量里面可以存实现这个interface的任意类型的对象。空interface可以存储任何类型的数值。
+element.(type)只能在switch中使用，其他地方不能使用。</li>
+<li>golang中的反射机制，就是能够检查程序在运行时的状态。</li>
+</ol>
+
+<h3 id="函数声明">函数声明</h3>
+
+<p>func 函数名(参数列表)(返回值列表){
+//函数体
+}</p>
+
+<h5 id="变量声明">变量声明</h5>
+
+<ul>
+<li>var 变量名 类型 = 表达式(类型和表达式可以省略其中一个)</li>
+
+<li><p>多个变量声明:
+var (
+变量名 类型
+变量名 类型
+)</p>
+
+<h5 id="赋值">赋值</h5>
+
+<p>变量 = 表达式
+<code>_</code>可以丢弃不需要的值</p>
+
+<h5 id="常量">常量</h5>
+
+<p>const 常量名 = 表达式
+const(
+常量名 类型
+常量名 类型
+)
+批量声明的常量，除第一个外其它的常量的右边的初始化表达式都可以省略，默认使用前面常量的初始化表达式写法
+<code>iota</code>常用语定义枚举值
+&gt; 总结:var 声明变量，const声明常量。声明时可以带类型。也可以不带类型，通过右推断.</p></li>
+</ul>
+
+<h5 id="位运算">位运算</h5>
+
+<ul>
+<li><code>&amp;</code> 位与and (左侧和右侧都为1，则为1；否则为0)</li>
+<li><code>|</code> 位或 or(左侧或右侧只要有一个为1，结果为1；都为0结果才为0)</li>
+<li><code>^</code> 位异或 xor (相同为0，不同为1)</li>
+<li><code>&amp;^</code> 位清空and not(右侧是0，左侧数不变;右侧是1，则左侧数清零)</li>
+<li><code>&lt;&lt;</code> 左移</li>
+
+<li><p><code>&gt;&gt;</code> 右移</p>
+
+<h5 id="指针">指针</h5>
+
+<p>var 变量名 <code>*类型</code></p>
+
+<pre><code>eg:var ptr [MAX]*int    //指向数组的指针
+/*
+默认值 nil,没有NULL值
+&quot;&amp;&quot;取变量地址,“*”通过指针访问目标对象
+不能对指针做加减乘除运算
+不存在函数的指针
+*/
+var ptr *[3]int      //数组指针,保存了一个数组地址
+var ptr [3]*int      //指针数组,每元素都是指针
+</code></pre>
+
+<h5 id="type自定义类型">type自定义类型</h5>
+
+<p>type 类型名字 底层类型</p>
+
+<h5 id="switch">Switch</h5>
+
+<p>只有在case中明确添加<strong>fallthrough</strong>关键字，才会继续执行下一个case
+不带条件表达式的<code>Switch</code>与<strong>if&hellip;else</strong>相同，遇到<code>false</code>停止</p>
+
+<h5 id="数组">数组</h5>
+
+<pre><code class="language-go">var 数组名 [长度]类型
+</code></pre>
+
+<h6 id="数组切片">数组切片</h6>
+
+<pre><code class="language-go">var 数组切片 []类型      //声明无需定义长度
+</code></pre>
+
+<p>直接创建切片</p>
+
+<pre><code class="language-go">make([]Type,len[,cap])
+</code></pre>
+
+<p>切片可遍历，可修改，不可比较</p>
+
+<pre><code class="language-go">slice.copy(slice1,slice2)    //slice2赋值给slice1
+```go
+包       功能
+`strings`  提供了字符串查询、替换、比较、截断、拆分和合并等功能。
+`bytes`    提供了很多与strings包类似的功能。因为字符串是只读的，逐步构建字符串会导致很多分配和复制，这种情况下，使用bytes.Buffer类型将会更有效。
+`strconv`  提供了布尔类型、整数、浮点数和对应字符串的相互转换，还提供了双引号转义相关的转换。
+`unicode`  提供了IsDigit、IsLetter、IsUpper和IsLower等功能，用于给字符分类。
+##### 映射
+声明:var 映射名称 map[键]值
+只是声明一个map，它的初始值是nil，也就是没有引用任何哈希表。所以不能向一个nil值的map存入元素
+创建:
+```go
+make(map[string]int)
+make(map[string]int,100)  //初始存储能力100
+make(map[string]int{&quot;key&quot;:value,&quot;key&quot;:value})
+//添加
+Map[&quot;key&quot;]=value
+//删除
+delete(map,&quot;key&quot;)
+//查看是否存在此key
+if v,ok := Map[key];!ok{
+not key
+}
+</code></pre>
+
+<h5 id="函数">函数</h5>
+
+<p>func 函数名([形参列表])[返回值列表]{
+//函数体
+}</p>
+
+<h6 id="可变参数">可变参数</h6>
+
+<p>可接收任意数量的该类型参数
+func Sum(vals &hellip;int)int{
+//函数体
+}</p>
+
+<h6 id="错误处理">错误处理</h6>
+
+<p>func Foo(参数列表)(res list,err error){
+//&hellip;
+}
+<code>defer</code>通常用于 <strong>open/close</strong>, <strong>connect/disconnect</strong>, <strong>lock/unlock</strong> 等这些成对的操作, 来保证在任何情况下资源都被正确释放</p>
+
+<h5 id="结构体">结构体</h5>
+
+<pre><code class="language-go">type 类型名称 struct{
+//成员列表
+}
+</code></pre>
+
+<h6 id="方法">方法</h6>
+
+<pre><code class="language-go">func  (变量名 类型)方法名称( [形参列表] ) [返回值列表]{
+// 方法体
+}
+</code></pre>
+
+<h6 id="接口-interface">接口 <code>interface</code></h6>
+
+<p>一个类型如果拥有一个接口需要的所有方法，那么这个类型就实现了这个接口。</p></li>
+</ul>
+          
+				</article>
+			</div>
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <ul class="uk-pagination">
+          
+            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/">&lt; Previous</a></li>
+          
+          
+            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/">Next &gt;</a></li>
+          
+        </ul>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/">用Go编写封装自己的日志模块</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Golang生成静态页面文件</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/">Golang生成SSL证书以及服务器私钥</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/">Golang上传文件到七牛云</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/">Go语言扫描硬盘查找自己需要的文件</a></li>
+              
+            
+              
+              
+              
+                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Golang文件夹遍历Demo</a></li>
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1">
+                      &copy; Copyright -2019  Auuu Nya
+                    </div>
+                    <div class="uk-width-1-1">
+                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+                    </div>
+                  </div>
+
+				</div>
+				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+</body>
+</html>
+
+
+
