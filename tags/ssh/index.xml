@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ssh on Auuu Nya Blog</title>
-    <link>http://mu1er.github.io/v/tags/ssh/</link>
+    <link>http://mu1er.github.io/tags/ssh/</link>
     <description>Recent content in Ssh on Auuu Nya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-an</language>
     <lastBuildDate>Wed, 02 Jan 2019 13:00:50 +0800</lastBuildDate>
     
-	<atom:link href="http://mu1er.github.io/v/tags/ssh/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://mu1er.github.io/tags/ssh/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>用ssh和socat分分钟搞定Linux各种端口转发</title>
-      <link>http://mu1er.github.io/v/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</link>
+      <link>http://mu1er.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</link>
       <pubDate>Wed, 02 Jan 2019 13:00:50 +0800</pubDate>
       
-      <guid>http://mu1er.github.io/v/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</guid>
+      <guid>http://mu1er.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</guid>
       <description>&lt;h3 id=&#34;本地端口映射&#34;&gt;本地端口映射&lt;/h3&gt;
 
 &lt;p&gt;小明写了一个Web服务，监听hosta上8080端口，小王现在想访问这个服务，有没有快速的方法?
