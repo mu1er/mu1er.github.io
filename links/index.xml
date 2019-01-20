@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Links on Auuu Nya Blog</title>
+    <link>https://mu1er.github.io/links/</link>
+    <description>Recent content in Links on Auuu Nya Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-an</language>
+    <lastBuildDate>Sat, 19 Jan 2019 23:43:26 +0800</lastBuildDate>
+    
+	<atom:link href="https://mu1er.github.io/links/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Links</title>
+      <link>https://mu1er.github.io/links/links/</link>
+      <pubDate>Sat, 19 Jan 2019 23:43:26 +0800</pubDate>
+      
+      <guid>https://mu1er.github.io/links/links/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
