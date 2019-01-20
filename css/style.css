@@ -7,6 +7,9 @@ html, body {
   border-bottom-style: dotted;
 }
 */
+.uk-block-muted{
+	background: #CCCCCC;
+}
 #header .uk-float-left a {
   color: rgb(85, 85, 85);
   border-bottom-style: none;
@@ -36,4 +39,86 @@ html, body {
 :not(pre) > code {
   padding: 1px 3px 1px 3px;
 	background-color: #f5f5f5;
+}
+
+/*
+友情链接样式
+*/
+
+.friends {
+	display: flex;
+	flex-wrap: wrap;
+}
+.friends .a-friend {
+	display: flex;
+	margin: 10px;
+	text-decoration: none;
+	font-weight: 300;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	transition: box-shadow 0.2s, transform 0.2s;
+}
+.friends .a-friend:hover {
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+
+/*
+标签链接样式
+*/
+
+.all-tags {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+}
+.all-tags .tags-style {
+	display: flex;
+	margin: 10px;
+	text-decoration: none;
+	font-weight: 300;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	transition: box-shadow 0.2s, transform 0.2s;
+	border-radius: 50%;
+}
+.all-tags .tags-style:hover {
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.text-container a:link{
+	color: black;
+	text-decoration: none;
+}
+
+.all-tags .tags-style .text-container{
+	font-size: 14px;
+	color:black;
+}
+
+/*
+Tags CSS Style
+*/
+.taxonomy{
+	margin-top: 10%;
+}
+.all-taxonomies ul{
+	list-style: none;
+}
+.all-taxonomies .tags-header{
+	color:#AAAAAA;
+}
+.all-taxonomies .tags-header:hover{
+	color: black;
+}
+.all-taxonomies .tags-title{
+	font-size: 16px;
+}
+.all-taxonomies .tags-title-space{
+	margin-top:1rem;
+}
+.all-taxonomies .tags-data{
+	float: right;
+	margin-right: 10%;
+	font-size: 12px;
+	color: #888888;
 }
