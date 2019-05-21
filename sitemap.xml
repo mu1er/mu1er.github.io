@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://mu1er.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</loc>
+    <lastmod>2019-05-21T22:45:12+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://mu1er.github.io/tags/tags/</loc>
     <lastmod>2019-01-19T23:43:39+08:00</lastmod>
   </url>
@@ -115,13 +120,19 @@
   
   <url>
     <loc>https://mu1er.github.io/</loc>
-    <lastmod>2019-01-19T23:43:39+08:00</lastmod>
+    <lastmod>2019-05-21T22:45:12+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://mu1er.github.io/tags/avater/</loc>
     <lastmod>2018-02-13T17:58:36+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://mu1er.github.io/tags/elementui/</loc>
+    <lastmod>2019-05-21T22:45:12+08:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -175,7 +186,7 @@
   
   <url>
     <loc>https://mu1er.github.io/post/</loc>
-    <lastmod>2019-01-17T15:35:55+08:00</lastmod>
+    <lastmod>2019-05-21T22:45:12+08:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -206,6 +217,12 @@
   <url>
     <loc>https://mu1er.github.io/tags/</loc>
     <lastmod>2018-02-13T17:58:36+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://mu1er.github.io/tags/vue/</loc>
+    <lastmod>2019-05-21T22:45:12+08:00</lastmod>
     <priority>0</priority>
   </url>
   
