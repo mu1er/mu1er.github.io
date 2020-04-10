@@ -1,75 +1,83 @@
 <!DOCTYPE html>
-<html lang="zh-an">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="//www.google-analytics.com" />
-  
-  <link rel="canonical" href="/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/" />
-  
-  <meta name="description" content="XMLHTTPRequest状态status完整列表">
-  
-  <title>
-	  
-	    XMLHTTPRequest状态status完整列表 | Auuu Nya Blog
-	  
-  </title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>XMLHTTPRequest状态status完整列表 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="XMLHTTPRequest状态status完整列表" />
+<meta property="og:description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）
+Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
+  状态行包含HTTP版本、状态代码、与状态代码对应的简短说明信息。在大多数情况下，除了Content-Type之外的所有应答头都是可选的。但Content-Type是必需的，它描述的是后面文档的MIME类型。虽然大多数应答都包含一个文档，但也有一些不包含，例如对HEAD请求的应答永远不会附带文档。有许多状态代码实际上用来标识一次失败的请求，这些应答也不包含文档（或只包含一个简短的错误信息说明）。
+　　当用户试图通过 HTTP 访问一台正在运行 Internet 信息服务 (IIS) 的服务器上的内容时，IIS 返回一个表示该请求的状态的数字代码。状态代码可以指明具体请求是否已成功，还可以揭示请求失败的确切原因。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mu1er.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/" /><meta property="article:published_time" content="2018-04-05T12:58:36&#43;08:00"/>
+<meta property="article:modified_time" content="2018-04-05T12:58:36&#43;08:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="XMLHTTPRequest状态status完整列表"/>
+<meta name="twitter:description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）
+Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
+  状态行包含HTTP版本、状态代码、与状态代码对应的简短说明信息。在大多数情况下，除了Content-Type之外的所有应答头都是可选的。但Content-Type是必需的，它描述的是后面文档的MIME类型。虽然大多数应答都包含一个文档，但也有一些不包含，例如对HEAD请求的应答永远不会附带文档。有许多状态代码实际上用来标识一次失败的请求，这些应答也不包含文档（或只包含一个简短的错误信息说明）。
+　　当用户试图通过 HTTP 访问一台正在运行 Internet 信息服务 (IIS) 的服务器上的内容时，IIS 返回一个表示该请求的状态的数字代码。状态代码可以指明具体请求是否已成功，还可以揭示请求失败的确切原因。"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-  
-  <meta property="og:site_name" content="Auuu Nya Blog" />
-  <meta property="og:locale" content="zh-an" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="XMLHTTPRequest状态status完整列表" />
-  <meta property="og:description" content="XMLHTTPRequest状态status完整列表 | Auuu Nya Blog" />
-  <meta property="og:url" content="/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/" />
-  
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="shortcut icon" href="/images/favicon.ico" />
-  <link rel="bookmark"href="/images/favicon.ico" />
+	
+	<script src="https://mu1er.github.io/js/main.js"></script>
+	<script src="https://mu1er.github.io/js/abc.js"></script>
+	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
-	<div class="uk-block uk-block-large uk-block-muted">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-          <div id="header" class="clearfix">
-            <div class="uk-float-left">
-              <h2><a href="/">Auuu Nya Blog</a></h2>
-              <p>只会写Hello,World的菜鸟</p>
-            </div>
-            <div class="uk-float-right">
-              <a href="/" class="uk-button">Home</a>
-              <a href="/tags" class="uk-button">Tag</a>
-              <a href="/links" class="uk-button">Link</a>
-              <a href="/about/about" class="uk-button">About</a>
-            </div>
-          </div>
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
 	</div>
 
-<div class="uk-block uk-block-default">
-	<div class="uk-container uk-container-center">
-		<div class="uk-grid">
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-				<article class="uk-article">
-					<h1 class="uk-article-title" style="font-size: 23px;">
-						XMLHTTPRequest状态status完整列表
-					</h1>
-					
-					<p class="uk-article-meta">Posted on Thu, Apr 5, 2018 |  <a href="http://mu1er.github.io//tags/#http://mu1er.github.io/tags/http/" class="uk-button uk-button-mini">#HTTP</a></p>
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
 
-          
-					<p>AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+
+		<div class="post-header">
+			<h1 class="title">XMLHTTPRequest状态status完整列表</h1>
+			<div class="meta">Posted at &mdash; Apr 5, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<p>AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）
 Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
   状态行包含HTTP版本、状态代码、与状态代码对应的简短说明信息。在大多数情况下，除了Content-Type之外的所有应答头都是可选的。但Content-Type是必需的，它描述的是后面文档的MIME类型。虽然大多数应答都包含一个文档，但也有一些不包含，例如对HEAD请求的应答永远不会附带文档。有许多状态代码实际上用来标识一次失败的请求，这些应答也不包含文档（或只包含一个简短的错误信息说明）。
@@ -203,253 +211,41 @@ Web服务器响应浏览器或其他客户程序的请求时，其应答一般�
 <li>504 - Gateway Timeout 网关超时，由作为代理或网关的服务器使用，表示不能及时地从远程服务器获得应答。（HTTP 1.1新）。</li>
 <li>505 - HTTP Version Not Supported 服务器不支持请求中所指明的HTTP版本。</li>
 </ul>
-          
-				</article>
-			</div>
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
 		</div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <ul class="uk-pagination">
-          
-            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/">&lt; Previous</a></li>
-          
-          
-            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/">Next &gt;</a></li>
-          
-        </ul>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
-          <h3 class="uk-panel-title">Related Posts</h3>
-          
-          
-          <ul class="uk-list uk-list-striped">
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-          </ul>
-        </div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div id="disqus_thread" data-uk-scrollspy></div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-	</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/http">HTTP</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
 </div>
 
-	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-                  <div class="uk-grid">
-                    <div class="uk-width-1-1">
-                      &copy; Copyright -2019  <a href="/">Auuu Nya Blog</a> 
-                    </div>
-                    <div class="uk-width-1-1">
-                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
-                    </div>
-                  </div>
-
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
-	</div>
-
-	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
-	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
-	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
-	<script>hljs.initHighlightingOnLoad();</script>
 
 
-
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 </body>
 </html>
-
-
-

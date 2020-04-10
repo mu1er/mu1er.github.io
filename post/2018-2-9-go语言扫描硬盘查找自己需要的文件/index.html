@@ -1,75 +1,85 @@
 <!DOCTYPE html>
-<html lang="zh-an">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="//www.google-analytics.com" />
-  
-  <link rel="canonical" href="/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/" />
-  
-  <meta name="description" content="Go语言扫描硬盘查找自己需要的文件">
-  
-  <title>
-	  
-	    Go语言扫描硬盘查找自己需要的文件 | Auuu Nya Blog
-	  
-  </title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Go语言扫描硬盘查找自己需要的文件 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Go语言扫描硬盘查找自己需要的文件" />
+<meta property="og:description" content="用到的包
 
-  
-  <meta property="og:site_name" content="Auuu Nya Blog" />
-  <meta property="og:locale" content="zh-an" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="Go语言扫描硬盘查找自己需要的文件" />
-  <meta property="og:description" content="Go语言扫描硬盘查找自己需要的文件 | Auuu Nya Blog" />
-  <meta property="og:url" content="/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/" />
-  
+regexp
+os
+string
+strconv" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/" /><meta property="article:published_time" content="2018-02-09T16:05:36&#43;08:00"/>
+<meta property="article:modified_time" content="2018-02-09T16:05:36&#43;08:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Go语言扫描硬盘查找自己需要的文件"/>
+<meta name="twitter:description" content="用到的包
 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="shortcut icon" href="/images/favicon.ico" />
-  <link rel="bookmark"href="/images/favicon.ico" />
+regexp
+os
+string
+strconv"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
+
+	
+	<script src="https://mu1er.github.io/js/main.js"></script>
+	<script src="https://mu1er.github.io/js/abc.js"></script>
+	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
-	<div class="uk-block uk-block-large uk-block-muted">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-          <div id="header" class="clearfix">
-            <div class="uk-float-left">
-              <h2><a href="/">Auuu Nya Blog</a></h2>
-              <p>只会写Hello,World的菜鸟</p>
-            </div>
-            <div class="uk-float-right">
-              <a href="/" class="uk-button">Home</a>
-              <a href="/tags" class="uk-button">Tag</a>
-              <a href="/links" class="uk-button">Link</a>
-              <a href="/about/about" class="uk-button">About</a>
-            </div>
-          </div>
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
 	</div>
 
-<div class="uk-block uk-block-default">
-	<div class="uk-container uk-container-center">
-		<div class="uk-grid">
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-				<article class="uk-article">
-					<h1 class="uk-article-title" style="font-size: 23px;">
-						Go语言扫描硬盘查找自己需要的文件
-					</h1>
-					
-					<p class="uk-article-meta">Posted on Fri, Feb 9, 2018 |  <a href="http://mu1er.github.io//tags/#http://mu1er.github.io/tags/golang/" class="uk-button uk-button-mini">#golang</a></p>
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
 
-          
-					<h3 id="用到的包">用到的包</h3>
+
+		<div class="post-header">
+			<h1 class="title">Go语言扫描硬盘查找自己需要的文件</h1>
+			<div class="meta">Posted at &mdash; Feb 9, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<h3 id="用到的包">用到的包</h3>
 
 <p><a href="https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.4.html">regexp</a>
 <a href="https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter06/06.1.html">os</a>
@@ -77,320 +87,88 @@
 <a href="https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.3.html">strconv</a></p>
 
 <h3 id="扫描路径函数">扫描路径函数</h3>
-
-<pre><code class="language-go">func getFilelist(path string,re string){
-    err:=filepath.Walk(path,func (path string,f os.FileInfo,err error) error {
-        if (f==nil){return err}
-        if f.IsDir(){return nil}
-        fmt.Println(path)
-        //正则匹配路径名和需要查找的文件名
-        ok,_:=regexp.MatchString(re,path)
-        if ok{
-                list=append(list,path)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">getFilelist</span>(path <span style="color:#dc322f">string</span>,re <span style="color:#dc322f">string</span>){
+    err<span style="color:#719e07">:=</span>filepath.<span style="color:#268bd2">Walk</span>(path,<span style="color:#268bd2">func</span> (path <span style="color:#dc322f">string</span>,f os.FileInfo,err <span style="color:#dc322f">error</span>) <span style="color:#dc322f">error</span> {
+        <span style="color:#719e07">if</span> (f<span style="color:#719e07">==</span><span style="color:#cb4b16">nil</span>){<span style="color:#719e07">return</span> err}
+        <span style="color:#719e07">if</span> f.<span style="color:#268bd2">IsDir</span>(){<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>}
+        fmt.<span style="color:#268bd2">Println</span>(path)
+        <span style="color:#586e75">//正则匹配路径名和需要查找的文件名
+</span><span style="color:#586e75"></span>        ok,_<span style="color:#719e07">:=</span>regexp.<span style="color:#268bd2">MatchString</span>(re,path)
+        <span style="color:#719e07">if</span> ok{
+                list=<span style="color:#b58900">append</span>(list,path)
         }
-        WriteFile(list)
-        //for k,v:=range list{
-        //  fmt.Println(k,&quot;==&gt; 查找路径:&quot;,v)
-        //}
-        return nil
+        <span style="color:#268bd2">WriteFile</span>(list)
+        <span style="color:#586e75">//for k,v:=range list{
+</span><span style="color:#586e75"></span>        <span style="color:#586e75">//  fmt.Println(k,&#34;==&gt; 查找路径:&#34;,v)
+</span><span style="color:#586e75"></span>        <span style="color:#586e75">//}
+</span><span style="color:#586e75"></span>        <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
     })
-    if err!=nil{
-        fmt.Printf(&quot;filepath.Walk() returned %v\n&quot;,err)
+    <span style="color:#719e07">if</span> err<span style="color:#719e07">!=</span><span style="color:#cb4b16">nil</span>{
+        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;filepath.Walk() returned %v\n&#34;</span>,err)
     }
-}
-</code></pre>
-
+}</code></pre></div>
 <h3 id="写入文件保存">写入文件保存</h3>
-
-<pre><code class="language-go">func WriteFile(file []string){
-    //保存文件名
-    filename:=&quot;./output.txt&quot;
-    //判断文件是否存在，存在即删除
-    _,err := os.Stat(filename)
-    if err == nil{
-        os.Remove(filename)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">WriteFile</span>(file []<span style="color:#dc322f">string</span>){
+    <span style="color:#586e75">//保存文件名
+</span><span style="color:#586e75"></span>    filename<span style="color:#719e07">:=</span><span style="color:#2aa198">&#34;./output.txt&#34;</span>
+    <span style="color:#586e75">//判断文件是否存在，存在即删除
+</span><span style="color:#586e75"></span>    _,err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Stat</span>(filename)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span>{
+        os.<span style="color:#268bd2">Remove</span>(filename)
     }
-    //打开此文件
-    fd,_:=os.OpenFile(filename,os.O_RDWR|os.O_CREATE|os.O_APPEND,0644)
-    //循环值并且转换类型
-    for k,v:=range file{
-        content:=strings.Join([]string{strconv.Itoa(k),&quot;==&gt; 查找路径:&quot;,v,&quot;\n&quot;},&quot;&quot;)
-        buf:=[]byte(content)
-        fd.Write(buf)
+    <span style="color:#586e75">//打开此文件
+</span><span style="color:#586e75"></span>    fd,_<span style="color:#719e07">:=</span>os.<span style="color:#268bd2">OpenFile</span>(filename,os.O_RDWR|os.O_CREATE|os.O_APPEND,<span style="color:#2aa198">0644</span>)
+    <span style="color:#586e75">//循环值并且转换类型
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> k,v<span style="color:#719e07">:=</span><span style="color:#719e07">range</span> file{
+        content<span style="color:#719e07">:=</span>strings.<span style="color:#268bd2">Join</span>([]<span style="color:#dc322f">string</span>{strconv.<span style="color:#268bd2">Itoa</span>(k),<span style="color:#2aa198">&#34;==&gt; 查找路径:&#34;</span>,v,<span style="color:#2aa198">&#34;\n&#34;</span>},<span style="color:#2aa198">&#34;&#34;</span>)
+        buf<span style="color:#719e07">:=</span>[]<span style="color:#b58900">byte</span>(content)
+        fd.<span style="color:#268bd2">Write</span>(buf)
     }
-    defer fd.Close()
-}
-</code></pre>
-
+    <span style="color:#719e07">defer</span> fd.<span style="color:#268bd2">Close</span>()
+}</code></pre></div>
 <h3 id="入口函数">入口函数</h3>
 
 <p><a href="https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter13/13.1.html">flag包详解</a></p>
-
-<pre><code class="language-go">func main(){
-    flag.Parse()
-    root,re:=flag.Arg(0),flag.Arg(1)
-    getFilelist(root,re)
-}
-</code></pre>
-          
-				</article>
-			</div>
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>(){
+    flag.<span style="color:#268bd2">Parse</span>()
+    root,re<span style="color:#719e07">:=</span>flag.<span style="color:#268bd2">Arg</span>(<span style="color:#2aa198">0</span>),flag.<span style="color:#268bd2">Arg</span>(<span style="color:#2aa198">1</span>)
+    <span style="color:#268bd2">getFilelist</span>(root,re)
+}</code></pre></div>
 		</div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <ul class="uk-pagination">
-          
-            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/">&lt; Previous</a></li>
-          
-          
-            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Next &gt;</a></li>
-          
-        </ul>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
-          <h3 class="uk-panel-title">Related Posts</h3>
-          
-          
-          <ul class="uk-list uk-list-striped">
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/">用Go编写封装自己的日志模块</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Golang生成静态页面文件</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/">Golang生成SSL证书以及服务器私钥</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">Golang基础学习整理</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/">Golang上传文件到七牛云</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Golang文件夹遍历Demo</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-          </ul>
-        </div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div id="disqus_thread" data-uk-scrollspy></div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-	</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/golang">golang</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
 </div>
 
-	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-                  <div class="uk-grid">
-                    <div class="uk-width-1-1">
-                      &copy; Copyright -2019  <a href="/">Auuu Nya Blog</a> 
-                    </div>
-                    <div class="uk-width-1-1">
-                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
-                    </div>
-                  </div>
-
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
-	</div>
-
-	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
-	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
-	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
-	<script>hljs.initHighlightingOnLoad();</script>
 
 
-
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 </body>
 </html>
-
-
-

@@ -1,513 +1,281 @@
 <!DOCTYPE html>
-<html lang="zh-an">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="//www.google-analytics.com" />
-  
-  <link rel="canonical" href="/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/" />
-  
-  <meta name="description" content="用Go编写封装自己的日志模块">
-  
-  <title>
-	  
-	    用Go编写封装自己的日志模块 | Auuu Nya Blog
-	  
-  </title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>用Go编写封装自己的日志模块 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="用Go编写封装自己的日志模块" />
+<meta property="og:description" content="今天为大家带来一篇用Go如何封装自己的日志模块。orz~
 
-  
-  <meta property="og:site_name" content="Auuu Nya Blog" />
-  <meta property="og:locale" content="zh-an" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="用Go编写封装自己的日志模块" />
-  <meta property="og:description" content="用Go编写封装自己的日志模块 | Auuu Nya Blog" />
-  <meta property="og:url" content="/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/" />
-  
+既然是日志模块，第一步肯定是定义日志级别，不然什么消息都打印，对资源消耗很大。
+这里使用iota常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/" /><meta property="article:published_time" content="2018-06-09T13:01:06&#43;08:00"/>
+<meta property="article:modified_time" content="2018-06-09T13:01:06&#43;08:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="用Go编写封装自己的日志模块"/>
+<meta name="twitter:description" content="今天为大家带来一篇用Go如何封装自己的日志模块。orz~
 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="shortcut icon" href="/images/favicon.ico" />
-  <link rel="bookmark"href="/images/favicon.ico" />
+既然是日志模块，第一步肯定是定义日志级别，不然什么消息都打印，对资源消耗很大。
+这里使用iota常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
+
+	
+	<script src="https://mu1er.github.io/js/main.js"></script>
+	<script src="https://mu1er.github.io/js/abc.js"></script>
+	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
-	<div class="uk-block uk-block-large uk-block-muted">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-          <div id="header" class="clearfix">
-            <div class="uk-float-left">
-              <h2><a href="/">Auuu Nya Blog</a></h2>
-              <p>只会写Hello,World的菜鸟</p>
-            </div>
-            <div class="uk-float-right">
-              <a href="/" class="uk-button">Home</a>
-              <a href="/tags" class="uk-button">Tag</a>
-              <a href="/links" class="uk-button">Link</a>
-              <a href="/about/about" class="uk-button">About</a>
-            </div>
-          </div>
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
 	</div>
 
-<div class="uk-block uk-block-default">
-	<div class="uk-container uk-container-center">
-		<div class="uk-grid">
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-				<article class="uk-article">
-					<h1 class="uk-article-title" style="font-size: 23px;">
-						用Go编写封装自己的日志模块
-					</h1>
-					
-					<p class="uk-article-meta">Posted on Sat, Jun 9, 2018 |  <a href="http://mu1er.github.io//tags/#http://mu1er.github.io/tags/golang/" class="uk-button uk-button-mini">#golang</a></p>
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
 
-          
-					<p>今天为大家带来一篇用Go如何封装自己的日志模块。orz~</p>
+
+		<div class="post-header">
+			<h1 class="title">用Go编写封装自己的日志模块</h1>
+			<div class="meta">Posted at &mdash; Jun 9, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<p>今天为大家带来一篇用Go如何封装自己的日志模块。orz~</p>
 
 <p>既然是日志模块，第一步肯定是定义日志级别，不然什么消息都打印，对资源消耗很大。
 这里使用<code>iota</code>常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。</p>
 
-<pre><code class="language-go">### 定义日志级别
-const (
-    LevelError = iota
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">### 定义日志级别
+<span style="color:#268bd2">const</span> (
+    LevelError = <span style="color:#cb4b16">iota</span>
     LevelWarning
     LevelInfo
     LevelDebug
 )
-//定义日志结构体
-type logging struct {
-    level int
-    file  *os.File
+<span style="color:#586e75">//定义日志结构体
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> logging <span style="color:#268bd2">struct</span> {
+    level <span style="color:#dc322f">int</span>
+    file  <span style="color:#719e07">*</span>os.File
 }
 
-//定义logging类型变量
-var logFile logging
-</code></pre>
-
+<span style="color:#586e75">//定义logging类型变量
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> logFile logging</code></pre></div>
 <p>等级设置我们使用了一个函数.参数必须为<code>int</code>类型</p>
-
-<pre><code class="language-go">func setLevel(level int) {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">setLevel</span>(level <span style="color:#dc322f">int</span>) {
     logFile.level = level
-}
-</code></pre>
-
+}</code></pre></div>
 <h3 id="初始化">初始化</h3>
-
-<pre><code class="language-go">//Logger类型表示一个活动状态的记录日志的对象，它会生成一行行的输出写入一个io.Writer接口。
-//每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。
-var loggerf *log.Logger
-//初始化
-func init() {
-    //初始化级别为LevelDebug
-    logFile.level = LevelDebug
-    //这块直接 log.New
-    //创建一个Logger。参数out设置日志信息写入的目的地。参数prefix会添加到生成的每一条日志前面。参数flag定义日志的属性(时间、文件等等)
-    //`prefix`在这块留空，下面输出函数可以设置为级别,减少了代码的冗杂
-    loggerf = log.New(os.Stdout, &quot;&quot;, log.Llongfile|log.Ltime|log.Ldate)
-}
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//Logger类型表示一个活动状态的记录日志的对象，它会生成一行行的输出写入一个io.Writer接口。
+</span><span style="color:#586e75">//每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> loggerf <span style="color:#719e07">*</span>log.Logger
+<span style="color:#586e75">//初始化
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">init</span>() {
+    <span style="color:#586e75">//初始化级别为LevelDebug
+</span><span style="color:#586e75"></span>    logFile.level = LevelDebug
+    <span style="color:#586e75">//这块直接 log.New
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">//创建一个Logger。参数out设置日志信息写入的目的地。参数prefix会添加到生成的每一条日志前面。参数flag定义日志的属性(时间、文件等等)
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">//`prefix`在这块留空，下面输出函数可以设置为级别,减少了代码的冗杂
+</span><span style="color:#586e75"></span>    loggerf = log.<span style="color:#268bd2">New</span>(os.Stdout, <span style="color:#2aa198">&#34;&#34;</span>, log.Llongfile|log.Ltime|log.Ldate)
+}</code></pre></div>
 <h3 id="输出函数定义">输出函数定义</h3>
-
-<pre><code class="language-go">//获取当前函数所在的路径，文件名和行号
-// func CallerFunc() string {
-//  filename, file, line, ok := runtime.Caller(0)
-//  if !ok {
-//      return &quot;&quot;
-//  }
-//  return &quot;FileName:&quot; + runtime.FuncForPC(filename).Name() + &quot; Path:&quot; + file + &quot; Line:&quot; + strconv.Itoa(line)
-// }
-// 当时`info`级别想要输出文件名，路径，错误行号等用了上面的函数，结果周师傅说，`log`包里面有个New函数，里面可以直接定义上面需要的信息
-//按照格式打印日志
-func Debugf(format string, v ...interface{}) {
-    if logFile.level &gt;= LevelDebug {
-        //log里的函数都自带有mutex
-        //这里获取一次锁
-        loggerf.Printf(&quot;[DEBUG] &quot;+format, v...)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//获取当前函数所在的路径，文件名和行号
+</span><span style="color:#586e75">// func CallerFunc() string {
+</span><span style="color:#586e75">//  filename, file, line, ok := runtime.Caller(0)
+</span><span style="color:#586e75">//  if !ok {
+</span><span style="color:#586e75">//      return &#34;&#34;
+</span><span style="color:#586e75">//  }
+</span><span style="color:#586e75">//  return &#34;FileName:&#34; + runtime.FuncForPC(filename).Name() + &#34; Path:&#34; + file + &#34; Line:&#34; + strconv.Itoa(line)
+</span><span style="color:#586e75">// }
+</span><span style="color:#586e75">// 当时`info`级别想要输出文件名，路径，错误行号等用了上面的函数，结果周师傅说，`log`包里面有个New函数，里面可以直接定义上面需要的信息
+</span><span style="color:#586e75">//按照格式打印日志
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Debugf</span>(format <span style="color:#dc322f">string</span>, v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelDebug {
+        <span style="color:#586e75">//log里的函数都自带有mutex
+</span><span style="color:#586e75"></span>        <span style="color:#586e75">//这里获取一次锁
+</span><span style="color:#586e75"></span>        loggerf.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[DEBUG] &#34;</span><span style="color:#719e07">+</span>format, v<span style="color:#719e07">...</span>)
     }
 }
 
-//Infof
-func Infof(format string, v ...interface{}) {
-    if logFile.level &gt;= LevelInfo {
-        loggerf.Printf(&quot;[INFO] &quot;+format, v...)
+<span style="color:#586e75">//Infof
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Infof</span>(format <span style="color:#dc322f">string</span>, v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelInfo {
+        loggerf.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[INFO] &#34;</span><span style="color:#719e07">+</span>format, v<span style="color:#719e07">...</span>)
     }
 }
 
-//Warningf
-func Warningf(format string, v ...interface{}) {
-    if logFile.level &gt;= LevelWarning {
-        loggerf.Printf(&quot;[WARNING] &quot;+format, v...)
+<span style="color:#586e75">//Warningf
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Warningf</span>(format <span style="color:#dc322f">string</span>, v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelWarning {
+        loggerf.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[WARNING] &#34;</span><span style="color:#719e07">+</span>format, v<span style="color:#719e07">...</span>)
     }
 }
 
-//Errorf
-func Errorf(format string, v ...interface{}) {
-    if logFile.level &gt;= LevelError {
-        loggerf.Printf(&quot;[ERROR] &quot;+format, v...)
+<span style="color:#586e75">//Errorf
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Errorf</span>(format <span style="color:#dc322f">string</span>, v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelError {
+        loggerf.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[ERROR] &#34;</span><span style="color:#719e07">+</span>format, v<span style="color:#719e07">...</span>)
     }
 }
 
-//标准输出
-//Println存在输出会换行
-//这里采用Print输出方式
-func Debug(v ...interface{}) {
-    if logFile.level &gt;= LevelDebug {
-        loggerf.Print(&quot;[DEBUG] &quot; + fmt.Sprintln(v...))
+<span style="color:#586e75">//标准输出
+</span><span style="color:#586e75">//Println存在输出会换行
+</span><span style="color:#586e75">//这里采用Print输出方式
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Debug</span>(v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelDebug {
+        loggerf.<span style="color:#268bd2">Print</span>(<span style="color:#2aa198">&#34;[DEBUG] &#34;</span> <span style="color:#719e07">+</span> fmt.<span style="color:#268bd2">Sprintln</span>(v<span style="color:#719e07">...</span>))
     }
 }
 
-//Info
-func Info(v ...interface{}) {
-    if logFile.level &gt;= LevelInfo {
-        loggerf.Print(&quot;[INFO] &quot; + fmt.Sprintln(v...))
+<span style="color:#586e75">//Info
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Info</span>(v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelInfo {
+        loggerf.<span style="color:#268bd2">Print</span>(<span style="color:#2aa198">&#34;[INFO] &#34;</span> <span style="color:#719e07">+</span> fmt.<span style="color:#268bd2">Sprintln</span>(v<span style="color:#719e07">...</span>))
     }
 }
 
-//Warning
-func Warning(v ...interface{}) {
-    if logFile.level &gt;= LevelWarning {
-        loggerf.Print(&quot;[DEBUG] &quot; + fmt.Sprintln(v...))
+<span style="color:#586e75">//Warning
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Warning</span>(v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelWarning {
+        loggerf.<span style="color:#268bd2">Print</span>(<span style="color:#2aa198">&#34;[DEBUG] &#34;</span> <span style="color:#719e07">+</span> fmt.<span style="color:#268bd2">Sprintln</span>(v<span style="color:#719e07">...</span>))
     }
 }
 
-//Error
-func Error(v ...interface{}) {
-    if logFile.level &gt;= LevelError {
-        loggerf.Print(&quot;[DEBUG] &quot; + fmt.Sprintln(v...))
+<span style="color:#586e75">//Error
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Error</span>(v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
+    <span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelError {
+        loggerf.<span style="color:#268bd2">Print</span>(<span style="color:#2aa198">&#34;[DEBUG] &#34;</span> <span style="color:#719e07">+</span> fmt.<span style="color:#268bd2">Sprintln</span>(v<span style="color:#719e07">...</span>))
     }
-}
-</code></pre>
-
+}</code></pre></div>
 <h3 id="输出到文件">输出到文件</h3>
-
-<pre><code class="language-go">//获取当前程序所在的路径
-func getwd() (string, error) {
-    path, err := os.Getwd()
-    if err != nil {
-        return &quot;&quot;, errors.New(fmt.Sprintln(&quot;Getwd Error:&quot;, err))
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//获取当前程序所在的路径
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getwd</span>() (<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+    path, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getwd</span>()
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Getwd Error:&#34;</span>, err))
     }
-    filepathstr := filepath.Join(path, &quot;logs&quot;)
-    err = os.MkdirAll(filepathstr, 0755)
-    if err != nil {
-        return &quot;&quot;, errors.New(fmt.Sprintln(&quot;Create Dirs Error:&quot;, err))
+    filepathstr <span style="color:#719e07">:=</span> filepath.<span style="color:#268bd2">Join</span>(path, <span style="color:#2aa198">&#34;logs&#34;</span>)
+    err = os.<span style="color:#268bd2">MkdirAll</span>(filepathstr, <span style="color:#2aa198">0755</span>)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create Dirs Error:&#34;</span>, err))
     }
-    return filepathstr, nil
+    <span style="color:#719e07">return</span> filepathstr, <span style="color:#cb4b16">nil</span>
 }
-//创建日志文件
-//制定创建路径和日志名
-func Init(path, logname string, level int) error {
-    if path == &quot;&quot; {
-        filePath, _ := getwd()
-        filepathstr := filepath.Join(filePath, logname)
-        logfile, err := os.Create(filepathstr)
-        if err != nil {
-            return errors.New(fmt.Sprintln(&quot;Create File Error:&quot;, err))
+<span style="color:#586e75">//创建日志文件
+</span><span style="color:#586e75">//制定创建路径和日志名
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Init</span>(path, logname <span style="color:#dc322f">string</span>, level <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
+    <span style="color:#719e07">if</span> path <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+        filePath, _ <span style="color:#719e07">:=</span> <span style="color:#268bd2">getwd</span>()
+        filepathstr <span style="color:#719e07">:=</span> filepath.<span style="color:#268bd2">Join</span>(filePath, logname)
+        logfile, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(filepathstr)
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+            <span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create File Error:&#34;</span>, err))
         }
         logFile.file = logfile
-        setLevel(level)
-    } else if logname == &quot;&quot; {
-        filepathstr := path
-        err := os.MkdirAll(filepathstr, 0644)
-        if err != nil {
-            return errors.New(fmt.Sprintln(&quot;Create Dirs Error:&quot;, err))
+        <span style="color:#268bd2">setLevel</span>(level)
+    } <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> logname <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+        filepathstr <span style="color:#719e07">:=</span> path
+        err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">MkdirAll</span>(filepathstr, <span style="color:#2aa198">0644</span>)
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+            <span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create Dirs Error:&#34;</span>, err))
         }
-        logname = filepath.Join(filepathstr, &quot;logs.log&quot;)
-        logfile, err := os.Create(logname)
-        if err != nil {
-            return errors.New(fmt.Sprintln(&quot;Create File Error:&quot;, err))
-        }
-        logFile.file = logfile
-        setLevel(level)
-    } else {
-        filepathstr := path
-        err := os.MkdirAll(filepathstr, 0644)
-        if err != nil {
-            return errors.New(fmt.Sprintln(&quot;Create Dirs Error:&quot;, err))
-        }
-        logname = filepath.Join(filepathstr, logname)
-        logfile, err := os.Create(logname)
-        if err != nil {
-            return errors.New(fmt.Sprintln(&quot;Create File Error:&quot;, err))
+        logname = filepath.<span style="color:#268bd2">Join</span>(filepathstr, <span style="color:#2aa198">&#34;logs.log&#34;</span>)
+        logfile, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(logname)
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+            <span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create File Error:&#34;</span>, err))
         }
         logFile.file = logfile
-        setLevel(level)
+        <span style="color:#268bd2">setLevel</span>(level)
+    } <span style="color:#719e07">else</span> {
+        filepathstr <span style="color:#719e07">:=</span> path
+        err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">MkdirAll</span>(filepathstr, <span style="color:#2aa198">0644</span>)
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+            <span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create Dirs Error:&#34;</span>, err))
+        }
+        logname = filepath.<span style="color:#268bd2">Join</span>(filepathstr, logname)
+        logfile, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(logname)
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+            <span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(fmt.<span style="color:#268bd2">Sprintln</span>(<span style="color:#2aa198">&#34;Create File Error:&#34;</span>, err))
+        }
+        logFile.file = logfile
+        <span style="color:#268bd2">setLevel</span>(level)
     }
-    //log.Llongfile|log.Ltime|log.Ldata 返回文件信息，时间和代码信息不需要重新写函数获取
-    //初始化一个*log.Logger
-    loggerf = log.New(logFile.file, &quot;&quot;, log.Llongfile|log.Ltime|log.Ldate)
-    return nil
-}
-</code></pre>
-
+    <span style="color:#586e75">//log.Llongfile|log.Ltime|log.Ldata 返回文件信息，时间和代码信息不需要重新写函数获取
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">//初始化一个*log.Logger
+</span><span style="color:#586e75"></span>    loggerf = log.<span style="color:#268bd2">New</span>(logFile.file, <span style="color:#2aa198">&#34;&#34;</span>, log.Llongfile|log.Ltime|log.Ldate)
+    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+}</code></pre></div>
 <p>以上代码大家可以再整合或者再次封装，可能会更方便快捷。我这里只是提供了一个我自己在封装日志模块所考虑的地方与最后的思路.
 <a href="https://github.com/mu1er/gomini/blob/master/logger">详细代码地址</a></p>
-          
-				</article>
-			</div>
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
 		</div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <ul class="uk-pagination">
-          
-            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">&lt; Previous</a></li>
-          
-          
-            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Next &gt;</a></li>
-          
-        </ul>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
-          <h3 class="uk-panel-title">Related Posts</h3>
-          
-          
-          <ul class="uk-list uk-list-striped">
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Golang生成静态页面文件</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/">Golang生成SSL证书以及服务器私钥</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">Golang基础学习整理</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/">Golang上传文件到七牛云</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/">Go语言扫描硬盘查找自己需要的文件</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Golang文件夹遍历Demo</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-          </ul>
-        </div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div id="disqus_thread" data-uk-scrollspy></div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-	</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/golang">golang</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
 </div>
 
-	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-                  <div class="uk-grid">
-                    <div class="uk-width-1-1">
-                      &copy; Copyright -2019  <a href="/">Auuu Nya Blog</a> 
-                    </div>
-                    <div class="uk-width-1-1">
-                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
-                    </div>
-                  </div>
-
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
-	</div>
-
-	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
-	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
-	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
-	<script>hljs.initHighlightingOnLoad();</script>
 
 
-
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 </body>
 </html>
-
-
-

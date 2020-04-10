@@ -1,75 +1,89 @@
 <!DOCTYPE html>
-<html lang="zh-an">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="//www.google-analytics.com" />
-  
-  <link rel="canonical" href="/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/" />
-  
-  <meta name="description" content="Golang生成SSL证书以及服务器私钥">
-  
-  <title>
-	  
-	    Golang生成SSL证书以及服务器私钥 | Auuu Nya Blog
-	  
-  </title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Golang生成SSL证书以及服务器私钥 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Golang生成SSL证书以及服务器私钥" />
+<meta property="og:description" content="
+SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
+一个 X.509 证书（简称 SSL 证书）实际上就是一个经过编码的 ASN.1( Abstract Syntax Notation One,抽象语法表示法／1 ）格式的电子文档。 ASN.1 既是一个标准，也是一种表示法，它描述了表示电信以及
+计算机网络数据的规则和结构。
+X.509 证书可以使用多种格式编码，其中一种编码格式是 BER ( Basic Encoding Rules ，基本编码规
+则）。 BER 格式指定了一种自解释并且自定义的格式用于对 ASN.1 数据结构进行编码，而 DER 格式则是
+BER 的一个子集。 DER 只提供了一种编码 ASN.1 值的方法，这种方法被广泛地应用于密码学当中，尤其是对 X.509 证书进行加密。56 第 3 章接收请求SSL 证书可以以多种不同的格式保存，其中一种是 PEM (Privacy Enhanced Email ，隐私增强邮件 ）格式，这种格式会对 DER 格式的 X.509 证书实施Base64 编码，并且这种格式的文件都以一一BEGINCERTIFICATE一开头，以一一END CERTIF工CATE一结尾｛除了用作文件格式之外 ， PEM和此处讨论的 SSL 证书关系并不大）。
+" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/" /><meta property="article:published_time" content="2018-04-20T11:20:36&#43;08:00"/>
+<meta property="article:modified_time" content="2018-04-20T11:20:36&#43;08:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang生成SSL证书以及服务器私钥"/>
+<meta name="twitter:description" content="
+SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
+一个 X.509 证书（简称 SSL 证书）实际上就是一个经过编码的 ASN.1( Abstract Syntax Notation One,抽象语法表示法／1 ）格式的电子文档。 ASN.1 既是一个标准，也是一种表示法，它描述了表示电信以及
+计算机网络数据的规则和结构。
+X.509 证书可以使用多种格式编码，其中一种编码格式是 BER ( Basic Encoding Rules ，基本编码规
+则）。 BER 格式指定了一种自解释并且自定义的格式用于对 ASN.1 数据结构进行编码，而 DER 格式则是
+BER 的一个子集。 DER 只提供了一种编码 ASN.1 值的方法，这种方法被广泛地应用于密码学当中，尤其是对 X.509 证书进行加密。56 第 3 章接收请求SSL 证书可以以多种不同的格式保存，其中一种是 PEM (Privacy Enhanced Email ，隐私增强邮件 ）格式，这种格式会对 DER 格式的 X.509 证书实施Base64 编码，并且这种格式的文件都以一一BEGINCERTIFICATE一开头，以一一END CERTIF工CATE一结尾｛除了用作文件格式之外 ， PEM和此处讨论的 SSL 证书关系并不大）。
+"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-  
-  <meta property="og:site_name" content="Auuu Nya Blog" />
-  <meta property="og:locale" content="zh-an" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="Golang生成SSL证书以及服务器私钥" />
-  <meta property="og:description" content="Golang生成SSL证书以及服务器私钥 | Auuu Nya Blog" />
-  <meta property="og:url" content="/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/" />
-  
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.27.2/css/uikit.min.css" />
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="shortcut icon" href="/images/favicon.ico" />
-  <link rel="bookmark"href="/images/favicon.ico" />
+	
+	<script src="https://mu1er.github.io/js/main.js"></script>
+	<script src="https://mu1er.github.io/js/abc.js"></script>
+	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
-	<div class="uk-block uk-block-large uk-block-muted">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-          <div id="header" class="clearfix">
-            <div class="uk-float-left">
-              <h2><a href="/">Auuu Nya Blog</a></h2>
-              <p>只会写Hello,World的菜鸟</p>
-            </div>
-            <div class="uk-float-right">
-              <a href="/" class="uk-button">Home</a>
-              <a href="/tags" class="uk-button">Tag</a>
-              <a href="/links" class="uk-button">Link</a>
-              <a href="/about/about" class="uk-button">About</a>
-            </div>
-          </div>
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
 	</div>
 
-<div class="uk-block uk-block-default">
-	<div class="uk-container uk-container-center">
-		<div class="uk-grid">
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-				<article class="uk-article">
-					<h1 class="uk-article-title" style="font-size: 23px;">
-						Golang生成SSL证书以及服务器私钥
-					</h1>
-					
-					<p class="uk-article-meta">Posted on Fri, Apr 20, 2018 |  <a href="http://mu1er.github.io//tags/#http://mu1er.github.io/tags/golang/" class="uk-button uk-button-mini">#golang</a></p>
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
 
-          
-					<blockquote>
+
+		<div class="post-header">
+			<h1 class="title">Golang生成SSL证书以及服务器私钥</h1>
+			<div class="meta">Posted at &mdash; Apr 20, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<blockquote>
 <p>SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
 一个 X.509 证书（简称 SSL 证书）实际上就是一个经过编码的 ASN.1( Abstract Syntax Notation One,抽象语法表示法／1 ）格式的电子文档。 ASN.1 既是一个标准，也是一种表示法，它描述了表示电信以及
 计算机网络数据的规则和结构。
@@ -82,314 +96,75 @@ BER 的一个子集。 DER 只提供了一种编码 ASN.1 值的方法，这种�
 法（extended key usage）设置成了服务器身份验证操作的<code>X.509</code>证书</p>
 
 <h3 id="配置证书信息">配置证书信息</h3>
-
-<pre><code class="language-go">//生成一个比较长的随机整数来做序列号
-max := new(big.Int).Lsh(big.NewInt(1), 128)
-seriaNumber := rand.Int(rand.Reader, max)
-//生成证书标题
-subject := pkix.Name{
-        Organization:       []string{&quot;Mu1er.cn&quot;},
-        OrganizationalUnit: []string{&quot;mu1er&quot;},
-        CommonName:         &quot;mu1er.cn&quot;,
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//生成一个比较长的随机整数来做序列号
+</span><span style="color:#586e75"></span>max <span style="color:#719e07">:=</span> <span style="color:#b58900">new</span>(big.Int).<span style="color:#268bd2">Lsh</span>(big.<span style="color:#268bd2">NewInt</span>(<span style="color:#2aa198">1</span>), <span style="color:#2aa198">128</span>)
+seriaNumber <span style="color:#719e07">:=</span> rand.<span style="color:#268bd2">Int</span>(rand.Reader, max)
+<span style="color:#586e75">//生成证书标题
+</span><span style="color:#586e75"></span>subject <span style="color:#719e07">:=</span> pkix.Name{
+        Organization:       []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;Mu1er.cn&#34;</span>},
+        OrganizationalUnit: []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;mu1er&#34;</span>},
+        CommonName:         <span style="color:#2aa198">&#34;mu1er.cn&#34;</span>,
     }
-template := x509.Certificate{
+template <span style="color:#719e07">:=</span> x509.Certificate{
         SerialNumber: seriaNumber,
         Subject:      subject,
-        NotBefore:    time.Now(),
-        //有效期
-        NotAfter:     time.Now().Add(365 * 24 * time.Hour),
-        //用x509证书来验证
-        KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+        NotBefore:    time.<span style="color:#268bd2">Now</span>(),
+        <span style="color:#586e75">//有效期
+</span><span style="color:#586e75"></span>        NotAfter:     time.<span style="color:#268bd2">Now</span>().<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">365</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">24</span> <span style="color:#719e07">*</span> time.Hour),
+        <span style="color:#586e75">//用x509证书来验证
+</span><span style="color:#586e75"></span>        KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
         ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-        //运行地址
-        IPAddresses:  []net.IP{net.ParseIP(&quot;127.0.0.1&quot;)},
-    }
-</code></pre>
-
+        <span style="color:#586e75">//运行地址
+</span><span style="color:#586e75"></span>        IPAddresses:  []net.IP{net.<span style="color:#268bd2">ParseIP</span>(<span style="color:#2aa198">&#34;127.0.0.1&#34;</span>)},
+    }</code></pre></div>
 <h3 id="生成-rsa-私钥">生成 RSA 私钥</h3>
-
-<pre><code class="language-go">pk, _ := rsa.GenerateKey(rand.Reader, 2048)
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">pk, _ <span style="color:#719e07">:=</span> rsa.<span style="color:#268bd2">GenerateKey</span>(rand.Reader, <span style="color:#2aa198">2048</span>)</code></pre></div>
 <p>私钥结构里面包含了一个能够公开访问的公钥，随后创建SSL证书的时候会用到</p>
-
-<pre><code class="language-go">derBytes, _ := x509.CreateCertificate(rand.Reader, &amp;template, &amp;template,&amp;pk.PublicKey, pk)
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">derBytes, _ <span style="color:#719e07">:=</span> x509.<span style="color:#268bd2">CreateCertificate</span>(rand.Reader, <span style="color:#719e07">&amp;</span>template, <span style="color:#719e07">&amp;</span>template,<span style="color:#719e07">&amp;</span>pk.PublicKey, pk)</code></pre></div>
 <p><code>CreateCertificate</code>函数接受<code>Certificate</code>结构、公钥和私钥等多个参数，创建出一个经过 DER 编码格式化的字节切片 。后续代码的意图也非常简单明了，它们首先使用<code>encoding/pem</code>标准库将证书编码到<code>cert.pem</code>文件里面</p>
-
-<pre><code class="language-go">certOut, _ := os.Create(&quot;cert.pem&quot;)
-pem.Encode(certOut, &amp;pem.Block{Type: &quot;CERTIFICATE&quot;, Bytes: derBytes})
-certOut.Close()
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">certOut, _ <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(<span style="color:#2aa198">&#34;cert.pem&#34;</span>)
+pem.<span style="color:#268bd2">Encode</span>(certOut, <span style="color:#719e07">&amp;</span>pem.Block{Type: <span style="color:#2aa198">&#34;CERTIFICATE&#34;</span>, Bytes: derBytes})
+certOut.<span style="color:#268bd2">Close</span>()</code></pre></div>
 <p>然后继续以 PEM 编码的方式把之前生成的密钥编码并保存到<code>key.pem</code>文件里面：</p>
-
-<pre><code class="language-go">keyOut, _ := os.Create(&quot;key.pem&quot;)
-pem.Encode(keyOut, &amp;pem.Block{Type: &quot;RSA PRIVATE KEY&quot;, Bytes: x509.MarshalPKCS1PrivateKey(pk)})
-keyOut.Close()
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">keyOut, _ <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(<span style="color:#2aa198">&#34;key.pem&#34;</span>)
+pem.<span style="color:#268bd2">Encode</span>(keyOut, <span style="color:#719e07">&amp;</span>pem.Block{Type: <span style="color:#2aa198">&#34;RSA PRIVATE KEY&#34;</span>, Bytes: x509.<span style="color:#268bd2">MarshalPKCS1PrivateKey</span>(pk)})
+keyOut.<span style="color:#268bd2">Close</span>()</code></pre></div>
 <p>最后需要提醒的是，如果证书是由<code>CA</code>签发的，那么证书文件中将同时包含服务器签名以及<code>CA</code>签名，其中服务器签名在前,<code>CA</code>签名在后.</p>
-          
-				</article>
-			</div>
-			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
 		</div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <ul class="uk-pagination">
-          
-            <li class="uk-float-left"><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">&lt; Previous</a></li>
-          
-          
-            <li class="uk-float-right"><a href="http://mu1er.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/">Next &gt;</a></li>
-          
-        </ul>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
-          <h3 class="uk-panel-title">Related Posts</h3>
-          
-          
-          <ul class="uk-list uk-list-striped">
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/">用Go编写封装自己的日志模块</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/">Golang生成静态页面文件</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/">Golang基础学习整理</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/">Golang上传文件到七牛云</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/">Go语言扫描硬盘查找自己需要的文件</a></li>
-              
-            
-              
-              
-              
-                <li><a href="http://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/">Golang文件夹遍历Demo</a></li>
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-              
-              
-              
-            
-          </ul>
-        </div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-    <div class="uk-grid">
-      <div class="uk-width-large-1-10"></div>
-      <div class="uk-width-large-8-10">
-        <div id="disqus_thread" data-uk-scrollspy></div>
-      </div>
-      <div class="uk-width-large-1-10"></div>
-    </div>
-	</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/golang">golang</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
 </div>
 
-	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
-                  <div class="uk-grid">
-                    <div class="uk-width-1-1">
-                      &copy; Copyright -2019  <a href="/">Auuu Nya Blog</a> 
-                    </div>
-                    <div class="uk-width-1-1">
-                      Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
-                    </div>
-                  </div>
-
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-			</div>
-		</div>
-	</div>
-
-	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
-	<script src="//cdn.jsdelivr.net/uikit/2.27.2/js/uikit.min.js"></script>
-	<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
-	<script>hljs.initHighlightingOnLoad();</script>
 
 
-
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 </body>
 </html>
-
-
-
