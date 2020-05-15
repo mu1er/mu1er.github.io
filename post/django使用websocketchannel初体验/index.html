@@ -6,30 +6,31 @@
 	<meta property="og:title" content="Django使用Websocket,Channel初体验" />
 <meta property="og:description" content="很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://mu1er.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/" /><meta property="article:published_time" content="2020-04-09T23:59:15&#43;08:00"/>
-<meta property="article:modified_time" content="2020-04-09T23:59:15&#43;08:00"/>
+<meta property="og:url" content="https://auuunya.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/" />
+<meta property="article:published_time" content="2020-04-09T23:59:15+08:00" />
+<meta property="article:modified_time" content="2020-04-09T23:59:15+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Django使用Websocket,Channel初体验"/>
 <meta name="twitter:description" content="很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom-dark.css"  />
 
 	
-	<script src="https://mu1er.github.io/js/main.js"></script>
-	<script src="https://mu1er.github.io/js/abc.js"></script>
-	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://auuunya.github.iojs/main.js"></script>
+	<script src="https://auuunya.github.iojs/abc.js"></script>
+	<script src="https://auuunya.github.iojs/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<h1 class="site-title"><a href="https://auuunya.github.io">Auuu Nya Blog</a></h1>
 	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
 			<ul class="flat"></ul>
 		</nav>
@@ -70,17 +71,13 @@
 
 		<div class="markdown">
 			<p>很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。</p>
-
 <h3 id="什么是websocket">什么是Websocket</h3>
-
 <p><a href="https://baike.baidu.com/item/WebSocket/1953845?fr=aladdin">websocket的介绍</a>
 <a href="http://www.ruanyifeng.com/blog/2017/05/websocket.html">WebSocket-阮一峰老师</a>
 通俗的来说Websocket就是一个双向通道，客户端可以主动给服务端发消息，服务端也可以主动给客户端发送消息。</p>
-
 <p><a href="https://channels.readthedocs.io/en/latest/index.html">Channels</a>是Django里面可以构建websocket的模块，官方文档里说了很清晰了，就是一个以处理WebSocket，聊天协议，IoT协议的模块，基于称为ASGI的Python规范构建。它可以以异步的方式进行。</p>
-
 <h3 id="安装配置">安装配置</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">python2: pip install -U channels
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">python2: pip install -U channels
 python3: pip3 install -U channels
 
 # 添加到yourproject.settings
@@ -102,12 +99,13 @@ application = ProtocolTypeRouter({
 
 # 修改settings文件，yourproject/settings,添加下面一行内容
 
-ASGI_APPLICATION = &#34;yourproject.routing.application&#34;</pre></div>
-<p>启用之后，通道就会将自己集成到Django中，并控制runserver命令</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"># 启动之后命令行变成 ASGI/channels
-Starting ASGI/Channels version 2.4.0 development server at https://127.0.0.1:8000/</pre></div>
-<p>下面是在实际中编写的一个模块，主要用websocket连接通道，然后服务端主动推送消息.聊天室的例子大家可以在网上搜一下有很多，我在这里就不多做描写了。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"># 目录结构
+ASGI_APPLICATION = &#34;yourproject.routing.application&#34;
+
+</code></pre></div><p>启用之后，通道就会将自己集成到Django中，并控制runserver命令</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 启动之后命令行变成 ASGI/channels
+Starting ASGI/Channels version 2.4.0 development server at https://127.0.0.1:8000/
+</code></pre></div><p>下面是在实际中编写的一个模块，主要用websocket连接通道，然后服务端主动推送消息.聊天室的例子大家可以在网上搜一下有很多，我在这里就不多做描写了。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 目录结构
 yourproject/
  - yourproject/
     - asgi.py
@@ -216,8 +214,8 @@ def push_chat_message(data):
                 &#34;type&#34;: &#34;push.message&#34;,
                 &#34;text&#34;: data,
             }
-        )</pre></div>
-<p>以上就是单通道推送消息的例子，第一次使用也有很多地方不清楚，这块只是做个记录，根据网上看到的一些资料，再总结一下。如果想要了解聊天室的例子，大家可以去网上搜一下，有很多，官方文档也有<a href="https://channels.readthedocs.io/en/latest/tutorial/index.html">chan_examplte</a>.还望大佬们轻拍.</p>
+        )
+</code></pre></div><p>以上就是单通道推送消息的例子，第一次使用也有很多地方不清楚，这块只是做个记录，根据网上看到的一些资料，再总结一下。如果想要了解聊天室的例子，大家可以去网上搜一下，有很多，官方文档也有<a href="https://channels.readthedocs.io/en/latest/tutorial/index.html">chan_examplte</a>.还望大佬们轻拍.</p>
 		</div>
 
 		<div class="post-tags">

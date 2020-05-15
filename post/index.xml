@@ -1,101 +1,96 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Auuu Nya Blog</title>
-    <link>https://mu1er.github.io/post/</link>
+    <link>https://auuunya.github.io/post/</link>
     <description>Recent content in Posts on Auuu Nya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-an</language>
     <copyright>© Copyright AuuuNya</copyright>
     <lastBuildDate>Thu, 09 Apr 2020 23:59:15 +0800</lastBuildDate>
     
-	<atom:link href="https://mu1er.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://auuunya.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Django使用Websocket,Channel初体验</title>
-      <link>https://mu1er.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</link>
+      <link>https://auuunya.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</link>
       <pubDate>Thu, 09 Apr 2020 23:59:15 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</guid>
+      <guid>https://auuunya.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</guid>
       <description>&lt;p&gt;很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>2019的一些琐事</title>
-      <link>https://mu1er.github.io/post/2019%E5%B9%B4%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%90%E4%BA%8B/</link>
+      <link>https://auuunya.github.io/post/2019%E5%B9%B4%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%90%E4%BA%8B/</link>
       <pubDate>Tue, 07 Jan 2020 23:23:19 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2019%E5%B9%B4%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%90%E4%BA%8B/</guid>
+      <guid>https://auuunya.github.io/post/2019%E5%B9%B4%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%90%E4%BA%8B/</guid>
       <description>&lt;p&gt;眨眼就到2020年了,不由得感慨时间过得真快,回想这一年来发生的事,那可真谓是丰富多彩,多滋多味.(不知道18年立的Flag实现了多少???)&lt;/p&gt;
-
 &lt;p&gt;成长不少,难过也不见得少&amp;hellip;&amp;hellip;&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Element UI修改默认样式</title>
-      <link>https://mu1er.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</link>
+      <link>https://auuunya.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</link>
       <pubDate>Tue, 21 May 2019 22:45:12 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</guid>
+      <guid>https://auuunya.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</guid>
       <description>&lt;p&gt;最新在修改一个用户中心，前台是用Vue+Nuxt+ElementUI写的，在修改过程中发现不管样式怎么写，加父标签，elementui加载都会使用它自己的样式，于是看了看代码，
 在这里记录下我是怎么修改它的默认样式的。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Hello Hugo</title>
-      <link>https://mu1er.github.io/post/first/</link>
+      <link>https://auuunya.github.io/post/first/</link>
       <pubDate>Thu, 17 Jan 2019 15:35:55 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/first/</guid>
+      <guid>https://auuunya.github.io/post/first/</guid>
       <description>博客从Jekyll迁移到了Hugo，主题为next主题改了一些东西。</description>
     </item>
     
     <item>
       <title>用ssh和socat分分钟搞定Linux各种端口转发</title>
-      <link>https://mu1er.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</link>
+      <link>https://auuunya.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</link>
       <pubDate>Wed, 02 Jan 2019 13:00:50 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</guid>
+      <guid>https://auuunya.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</guid>
       <description>&lt;h3 id=&#34;本地端口映射&#34;&gt;本地端口映射&lt;/h3&gt;
-
-&lt;p&gt;小明写了一个Web服务，监听hosta上8080端口，小王现在想访问这个服务，有没有快速的方法?
-&lt;img src=&#34;http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/2018-1-17/4.jpg&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
-
+&lt;p&gt;小明写了一个Web服务，监听hosta上8080端口，小王现在想访问这个服务，有没有快速的方法? 
+&lt;img src=&#34;http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/2018-1-17/4.jpg&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
 &lt;p&gt;其实很简单，小明只需要做这两件事情：&lt;/p&gt;
-
 &lt;p&gt;申请一台带公网IP的公有云服务器&lt;code&gt;hostb&lt;/code&gt;，我们假设ip地址是&lt;code&gt;12.34.56.78&lt;/code&gt;
 在hosta上执行下面的命令，它会建立一个从hosta到hostb的ssh会话，同时将8080端口映射到hostb的1080端口。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>用Go编写封装自己的日志模块</title>
-      <link>https://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/</link>
+      <link>https://auuunya.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/</link>
       <pubDate>Sat, 09 Jun 2018 13:01:06 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/</guid>
+      <guid>https://auuunya.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/</guid>
       <description>&lt;p&gt;今天为大家带来一篇用Go如何封装自己的日志模块。orz~&lt;/p&gt;
-
 &lt;p&gt;既然是日志模块，第一步肯定是定义日志级别，不然什么消息都打印，对资源消耗很大。
 这里使用&lt;code&gt;iota&lt;/code&gt;常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Golang生成静态页面文件</title>
-      <link>https://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/</link>
+      <link>https://auuunya.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/</link>
       <pubDate>Wed, 09 May 2018 12:10:56 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/</guid>
+      <guid>https://auuunya.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/</guid>
       <description>&lt;p&gt;最近要在dingo添加一个功能，就是一键导出文章静态页面，在网上搜了很多，也请教了很多人，不过碍于自己的技术太菜听不怎么太明白，后来搜到一片文章，借用此篇文章和自己的一些测试终究是完成了这个功能。
 文章作者写的生成器git地址:&lt;a href=&#34;https://github.com/zupzup/blog-generator&#34;&gt;blog-generator&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Golang生成SSL证书以及服务器私钥</title>
-      <link>https://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/</link>
+      <link>https://auuunya.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/</link>
       <pubDate>Fri, 20 Apr 2018 11:20:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/</guid>
+      <guid>https://auuunya.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
 一个 X.509 证书（简称 SSL 证书）实际上就是一个经过编码的 ASN.1( Abstract Syntax Notation One,抽象语法表示法／1 ）格式的电子文档。 ASN.1 既是一个标准，也是一种表示法，它描述了表示电信以及
@@ -105,23 +100,24 @@
     
     <item>
       <title>XMLHTTPRequest状态status完整列表</title>
-      <link>https://mu1er.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/</link>
+      <link>https://auuunya.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/</link>
       <pubDate>Thu, 05 Apr 2018 12:58:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/</guid>
+      <guid>https://auuunya.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/</guid>
       <description>&lt;p&gt;AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>VMware下扩展ubuntu虚拟机根目录分区</title>
-      <link>https://mu1er.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/</link>
+      <link>https://auuunya.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/</link>
       <pubDate>Tue, 27 Mar 2018 15:11:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;原文链接&lt;/strong&gt;：&lt;a href=&#34;http://t.cn/RzCP9E2&#34;&gt;http://t.cn/RzCP9E2&lt;/a&gt;
-&amp;gt; 作者输入命令时都用“sudo bash”，用sudo或者su就可以了。&lt;/p&gt;
-
+      <guid>https://auuunya.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;原文链接&lt;/strong&gt;：&lt;a href=&#34;http://t.cn/RzCP9E2&#34;&gt;http://t.cn/RzCP9E2&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;作者输入命令时都用“sudo bash”，用sudo或者su就可以了。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;blockquote&gt;
 &lt;p&gt;涉及到磁盘分区表删除，最好先备份整个虚拟机！&lt;/p&gt;
 &lt;/blockquote&gt;</description>
@@ -129,98 +125,89 @@
     
     <item>
       <title>Git永久删除库中的文件</title>
-      <link>https://mu1er.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/</link>
+      <link>https://auuunya.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/</link>
       <pubDate>Sat, 24 Mar 2018 13:50:33 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
+      <guid>https://auuunya.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
       <description>&lt;p&gt;如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用&lt;code&gt;git rm&lt;/code&gt;删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用&lt;code&gt;git clone&lt;/code&gt;的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Golang基础学习整理</title>
-      <link>https://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/</link>
+      <link>https://auuunya.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/</link>
       <pubDate>Wed, 28 Feb 2018 13:20:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/</guid>
+      <guid>https://auuunya.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/</guid>
       <description>&lt;ol&gt;
 &lt;li&gt;&lt;code&gt;iota&lt;/code&gt; iota是golang的一个关键字，此关键字用来声明enum的时候采用，默认从0开始，每遇到一个类似const就会重置为0。&lt;/li&gt;
-&lt;li&gt;通过开头字母大小写来实现变量和函数的公有私有。例:
-&lt;code&gt;go
-//共有
-var Name string
-//私有
-var name string
-&lt;/code&gt;&lt;/li&gt;
-&lt;/ol&gt;</description>
+&lt;li&gt;通过开头字母大小写来实现变量和函数的公有私有。例:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;//共有
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;var&lt;/span&gt; Name &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;
+&lt;span style=&#34;color:#586e75&#34;&gt;//私有
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;var&lt;/span&gt; name &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
     <item>
       <title>Golang上传文件到七牛云</title>
-      <link>https://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/</link>
+      <link>https://auuunya.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/</link>
       <pubDate>Tue, 27 Feb 2018 18:20:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/</guid>
-      <description>&lt;hr /&gt;
-
+      <guid>https://auuunya.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/</guid>
+      <description>&lt;hr&gt;
 &lt;p&gt;最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解&lt;/p&gt;
-
-&lt;hr /&gt;</description>
+&lt;hr&gt;</description>
     </item>
     
     <item>
       <title>公钥操作&#43; git搭载新项目</title>
-      <link>https://mu1er.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/</link>
+      <link>https://auuunya.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/</link>
       <pubDate>Thu, 22 Feb 2018 13:58:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/</guid>
-      <description>&lt;h3 id=&#34;一-公钥操作&#34;&gt;一.公钥操作：&lt;/h3&gt;
-
+      <guid>https://auuunya.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/</guid>
+      <description>&lt;h3 id=&#34;一公钥操作-&#34;&gt;一.公钥操作：&lt;/h3&gt;
 &lt;ol&gt;
 &lt;li&gt;生成公钥&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;ssh-keygen -t rsa -C &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;ma1ive@qq.com&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;2.查看公钥&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cat ~/.ssh/id_rsa.pub&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;ssh-keygen -t rsa -C &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;ma1ive@qq.com&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.查看公钥&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cat ~/.ssh/id_rsa.pub
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
     <item>
       <title>Gravatar为用户随机生成头像</title>
-      <link>https://mu1er.github.io/post/2018-2-13-gravatar%E4%B8%BA%E7%94%A8%E6%88%B7%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E5%A4%B4%E5%83%8F/</link>
+      <link>https://auuunya.github.io/post/2018-2-13-gravatar%E4%B8%BA%E7%94%A8%E6%88%B7%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E5%A4%B4%E5%83%8F/</link>
       <pubDate>Tue, 13 Feb 2018 17:58:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-13-gravatar%E4%B8%BA%E7%94%A8%E6%88%B7%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E5%A4%B4%E5%83%8F/</guid>
+      <guid>https://auuunya.github.io/post/2018-2-13-gravatar%E4%B8%BA%E7%94%A8%E6%88%B7%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E5%A4%B4%E5%83%8F/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;今天在群里看到有人发这个Gravatar为用户随机生成图像的方法,索性干脆记下来,为防止以后要用找不到&lt;/p&gt;
 &lt;/blockquote&gt;
-
 &lt;h1 id=&#34;what-is-gravatar&#34;&gt;What Is Gravatar?&lt;/h1&gt;
-
 &lt;p&gt;&lt;a href=&#34;http://cn.gravatar.com/&#34;&gt;Gravatar&lt;/a&gt;是Globally Recognized Avatar的缩写,是gravatar推出的一项服务，意为“全球通用头像”。如果在Gravatar的服务器上放置了你自己的头像，那么在任何支持Gravatar的blog或者留言本上留言时，只要提供你与这个头像关联的email地址，就能够显示出你的Gravatar头像来。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Nginx部署Let&#39;s Encrypt免费SSL证书踩过的坑</title>
-      <link>https://mu1er.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/</link>
+      <link>https://auuunya.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/</link>
       <pubDate>Sun, 11 Feb 2018 12:08:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/</guid>
-      <description>&lt;h3 id=&#34;申请let-s-encrypt永久免费ssl证书&#34;&gt;申请Let&amp;rsquo;s Encrypt永久免费SSL证书&lt;/h3&gt;
-
-&lt;h4 id=&#34;let-s-encrypt简介&#34;&gt;Let&amp;rsquo;s Encrypt简介&lt;/h4&gt;
-
+      <guid>https://auuunya.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/</guid>
+      <description>&lt;h3 id=&#34;申请lets-encrypt永久免费ssl证书&#34;&gt;申请Let&amp;rsquo;s Encrypt永久免费SSL证书&lt;/h3&gt;
+&lt;h4 id=&#34;lets-encrypt简介&#34;&gt;Let&amp;rsquo;s Encrypt简介&lt;/h4&gt;
 &lt;p&gt;&lt;a href=&#34;https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F&#34;&gt;Let&amp;rsquo;s Encrypt&lt;/a&gt;公共且免费SSL的项目&lt;/p&gt;
-
 &lt;p&gt;&lt;a href=&#34;https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F&#34;&gt;Let&amp;rsquo;s Encrypt免费SSL&lt;/a&gt;支持包括FireFox、Chrome在内的主流浏览器的兼容和支持，虽然目前是公测阶段，但是也有不少的用户在自有网站项目中正式使用起来。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Go语言扫描硬盘查找自己需要的文件</title>
-      <link>https://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/</link>
+      <link>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/</link>
       <pubDate>Fri, 09 Feb 2018 16:05:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
+      <guid>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
       <description>&lt;h3 id=&#34;用到的包&#34;&gt;用到的包&lt;/h3&gt;
-
 &lt;p&gt;&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.4.html&#34;&gt;regexp&lt;/a&gt;
 &lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter06/06.1.html&#34;&gt;os&lt;/a&gt;
 &lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.1.html&#34;&gt;string&lt;/a&gt;
@@ -229,57 +216,56 @@ var name string
     
     <item>
       <title>Golang文件夹遍历Demo</title>
-      <link>https://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/</link>
+      <link>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/</link>
       <pubDate>Fri, 09 Feb 2018 12:05:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/</guid>
+      <guid>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/</guid>
       <description>&lt;p&gt;&lt;strong&gt;主函数&lt;/strong&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;//传递一个string类型，在这里我们传入需要扫描的路径
 &lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;getFilelist&lt;/span&gt;(path &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;){
-    &lt;span style=&#34;color:#586e75&#34;&gt;//package_name:path/filepath
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;//go doc filepath.Walk 查看这个函数的文档
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    err&lt;span style=&#34;color:#719e07&#34;&gt;:=&lt;/span&gt;filepath.&lt;span style=&#34;color:#268bd2&#34;&gt;Walk&lt;/span&gt;(path,&lt;span style=&#34;color:#268bd2&#34;&gt;func&lt;/span&gt; (path &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;,f os.FileInfo,err &lt;span style=&#34;color:#dc322f&#34;&gt;error&lt;/span&gt;) &lt;span style=&#34;color:#dc322f&#34;&gt;error&lt;/span&gt; {
-        &lt;span style=&#34;color:#586e75&#34;&gt;//如果f等于空，返回err错误
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; (f&lt;span style=&#34;color:#719e07&#34;&gt;==&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;){&lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; err}
-        &lt;span style=&#34;color:#586e75&#34;&gt;//func IsDir() bool  // abbreviation for Mode().IsDir()
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; f.&lt;span style=&#34;color:#268bd2&#34;&gt;IsDir&lt;/span&gt;(){&lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;}
-        &lt;span style=&#34;color:#b58900&#34;&gt;println&lt;/span&gt;(path)
-        &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;
-    })
-    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; err&lt;span style=&#34;color:#719e07&#34;&gt;!=&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;{
-        fmt.&lt;span style=&#34;color:#268bd2&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;filepath.Walk() returned %v\n&amp;#34;&lt;/span&gt;,err)
-    }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+	&lt;span style=&#34;color:#586e75&#34;&gt;//package_name:path/filepath
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#586e75&#34;&gt;//go doc filepath.Walk 查看这个函数的文档
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;	err&lt;span style=&#34;color:#719e07&#34;&gt;:=&lt;/span&gt;filepath.&lt;span style=&#34;color:#268bd2&#34;&gt;Walk&lt;/span&gt;(path,&lt;span style=&#34;color:#268bd2&#34;&gt;func&lt;/span&gt; (path &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;,f os.FileInfo,err &lt;span style=&#34;color:#dc322f&#34;&gt;error&lt;/span&gt;) &lt;span style=&#34;color:#dc322f&#34;&gt;error&lt;/span&gt; {
+		&lt;span style=&#34;color:#586e75&#34;&gt;//如果f等于空，返回err错误
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;		&lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; (f&lt;span style=&#34;color:#719e07&#34;&gt;==&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;){&lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; err}
+		&lt;span style=&#34;color:#586e75&#34;&gt;//func IsDir() bool  // abbreviation for Mode().IsDir()
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;		&lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; f.&lt;span style=&#34;color:#268bd2&#34;&gt;IsDir&lt;/span&gt;(){&lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;}
+		&lt;span style=&#34;color:#b58900&#34;&gt;println&lt;/span&gt;(path)
+		&lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;
+	})
+	&lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; err&lt;span style=&#34;color:#719e07&#34;&gt;!=&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;nil&lt;/span&gt;{
+		fmt.&lt;span style=&#34;color:#268bd2&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;filepath.Walk() returned %v\n&amp;#34;&lt;/span&gt;,err)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
     <item>
       <title>nginx自定义日志记录完整的请求</title>
-      <link>https://mu1er.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</link>
+      <link>https://auuunya.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</link>
       <pubDate>Thu, 25 Jan 2018 12:05:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</guid>
-      <description>&lt;h3 id=&#34;配置文件-etc-nginx-nginx-conf&#34;&gt;配置文件/etc/nginx/nginx.conf&lt;/h3&gt;</description>
+      <guid>https://auuunya.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</guid>
+      <description>&lt;h3 id=&#34;配置文件etcnginxnginxconf&#34;&gt;配置文件/etc/nginx/nginx.conf&lt;/h3&gt;</description>
     </item>
     
     <item>
       <title>CentOS 7安装jekyll静态博客并通过git自动发布</title>
-      <link>https://mu1er.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</link>
+      <link>https://auuunya.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</link>
       <pubDate>Wed, 17 Jan 2018 12:05:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</guid>
-      <description>&lt;h3 id=&#34;通过scl安装ruby-2-3&#34;&gt;通过SCL安装Ruby 2.3&lt;/h3&gt;
-
+      <guid>https://auuunya.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</guid>
+      <description>&lt;h3 id=&#34;通过scl安装ruby-23&#34;&gt;通过SCL安装Ruby 2.3&lt;/h3&gt;
 &lt;p&gt;jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>(爬虫学习)40行代码爬取猫眼电影TOP100</title>
-      <link>https://mu1er.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</link>
+      <link>https://auuunya.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</link>
       <pubDate>Fri, 12 Jan 2018 15:05:36 +0800</pubDate>
       
-      <guid>https://mu1er.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</guid>
+      <guid>https://auuunya.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</guid>
       <description>&lt;p&gt;最近一直在学习爬虫方面的知识，在网上也找了很多书和视频来看，原来Web比爬虫简单多了，建议大家如果想快速上手Python的话先从Web方面入手应该会比较快。&lt;/p&gt;
-
 &lt;p&gt;废话不多说，这篇文章是我学爬虫来踩的第一个坑，但绝不是最后一个,俗话说在失败中学习进步。从第一个错误到成功运行也是下了蛮大的功夫。&lt;/p&gt;</description>
     </item>
     

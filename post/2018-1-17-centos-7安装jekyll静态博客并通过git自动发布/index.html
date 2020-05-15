@@ -5,35 +5,34 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>CentOS 7安装jekyll静态博客并通过git自动发布 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:title" content="CentOS 7安装jekyll静态博客并通过git自动发布" />
 <meta property="og:description" content="通过SCL安装Ruby 2.3
-
 jekyll需要ruby 2.1&#43;，所以使用SCL安装ruby 2.3:" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://mu1er.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" /><meta property="article:published_time" content="2018-01-17T12:05:36&#43;08:00"/>
-<meta property="article:modified_time" content="2018-01-17T12:05:36&#43;08:00"/>
+<meta property="og:url" content="https://auuunya.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" />
+<meta property="article:published_time" content="2018-01-17T12:05:36+08:00" />
+<meta property="article:modified_time" content="2018-01-17T12:05:36+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="CentOS 7安装jekyll静态博客并通过git自动发布"/>
 <meta name="twitter:description" content="通过SCL安装Ruby 2.3
-
 jekyll需要ruby 2.1&#43;，所以使用SCL安装ruby 2.3:"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom-dark.css"  />
 
 	
-	<script src="https://mu1er.github.io/js/main.js"></script>
-	<script src="https://mu1er.github.io/js/abc.js"></script>
-	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://auuunya.github.iojs/main.js"></script>
+	<script src="https://auuunya.github.iojs/abc.js"></script>
+	<script src="https://auuunya.github.iojs/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<h1 class="site-title"><a href="https://auuunya.github.io">Auuu Nya Blog</a></h1>
 	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
 			<ul class="flat"></ul>
 		</nav>
@@ -73,10 +72,8 @@ jekyll需要ruby 2.1&#43;，所以使用SCL安装ruby 2.3:"/>
 		</div>
 
 		<div class="markdown">
-			<h3 id="通过scl安装ruby-2-3">通过SCL安装Ruby 2.3</h3>
-
+			<h3 id="通过scl安装ruby-23">通过SCL安装Ruby 2.3</h3>
 <p>jekyll需要ruby 2.1+，所以使用SCL安装ruby 2.3:</p>
-
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 1. Install a package with repository for your system:</span>
 <span style="color:#586e75"># On CentOS, install package centos-release-scl available in CentOS repository:</span>
 yum install centos-release-scl
@@ -85,18 +82,16 @@ yum install centos-release-scl
 yum install rh-ruby23
 
 <span style="color:#586e75"># 3. Show available connections</span>
-scl --list</code></pre></div>
-<h3 id="jekyll安装">jekyll安装</h3>
+scl --list
+</code></pre></div><h3 id="jekyll安装">jekyll安装</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 1. 启用 ruby2.3环境</span>
 scl <span style="color:#b58900">enable</span> rh-ruby23 bash
 
 <span style="color:#586e75"># 2. 安装jekyll及插件</span>
-gem install jekyll jekyll-paginate</code></pre></div>
-<h3 id="jekyll主题">jekyll主题</h3>
-
-<p>我们使用的主题来自 <a href="http://huxpro.github.io/">huxpro.github.io</a>，并做了定制 可以从<a href="https://github.com/Huxpro/huxpro.github.io">github</a>下载，效果图如下：
-<img src="http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/1.jpg" alt="" /></p>
-
+gem install jekyll jekyll-paginate
+</code></pre></div><h3 id="jekyll主题">jekyll主题</h3>
+<p>我们使用的主题来自 <a href="http://huxpro.github.io/">huxpro.github.io</a>，并做了定制 可以从<a href="https://github.com/Huxpro/huxpro.github.io">github</a>下载，效果图如下： 
+<img src="http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/1.jpg" alt=""></p>
 <h3 id="nginx服务设置">nginx服务设置</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">#安装nginx</span>
 yum install -y nginx
@@ -121,7 +116,7 @@ pid /run/nginx.pid;
 include /usr/share/nginx/modules/*.conf;
 
 events <span style="color:#719e07">{</span>
-    worker_connections <span style="color:#2aa198">1024</span>;
+    worker_connections 1024;
 <span style="color:#719e07">}</span>
 
 http <span style="color:#719e07">{</span>
@@ -138,8 +133,8 @@ http <span style="color:#719e07">{</span>
     sendfile            on;
     tcp_nopush          on;
     tcp_nodelay         on;
-    keepalive_timeout   <span style="color:#2aa198">65</span>;
-    types_hash_max_size <span style="color:#2aa198">2048</span>;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
 
     include             /etc/nginx/mime.types;
     default_type        application/octet-stream;
@@ -170,8 +165,8 @@ http <span style="color:#719e07">{</span>
             <span style="color:#268bd2">location</span> <span style="color:#719e07">=</span> /50x.html <span style="color:#719e07">{</span>
         <span style="color:#719e07">}</span>
     <span style="color:#719e07">}</span>
-<span style="color:#719e07">}</span></code></pre></div>
-<h3 id="git服务设置">git服务设置</h3>
+<span style="color:#719e07">}</span>
+</code></pre></div><h3 id="git服务设置">git服务设置</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 添加git用户, 并将shell设置为git-shell</span>
 useradd git --shell /usr/bin/git-shell
 
@@ -180,8 +175,8 @@ mkdir -p /home/git/blog.git
 git init --bare /home/git/blog.git
 chown -R git.git /home/git/blog.git
 
-<span style="color:#719e07">#!/bin/bash
-</span><span style="color:#719e07"></span><span style="color:#586e75"># hooks/post-receive</span>
+<span style="color:#586e75">#!/bin/bash</span>
+<span style="color:#586e75"># hooks/post-receive</span>
 
 scl <span style="color:#b58900">enable</span> rh-ruby23 - <span style="color:#2aa198">&lt;&lt; \EOF
 </span><span style="color:#2aa198">git clone /home/git/blog.git /tmp/tmp-blog-build-repo
@@ -189,7 +184,8 @@ scl <span style="color:#b58900">enable</span> rh-ruby23 - <span style="color:#2a
 </span><span style="color:#2aa198">EOF</span>
 
 rm -Rf /tmp/tmp-blog-build-repo
-exit</code></pre></div>
+<span style="color:#b58900">exit</span>
+</code></pre></div>
 		</div>
 
 		<div class="post-tags">

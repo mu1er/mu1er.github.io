@@ -5,43 +5,38 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Nginx部署Let&#39;s Encrypt免费SSL证书踩过的坑 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:title" content="Nginx部署Let&#39;s Encrypt免费SSL证书踩过的坑" />
 <meta property="og:description" content="申请Let&rsquo;s Encrypt永久免费SSL证书
-
 Let&rsquo;s Encrypt简介
-
 Let&rsquo;s Encrypt公共且免费SSL的项目
-
 Let&rsquo;s Encrypt免费SSL支持包括FireFox、Chrome在内的主流浏览器的兼容和支持，虽然目前是公测阶段，但是也有不少的用户在自有网站项目中正式使用起来。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://mu1er.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/" /><meta property="article:published_time" content="2018-02-11T12:08:36&#43;08:00"/>
-<meta property="article:modified_time" content="2018-02-11T12:08:36&#43;08:00"/>
+<meta property="og:url" content="https://auuunya.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/" />
+<meta property="article:published_time" content="2018-02-11T12:08:36+08:00" />
+<meta property="article:modified_time" content="2018-02-11T12:08:36+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Nginx部署Let&#39;s Encrypt免费SSL证书踩过的坑"/>
 <meta name="twitter:description" content="申请Let&rsquo;s Encrypt永久免费SSL证书
-
 Let&rsquo;s Encrypt简介
-
 Let&rsquo;s Encrypt公共且免费SSL的项目
-
 Let&rsquo;s Encrypt免费SSL支持包括FireFox、Chrome在内的主流浏览器的兼容和支持，虽然目前是公测阶段，但是也有不少的用户在自有网站项目中正式使用起来。"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://mu1er.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://mu1er.github.io/css/custom-dark.css"  />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.iocss/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.iocss/custom-dark.css"  />
 
 	
-	<script src="https://mu1er.github.io/js/main.js"></script>
-	<script src="https://mu1er.github.io/js/abc.js"></script>
-	<script src="https://mu1er.github.io/js/xyz.js"></script>
+	<script src="https://auuunya.github.iojs/main.js"></script>
+	<script src="https://auuunya.github.iojs/abc.js"></script>
+	<script src="https://auuunya.github.iojs/xyz.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://mu1er.github.io/">Auuu Nya Blog</a></h1>
+	<h1 class="site-title"><a href="https://auuunya.github.io">Auuu Nya Blog</a></h1>
 	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
 			<ul class="flat"></ul>
 		</nav>
@@ -81,24 +76,19 @@ Let&rsquo;s Encrypt免费SSL支持包括FireFox、Chrome在内的主流浏览器
 		</div>
 
 		<div class="markdown">
-			<h3 id="申请let-s-encrypt永久免费ssl证书">申请Let&rsquo;s Encrypt永久免费SSL证书</h3>
-
-<h4 id="let-s-encrypt简介">Let&rsquo;s Encrypt简介</h4>
-
+			<h3 id="申请lets-encrypt永久免费ssl证书">申请Let&rsquo;s Encrypt永久免费SSL证书</h3>
+<h4 id="lets-encrypt简介">Let&rsquo;s Encrypt简介</h4>
 <p><a href="https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F">Let&rsquo;s Encrypt</a>公共且免费SSL的项目</p>
-
 <p><a href="https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F">Let&rsquo;s Encrypt免费SSL</a>支持包括FireFox、Chrome在内的主流浏览器的兼容和支持，虽然目前是公测阶段，但是也有不少的用户在自有网站项目中正式使用起来。</p>
-
 <h4 id="步骤如下">步骤如下：</h4>
-
 <p><strong>第一、安装Let&rsquo;s Encrypt前的准备工作</strong></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">#检查系统是否安装git</span>
 git  --version 
 <span style="color:#586e75">#git 安装</span>
 yum install git
 <span style="color:#586e75">#查看python版本,尽量保证在2.7以上</span>
-python -v </code></pre></div>
-<p><strong>第二、获取Let&rsquo;s Encrypt免费SSL证书</strong>
+python -v 
+</code></pre></div><p><strong>第二、获取Let&rsquo;s Encrypt免费SSL证书</strong>
 //当时配置的时候,碰到好多错误,还好网上都有了解决办法,大家出错的时候可以看看letsencrypt下面的日志,里面报错内容都有,把错误尽量都解决了,再安装,不然错一次申请一次证书,次数用完,就要在等一周才能申请了.</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">#获取letsencrypt</span>
 git clone https://github.com/letsencrypt/letsencrypt
@@ -111,58 +101,52 @@ git clone https://github.com/letsencrypt/letsencrypt
 <span style="color:#586e75">#生成证书2</span>
 //我一般用这个
 ./letsencrypt-auto
-<span style="color:#2aa198">1</span>. 填入邮箱地址
-<span style="color:#2aa198">2</span>. 选择A
-<span style="color:#2aa198">3</span>. 选择Y
-<span style="color:#2aa198">4</span>. 填入域名地址    //多域名用空格或者/或者,隔开</code></pre></div>
-<p><strong>第三、Let&rsquo;s Encrypt免费SSL证书获取与应用</strong></p>
-
+1. 填入邮箱地址
+2. 选择A
+3. 选择Y
+4. 填入域名地址    //多域名用空格或者/或者,隔开
+</code></pre></div><p><strong>第三、Let&rsquo;s Encrypt免费SSL证书获取与应用</strong></p>
 <p>在完成Let&rsquo;s Encrypt证书的生成之后，我们会在&rdquo;/etc/letsencrypt/live/your_url_address/&ldquo;域名目录下有4个文件就是生成的密钥证书文件。</p>
-
 <p>cert.pem - Apache服务器端证书
 chain.pem - Apache根证书和中继证书
 fullchain.pem - Nginx所需要ssl_certificate文件
 privkey.pem - 安全证书KEY文件</p>
-
 <p>如果我们使用的Nginx环境，那就需要用到fullchain.pem和privkey.pem两个证书文件，在部署Nginx的时候需要用到。在Nginx环境中，只要将对应的ssl_certificate和ssl_certificate_key路径设置成我们生成的2个文件就可以。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">#打开linux配置文件，找到HTTPS 443端口配置的server,如果有以下文件就不需要再添加了，没有的话就添加上</span>
  ssl_certificate /etc/letsencrypt/live/your_url_address/fullchain.pem;
- ssl_certificate_key /etc/letsencrypt/live/your_url_address/privkey.pem;</code></pre></div>
-<p><strong>第四、解决Let&rsquo;s Encrypt免费SSL证书有效期问题</strong></p>
-
+ ssl_certificate_key /etc/letsencrypt/live/your_url_address/privkey.pem;
+</code></pre></div><p><strong>第四、解决Let&rsquo;s Encrypt免费SSL证书有效期问题</strong></p>
 <p>Let&rsquo;s Encrypt证书是有效期90天的，需要我们自己手工更新续期才可以。
 手工续期命令如下：_</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./letsencrypt-auto certonly --renew-by-default --email your_email@address -d your_url_address -d www.your_url_address</code></pre></div>
-<p>这样我们就可以续期,当然我们也可以写一个<code>cron</code>脚本让他自动续期</p>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./letsencrypt-auto certonly --renew-by-default --email your_email@address -d your_url_address -d www.your_url_address
+</code></pre></div><p>这样我们就可以续期,当然我们也可以写一个<code>cron</code>脚本让他自动续期</p>
 <h3 id="从证书中删除域名">从证书中删除域名</h3>
-
-<p>Let’s Encrypt目前并不提供从证书中删除域名的功能,所以我们只是把证书删除后重新申请.
-&gt; 证书每周申请数量有限,不要一直删了申请</p>
-
+<p>Let’s Encrypt目前并不提供从证书中删除域名的功能,所以我们只是把证书删除后重新申请.</p>
+<blockquote>
+<p>证书每周申请数量有限,不要一直删了申请</p>
+</blockquote>
 <p>删除证书的时候，需要删除archive中的文件和live中的符号链接，同时还需要删除证书更新的配置文件：</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">rm -rf /etc/letsencrypt/live/www.example.com/
 rm -rf /etc/letsencrypt/archive/www.example.com/
-rm /etc/letsencrypt/renewal/www.example.com.conf</code></pre></div>
-<p>删除后，重新申请证书，这里给出的是webroot方式，当然你也可以用上面的方法:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">letsencrypt certonly --webroot -w /var/www/example -d your_url_address -d www.your_url_address</code></pre></div>
-<h1 id="自动续期脚本">自动续期脚本</h1>
+rm /etc/letsencrypt/renewal/www.example.com.conf
+</code></pre></div><p>删除后，重新申请证书，这里给出的是webroot方式，当然你也可以用上面的方法:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">letsencrypt certonly --webroot -w /var/www/example -d your_url_address -d www.your_url_address
+</code></pre></div><h1 id="自动续期脚本">自动续期脚本</h1>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">//这个脚本放在和let<span style="color:#2aa198">&#39;s encrypt目录同级的目录下
 </span><span style="color:#2aa198">#!/bin/sh
 </span><span style="color:#2aa198"># This script renews all the Let&#39;</span>s Encrypt certificates with a validity &lt; <span style="color:#2aa198">30</span> days
 
-<span style="color:#719e07">if</span> ! /opt/letsencrypt/letsencrypt-auto renew &gt; /var/log/letsencrypt/renew.log <span style="color:#2aa198">2</span>&gt;&amp;<span style="color:#2aa198">1</span> ; <span style="color:#719e07">then</span>
+<span style="color:#719e07">if</span> ! /opt/letsencrypt/letsencrypt-auto renew &gt; /var/log/letsencrypt/renew.log 2&gt;&amp;<span style="color:#2aa198">1</span> ; <span style="color:#719e07">then</span>
     <span style="color:#b58900">echo</span> Automated renewal failed:
     cat /var/log/letsencrypt/renew.log
     <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-<span style="color:#719e07">fi</span></code></pre></div>
-<p><strong>权限</strong></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">chmod +x renewCerts.sh</code></pre></div>
-<p><strong>cron脚本</strong></p>
+<span style="color:#719e07">fi</span>
+</code></pre></div><p><strong>权限</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">chmod +x renewCerts.sh
+</code></pre></div><p><strong>cron脚本</strong></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">//每个月凌晨1点运行
-<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">1</span> * * /bin/sh /opt/renewCerts.sh</code></pre></div>
-<h1 id="坑">坑：</h1>
-
+<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">1</span> * * /bin/sh /opt/renewCerts.sh
+</code></pre></div><h1 id="坑">坑：</h1>
 <ul>
 <li>每周申请次数有限</li>
 <li>国内服务器要放行443端口,然后重启服务器,不然访问不到,(当时国外两个服务器很快就配置好了,国内服务器一直出错出错,后来问了几个表哥,原来是阿里云要放行一下443端口.)</li>
