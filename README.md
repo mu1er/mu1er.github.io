@@ -1,2 +1,2 @@
-[Auuu Nya Blog](https://auuunya.github.io)
+[Auuu Nya Blog](https://zyy.im)
 ##### 一枚学生
