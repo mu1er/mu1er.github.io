@@ -124,15 +124,15 @@ root@ubuntu:~#
 <span style="color:#719e07">[</span>sudo<span style="color:#719e07">]</span> password <span style="color:#719e07">for</span> cruz: 
 root@ubuntu:~# free -m
              total       used       free     shared    buffers     cached
-Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">924</span>         <span style="color:#2aa198">67</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">43</span>        <span style="color:#2aa198">426</span>
- -/+ buffers/cache:        <span style="color:#2aa198">454</span>        <span style="color:#2aa198">537</span>
-Swap:         <span style="color:#2aa198">1021</span>          <span style="color:#2aa198">0</span>       <span style="color:#2aa198">1021</span>
+Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">924</span>         <span style="color:#2aa198">67</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">43</span>        426
+ -/+ buffers/cache:        <span style="color:#2aa198">454</span>        537
+Swap:         <span style="color:#2aa198">1021</span>          <span style="color:#2aa198">0</span>       1021
 root@ubuntu:~# swapoff -a
 root@ubuntu:~# free -m
              total       used       free     shared    buffers     cached
-Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">924</span>         <span style="color:#2aa198">67</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">43</span>        <span style="color:#2aa198">426</span>
- -/+ buffers/cache:        <span style="color:#2aa198">454</span>        <span style="color:#2aa198">537</span>
-Swap:            <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>
+Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">924</span>         <span style="color:#2aa198">67</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">43</span>        426
+ -/+ buffers/cache:        <span style="color:#2aa198">454</span>        537
+Swap:            <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>          0
 root@ubuntu:~# 
 </code></pre></div><p>接下来的步骤会删除/dev/sda1和/dev/sda2，一定要记住分区表的起始位置，这里是2048！</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@ubuntu:~# fdisk /dev/sda
@@ -152,10 +152,10 @@ Disk identifier: 0x00001dec
 /dev/sda5        <span style="color:#2aa198">18876416</span>    <span style="color:#2aa198">20969471</span>     <span style="color:#2aa198">1046528</span>   <span style="color:#2aa198">82</span>  Linux swap / Solaris
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: d
-Partition number <span style="color:#719e07">(</span>1-5<span style="color:#719e07">)</span>: <span style="color:#2aa198">1</span>
+Partition number <span style="color:#719e07">(</span>1-5<span style="color:#719e07">)</span>: 1
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: d
-Partition number <span style="color:#719e07">(</span>1-5<span style="color:#719e07">)</span>: <span style="color:#2aa198">2</span>
+Partition number <span style="color:#719e07">(</span>1-5<span style="color:#719e07">)</span>: 2
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: p
 
@@ -175,10 +175,10 @@ Partition type:
    p   primary <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> primary, <span style="color:#2aa198">0</span> extended, <span style="color:#2aa198">4</span> free<span style="color:#719e07">)</span>
    e   extended
 Select <span style="color:#719e07">(</span>default p<span style="color:#719e07">)</span>: p
-Partition number <span style="color:#719e07">(</span>1-4, default 1<span style="color:#719e07">)</span>: <span style="color:#2aa198">1</span>
+Partition number <span style="color:#719e07">(</span>1-4, default 1<span style="color:#719e07">)</span>: 1
 First sector <span style="color:#719e07">(</span>2048-31457279, default 2048<span style="color:#719e07">)</span>: 
-Using default value <span style="color:#2aa198">2048</span>
-Last sector, +sectors or +size<span style="color:#719e07">{</span>K,M,G<span style="color:#719e07">}</span> <span style="color:#719e07">(</span>2048-31457279, default 31457279<span style="color:#719e07">)</span>: <span style="color:#2aa198">30410751</span>
+Using default value 2048
+Last sector, +sectors or +size<span style="color:#719e07">{</span>K,M,G<span style="color:#719e07">}</span> <span style="color:#719e07">(</span>2048-31457279, default 31457279<span style="color:#719e07">)</span>: 30410751
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: n
 Partition type:
@@ -186,11 +186,11 @@ Partition type:
    e   extended
 Select <span style="color:#719e07">(</span>default p<span style="color:#719e07">)</span>: p
 Partition number <span style="color:#719e07">(</span>1-4, default 2<span style="color:#719e07">)</span>: 
-Using default value <span style="color:#2aa198">2</span>
+Using default value 2
 First sector <span style="color:#719e07">(</span>30410752-31457279, default 30410752<span style="color:#719e07">)</span>: 
-Using default value <span style="color:#2aa198">30410752</span>
+Using default value 30410752
 Last sector, +sectors or +size<span style="color:#719e07">{</span>K,M,G<span style="color:#719e07">}</span> <span style="color:#719e07">(</span>30410752-31457279, default 31457279<span style="color:#719e07">)</span>: 
-Using default value <span style="color:#2aa198">31457279</span>
+Using default value 31457279
 </code></pre></div><p>注意记得创建交换分区，大小别搞错，这里是1046528（31457279-30410571=1046528），即要留一部分block用于创建swap。修改sda2的分区类型为82，即交换分区。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: p
 
@@ -206,14 +206,14 @@ Disk identifier: 0x00001dec
 /dev/sda2        <span style="color:#2aa198">30410752</span>    <span style="color:#2aa198">31457279</span>      <span style="color:#2aa198">523264</span>   <span style="color:#2aa198">83</span>  Linux
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: t
-Partition number <span style="color:#719e07">(</span>1-4<span style="color:#719e07">)</span>: <span style="color:#2aa198">2</span>
-Hex code <span style="color:#719e07">(</span><span style="color:#b58900">type</span> L to list codes<span style="color:#719e07">)</span>: <span style="color:#2aa198">82</span>
+Partition number <span style="color:#719e07">(</span>1-4<span style="color:#719e07">)</span>: 2
+Hex code <span style="color:#719e07">(</span><span style="color:#b58900">type</span> L to list codes<span style="color:#719e07">)</span>: 82
 Changed system <span style="color:#b58900">type</span> of partition <span style="color:#2aa198">2</span> to <span style="color:#2aa198">82</span> <span style="color:#719e07">(</span>Linux swap / Solaris<span style="color:#719e07">)</span>
 
 Command <span style="color:#719e07">(</span>m <span style="color:#719e07">for</span> <span style="color:#b58900">help</span><span style="color:#719e07">)</span>: w
 The partition table has been altered!
 
-Calling ioctl<span style="color:#719e07">()</span> to re-read partition table.
+Calling ioctl<span style="color:#719e07">(</span><span style="color:#719e07">)</span> to re-read partition table.
 
 WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
 The kernel still uses the old table. The new table will be used at
@@ -231,9 +231,9 @@ root@ubuntu:~#  awk <span style="color:#2aa198">&#39;/swap/ { print $1 }&#39;</s
 root@ubuntu:~# swapoff -a
 root@ubuntu:~# free -m
              total       used       free     shared    buffers     cached
-Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">695</span>        <span style="color:#2aa198">296</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">23</span>        <span style="color:#2aa198">325</span>
--/+ buffers/cache:        <span style="color:#2aa198">346</span>        <span style="color:#2aa198">645</span>
-Swap:            <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>
+Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">695</span>        <span style="color:#2aa198">296</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">23</span>        325
+-/+ buffers/cache:        <span style="color:#2aa198">346</span>        645
+Swap:            <span style="color:#2aa198">0</span>          <span style="color:#2aa198">0</span>          0
 root@ubuntu:~# dd <span style="color:#719e07">if</span><span style="color:#719e07">=</span>/dev/zero <span style="color:#268bd2">of</span><span style="color:#719e07">=</span>/dev/sda2
 dd: writing to <span style="color:#2aa198">&#39;/dev/sda2&#39;</span>: No space left on device
 1046529+0 records in
@@ -245,9 +245,9 @@ no label, <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</
 root@ubuntu:~# swapon -a
 root@ubuntu:~# free -m
              total       used       free     shared    buffers     cached
-Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">693</span>        <span style="color:#2aa198">298</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">23</span>        <span style="color:#2aa198">325</span>
--/+ buffers/cache:        <span style="color:#2aa198">345</span>        <span style="color:#2aa198">646</span>
-Swap:          <span style="color:#2aa198">510</span>          <span style="color:#2aa198">7</span>        <span style="color:#2aa198">503</span>
+Mem:           <span style="color:#2aa198">992</span>        <span style="color:#2aa198">693</span>        <span style="color:#2aa198">298</span>          <span style="color:#2aa198">0</span>         <span style="color:#2aa198">23</span>        325
+-/+ buffers/cache:        <span style="color:#2aa198">345</span>        646
+Swap:          <span style="color:#2aa198">510</span>          <span style="color:#2aa198">7</span>        503
 root@ubuntu:~#
 </code></pre></div><h3 id="最后调整分区大小">最后，调整分区大小：</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@ubuntu:~# df -h
@@ -260,7 +260,7 @@ none            497M  200K  496M   1% /run/shm
 root@ubuntu:~# resize2fs /dev/sda1
 resize2fs 1.42 <span style="color:#719e07">(</span>29-Nov-2011<span style="color:#719e07">)</span>
 Filesystem at /dev/sda1 is mounted on /; on-line resizing required
-<span style="color:#268bd2">old_desc_blocks</span> <span style="color:#719e07">=</span> 1, <span style="color:#268bd2">new_desc_blocks</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
+<span style="color:#268bd2">old_desc_blocks</span> <span style="color:#719e07">=</span> 1, <span style="color:#268bd2">new_desc_blocks</span> <span style="color:#719e07">=</span> 1
 Performing an on-line resize of /dev/sda1 to <span style="color:#2aa198">3801088</span> <span style="color:#719e07">(</span>4k<span style="color:#719e07">)</span> blocks.
 The filesystem on /dev/sda1 is now <span style="color:#2aa198">3801088</span> blocks long.
 

@@ -98,7 +98,7 @@
 }
 </code></pre></div><h3 id="初始化">初始化</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//Logger类型表示一个活动状态的记录日志的对象，它会生成一行行的输出写入一个io.Writer接口。
-</span><span style="color:#586e75">//每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。
+</span><span style="color:#586e75"></span><span style="color:#586e75">//每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。
 </span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> loggerf <span style="color:#719e07">*</span>log.Logger
 <span style="color:#586e75">//初始化
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">init</span>() {
@@ -111,15 +111,15 @@
 }
 </code></pre></div><h3 id="输出函数定义">输出函数定义</h3>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//获取当前函数所在的路径，文件名和行号
-</span><span style="color:#586e75">// func CallerFunc() string {
-</span><span style="color:#586e75">// 	filename, file, line, ok := runtime.Caller(0)
-</span><span style="color:#586e75">// 	if !ok {
-</span><span style="color:#586e75">// 		return &#34;&#34;
-</span><span style="color:#586e75">// 	}
-</span><span style="color:#586e75">// 	return &#34;FileName:&#34; + runtime.FuncForPC(filename).Name() + &#34; Path:&#34; + file + &#34; Line:&#34; + strconv.Itoa(line)
-</span><span style="color:#586e75">// }
-</span><span style="color:#586e75">// 当时`info`级别想要输出文件名，路径，错误行号等用了上面的函数，结果周师傅说，`log`包里面有个New函数，里面可以直接定义上面需要的信息
-</span><span style="color:#586e75">//按照格式打印日志
+</span><span style="color:#586e75"></span><span style="color:#586e75">// func CallerFunc() string {
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 	filename, file, line, ok := runtime.Caller(0)
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 	if !ok {
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 		return &#34;&#34;
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 	}
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 	return &#34;FileName:&#34; + runtime.FuncForPC(filename).Name() + &#34; Path:&#34; + file + &#34; Line:&#34; + strconv.Itoa(line)
+</span><span style="color:#586e75"></span><span style="color:#586e75">// }
+</span><span style="color:#586e75"></span><span style="color:#586e75">// 当时`info`级别想要输出文件名，路径，错误行号等用了上面的函数，结果周师傅说，`log`包里面有个New函数，里面可以直接定义上面需要的信息
+</span><span style="color:#586e75"></span><span style="color:#586e75">//按照格式打印日志
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Debugf</span>(format <span style="color:#dc322f">string</span>, v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
 	<span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelDebug {
 		<span style="color:#586e75">//log里的函数都自带有mutex
@@ -150,8 +150,8 @@
 }
 
 <span style="color:#586e75">//标准输出
-</span><span style="color:#586e75">//Println存在输出会换行
-</span><span style="color:#586e75">//这里采用Print输出方式
+</span><span style="color:#586e75"></span><span style="color:#586e75">//Println存在输出会换行
+</span><span style="color:#586e75"></span><span style="color:#586e75">//这里采用Print输出方式
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Debug</span>(v <span style="color:#719e07">...</span><span style="color:#268bd2">interface</span>{}) {
 	<span style="color:#719e07">if</span> logFile.level <span style="color:#719e07">&gt;=</span> LevelDebug {
 		loggerf.<span style="color:#268bd2">Print</span>(<span style="color:#2aa198">&#34;[DEBUG] &#34;</span> <span style="color:#719e07">+</span> fmt.<span style="color:#268bd2">Sprintln</span>(v<span style="color:#719e07">...</span>))
@@ -193,7 +193,7 @@
 	<span style="color:#719e07">return</span> filepathstr, <span style="color:#cb4b16">nil</span>
 }
 <span style="color:#586e75">//创建日志文件
-</span><span style="color:#586e75">//制定创建路径和日志名
+</span><span style="color:#586e75"></span><span style="color:#586e75">//制定创建路径和日志名
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Init</span>(path, logname <span style="color:#dc322f">string</span>, level <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 	<span style="color:#719e07">if</span> path <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
 		filePath, _ <span style="color:#719e07">:=</span> <span style="color:#268bd2">getwd</span>()

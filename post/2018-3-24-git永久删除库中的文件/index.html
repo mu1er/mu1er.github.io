@@ -76,9 +76,9 @@
 git log --pretty<span style="color:#719e07">=</span>oneline --branches -- bigfile
 
 <span style="color:#586e75">#2. 让git重写每一个分支, 删除bigfile</span>
-git filter-branch --force --index-filter <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#39;git rm --cached --ignore-unmatch BIGFILE&#39;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--prune-empty --tag-name-filter cat -- --all
+git filter-branch --force --index-filter <span style="color:#cb4b16">\</span>
+<span style="color:#2aa198">&#39;git rm --cached --ignore-unmatch BIGFILE&#39;</span> <span style="color:#cb4b16">\</span>
+--prune-empty --tag-name-filter cat -- --all
 
 <span style="color:#586e75">#3. 推送修改</span>
 git push --all --force
