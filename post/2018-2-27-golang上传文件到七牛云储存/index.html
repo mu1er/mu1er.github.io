@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Golang上传文件到七牛云 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Golang上传文件到七牛云" />
+<meta property="og:description" content="
+最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解
+" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://auuunya.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-02-27T18:20:36+08:00" />
+<meta property="article:modified_time" content="2018-02-27T18:20:36+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang上传文件到七牛云"/>
+<meta name="twitter:description" content="
+最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解
+"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom-dark.css"  />
+
+	
+	<script src="https://auuunya.github.io/js/main.js"></script>
+	<script src="https://auuunya.github.io/js/abc.js"></script>
+	<script src="https://auuunya.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://auuunya.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Golang上传文件到七牛云</h1>
+			<div class="meta">Posted at &mdash; Feb 27, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<hr>
+<p>最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解</p>
+<hr>
+<h3 id="获取">获取</h3>
+<p>首先要获取的是七牛云官方的SDK</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">go</span> get <span style="color:#719e07">-</span>u github.com<span style="color:#719e07">/</span>qiniu<span style="color:#719e07">/</span>api.v7
+</code></pre></div><h3 id="七牛云">七牛云</h3>
+<ul>
+<li><a href="https://www.qiniu.com/">七牛云</a>没有帐号的去注册一个帐号。</li>
+<li><a href="https://portal.qiniu.com/user/key">个人中心</a>有账号的直接进个人中心，去查看秘钥	AccessKey/SecretKey</li>
+</ul>
+<h3 id="代码">代码</h3>
+<p>一些常变量</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">const</span> (
+	<span style="color:#586e75">//本地保存的文件夹名称
+</span><span style="color:#586e75"></span>	upload_path <span style="color:#dc322f">string</span> = <span style="color:#2aa198">&#34;/files/&#34;</span>
+)
+
+<span style="color:#268bd2">var</span> (
+	<span style="color:#586e75">//BUCKET是你在存储空间的名称
+</span><span style="color:#586e75"></span>	ACCESS_KEY = <span style="color:#2aa198">&#34;******EA09VCy5EfN_*******************&#34;</span>
+	SECRET_KEY = <span style="color:#2aa198">&#34;******-yvwcYwImN6F*******************&#34;</span>
+	BUCKET     = <span style="color:#2aa198">&#34;bucket&#34;</span>
+)
+</code></pre></div><h5 id="web端代码"><code>WEB</code>端代码</h5>
+<p><strong>获取上传的文件</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">uploadHandle</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+	<span style="color:#586e75">//从请求当中判断方法
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> r.Method <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;GET&#34;</span> {
+		tmp, err <span style="color:#719e07">:=</span> template.<span style="color:#268bd2">ParseFiles</span>(<span style="color:#2aa198">&#34;templates/upload.html&#34;</span>)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;模版渲染失败&#34;</span>)
+		}
+		tmp.<span style="color:#268bd2">Execute</span>(w, <span style="color:#cb4b16">nil</span>)
+	} <span style="color:#719e07">else</span> {
+		<span style="color:#586e75">//获取文件内容 要这样获取
+</span><span style="color:#586e75"></span>		file, head, err <span style="color:#719e07">:=</span> r.<span style="color:#268bd2">FormFile</span>(<span style="color:#2aa198">&#34;file&#34;</span>)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			fmt.<span style="color:#268bd2">Println</span>(err)
+			<span style="color:#719e07">return</span>
+		}
+		<span style="color:#719e07">defer</span> file.<span style="color:#268bd2">Close</span>()
+		<span style="color:#586e75">//创建文件夹
+</span><span style="color:#586e75"></span>		pwd, _ <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getwd</span>()
+		<span style="color:#586e75">//文件夹存在的话会返回一个错误，可以用`_`抛出去
+</span><span style="color:#586e75"></span>		err = os.<span style="color:#268bd2">Mkdir</span>(pwd<span style="color:#719e07">+</span>upload_path, os.ModePerm)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;dir is create Error&#34;</span>)
+		}
+		fW, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Create</span>(pwd <span style="color:#719e07">+</span> upload_path <span style="color:#719e07">+</span> head.Filename)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;文件创建失败&#34;</span>)
+			<span style="color:#719e07">return</span>
+		}
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#719e07">*</span>fW)
+		<span style="color:#719e07">defer</span> fW.<span style="color:#268bd2">Close</span>()
+		<span style="color:#586e75">//复制文件，保存到本地
+</span><span style="color:#586e75"></span>		_, err = io.<span style="color:#268bd2">Copy</span>(fW, file)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;文件保存失败&#34;</span>)
+			<span style="color:#719e07">return</span>
+		}
+		<span style="color:#586e75">//调用七牛上传函数
+</span><span style="color:#586e75"></span>		<span style="color:#268bd2">upload_qiniu</span>(pwd <span style="color:#719e07">+</span> upload_path <span style="color:#719e07">+</span> head.Filename)
+		http.<span style="color:#268bd2">Redirect</span>(w, r, <span style="color:#2aa198">&#34;/&#34;</span>, http.StatusFound)
+	}
+}
+</code></pre></div><p><strong>七牛云上传函数</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">upload_qiniu</span>(filePath <span style="color:#dc322f">string</span>) {
+	key <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;github-x.png&#34;</span>
+	<span style="color:#586e75">//上传凭证,关于凭证这块大家可以去看看官方文档
+</span><span style="color:#586e75"></span>	putPolicy <span style="color:#719e07">:=</span> storage.PutPolicy{
+		Scope: BUCKET,
+	}
+	mac <span style="color:#719e07">:=</span> qbox.<span style="color:#268bd2">NewMac</span>(ACCESS_KEY, SECRET_KEY)
+	upToken <span style="color:#719e07">:=</span> putPolicy.<span style="color:#268bd2">UploadToken</span>(mac)
+	cfg <span style="color:#719e07">:=</span> storage.Config{}
+	<span style="color:#586e75">//空间对应机房
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//其中关于Zone对象和机房的关系如下：
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//	机房	Zone对象
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//	华东	storage.ZoneHuadong
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//	华北	storage.ZoneHuabei
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//	华南	storage.ZoneHuanan
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//	北美	storage.ZoneBeimei
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//七牛云存储空间设置首页有存储区域
+</span><span style="color:#586e75"></span>	cfg.Zone = <span style="color:#719e07">&amp;</span>storage.ZoneHuanan
+	<span style="color:#586e75">//不启用HTTPS域名
+</span><span style="color:#586e75"></span>	cfg.UseHTTPS = <span style="color:#cb4b16">false</span>
+	<span style="color:#586e75">//不使用CND加速
+</span><span style="color:#586e75"></span>	cfg.UseCdnDomains = <span style="color:#cb4b16">false</span>
+	<span style="color:#586e75">//构建上传表单对象
+</span><span style="color:#586e75"></span>	formUploader <span style="color:#719e07">:=</span> storage.<span style="color:#268bd2">NewFormUploader</span>(<span style="color:#719e07">&amp;</span>cfg)
+	ret <span style="color:#719e07">:=</span> storage.PutRet{}
+	<span style="color:#586e75">// 可选
+</span><span style="color:#586e75"></span>	putExtra <span style="color:#719e07">:=</span> storage.PutExtra{
+		Params: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>{
+			<span style="color:#2aa198">&#34;x:name&#34;</span>: <span style="color:#2aa198">&#34;github logo&#34;</span>,
+		},
+	}
+	err <span style="color:#719e07">:=</span> formUploader.<span style="color:#268bd2">PutFile</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#719e07">&amp;</span>ret, upToken, key, filePath, <span style="color:#719e07">&amp;</span>putExtra)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		fmt.<span style="color:#268bd2">Println</span>(err)
+		<span style="color:#719e07">return</span>
+	}
+	fmt.<span style="color:#268bd2">Println</span>(ret.Key, ret.Hash)
+}
+</code></pre></div><ul>
+<li><strong>整个代码最主要的是存储在本地的路径，然后在上传函数里面读取路径上传文件</strong></li>
+<li><strong>可能还会有其他的方便，快捷的方法，我也还在摸索中，这个算是这几天学习的一个总结，后续还会修改代码，做一些扩展</strong></li>
+<li><a href="https://github.com/ma1ive/Go/blob/master/qiniu/main.go">完整代码地址</a></li>
+</ul>
+		</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/golang">golang</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+</html>

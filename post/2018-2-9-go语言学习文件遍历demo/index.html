@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Golang文件夹遍历Demo - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Golang文件夹遍历Demo" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-02-09T12:05:36+08:00" />
+<meta property="article:modified_time" content="2018-02-09T12:05:36+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang文件夹遍历Demo"/>
+<meta name="twitter:description" content=""/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom.css" />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/dark.css"  />
+	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom-dark.css"  />
+
+	
+	<script src="https://auuunya.github.io/js/main.js"></script>
+	<script src="https://auuunya.github.io/js/abc.js"></script>
+	<script src="https://auuunya.github.io/js/xyz.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://auuunya.github.io/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Golang文件夹遍历Demo</h1>
+			<div class="meta">Posted at &mdash; Feb 9, 2018</div>
+		</div>
+
+		<div class="markdown">
+			<p><strong>主函数</strong>:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//传递一个string类型，在这里我们传入需要扫描的路径
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getFilelist</span>(path <span style="color:#dc322f">string</span>){
+	<span style="color:#586e75">//package_name:path/filepath
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">//go doc filepath.Walk 查看这个函数的文档
+</span><span style="color:#586e75"></span>	err<span style="color:#719e07">:=</span>filepath.<span style="color:#268bd2">Walk</span>(path,<span style="color:#268bd2">func</span> (path <span style="color:#dc322f">string</span>,f os.FileInfo,err <span style="color:#dc322f">error</span>) <span style="color:#dc322f">error</span> {
+		<span style="color:#586e75">//如果f等于空，返回err错误
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> (f<span style="color:#719e07">==</span><span style="color:#cb4b16">nil</span>){<span style="color:#719e07">return</span> err}
+		<span style="color:#586e75">//func IsDir() bool  // abbreviation for Mode().IsDir()
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> f.<span style="color:#268bd2">IsDir</span>(){<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>}
+		<span style="color:#b58900">println</span>(path)
+		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+	})
+	<span style="color:#719e07">if</span> err<span style="color:#719e07">!=</span><span style="color:#cb4b16">nil</span>{
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;filepath.Walk() returned %v\n&#34;</span>,err)
+	}
+}
+</code></pre></div><p><strong>main入口函数:</strong></p>
+<p><a href="https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter13/13.1.html">flag</a>-命令行参数解析</p>
+<p>在写命令行程序（工具、server）时，对命令参数进行解析是常见的需求。各种语言一般都会提供解析命令行参数的方法或库，以方便程序员使用。如果命令行参数纯粹自己写代码解析，对于比较复杂的，还是挺费劲的。在 go 标准库中提供了一个包：flag，方便进行命令行解析</p>
+<p><strong>注:区分几个概念</strong></p>
+<ol>
+<li>命令行参数（或参数）：是指运行程序提供的参数</li>
+<li>已定义命令行参数：是指程序中通过flag.Xxx等这种形式定义了的参数</li>
+<li>非flag（non-flag）命令行参数（或保留的命令行参数）：后文解释</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>(){
+        flag.<span style="color:#268bd2">Parse</span>()
+        root <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">Arg</span>(<span style="color:#2aa198">0</span>)
+        <span style="color:#268bd2">getFilelist</span>(root)
+}
+</code></pre></div><p><strong>运行实例:</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">go</span> run filepath.<span style="color:#719e07">go</span> f:\
+<span style="color:#719e07">...</span>
+</code></pre></div>
+		</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/golang">golang</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+</html>
