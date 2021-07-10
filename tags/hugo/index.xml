@@ -2,22 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hugo on Auuu Nya Blog</title>
+<<<<<<< HEAD
     <link>https://auuunya.github.io/tags/hugo/</link>
+=======
+    <link>https://zyy.im/tags/hugo/</link>
+>>>>>>> 4c99fc5274c2a9131351404e1641f2c72d73fb8e
     <description>Recent content in Hugo on Auuu Nya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-an</language>
     <copyright>© Copyright AuuuNya</copyright>
     <lastBuildDate>Thu, 17 Jan 2019 15:35:55 +0800</lastBuildDate>
     
+<<<<<<< HEAD
 	<atom:link href="https://auuunya.github.io/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
+=======
+	<atom:link href="https://zyy.im/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
+>>>>>>> 4c99fc5274c2a9131351404e1641f2c72d73fb8e
     
     
     <item>
       <title>Hello Hugo</title>
+<<<<<<< HEAD
       <link>https://auuunya.github.io/post/first/</link>
       <pubDate>Thu, 17 Jan 2019 15:35:55 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/first/</guid>
+=======
+      <link>https://zyy.im/post/first/</link>
+      <pubDate>Thu, 17 Jan 2019 15:35:55 +0800</pubDate>
+      
+      <guid>https://zyy.im/post/first/</guid>
+>>>>>>> 4c99fc5274c2a9131351404e1641f2c72d73fb8e
       <description>博客从Jekyll迁移到了Hugo，主题为next主题改了一些东西。</description>
     </item>
     

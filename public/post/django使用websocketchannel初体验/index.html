@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Django使用Websocket,Channel初体验 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Django使用Websocket,Channel初体验" />
+<meta property="og:description" content="很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zyy.im/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/" />
+<meta property="article:published_time" content="2020-04-09T23:59:15+08:00" />
+<meta property="article:modified_time" content="2020-04-09T23:59:15+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Django使用Websocket,Channel初体验"/>
+<meta name="twitter:description" content="很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="https://zyy.im/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://zyy.im/css/main.css" /><link rel="stylesheet" type="text/css" href="https://zyy.im/css/dark.css"  />
+
+	
+	<script src="https://zyy.im/js/main.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="https://zyy.im/">Auuu Nya Blog</a></h1>
+	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
+			<ul class="flat"></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/post">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/about/about/">About</a>
+			</li>
+			
+			<li>
+				<a href="/tags">Tags</a>
+			</li>
+			
+			<li>
+				<a href="/links/links/">Links</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Django使用Websocket,Channel初体验</h1>
+			<div class="meta">Posted at &mdash; Apr 9, 2020</div>
+		</div>
+
+		<div class="markdown">
+			<p>很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。</p>
+<h3 id="什么是websocket">什么是Websocket</h3>
+<p><a href="https://baike.baidu.com/item/WebSocket/1953845?fr=aladdin">websocket的介绍</a>
+<a href="http://www.ruanyifeng.com/blog/2017/05/websocket.html">WebSocket-阮一峰老师</a>
+通俗的来说Websocket就是一个双向通道，客户端可以主动给服务端发消息，服务端也可以主动给客户端发送消息。</p>
+<p><a href="https://channels.readthedocs.io/en/latest/index.html">Channels</a>是Django里面可以构建websocket的模块，官方文档里说了很清晰了，就是一个以处理WebSocket，聊天协议，IoT协议的模块，基于称为ASGI的Python规范构建。它可以以异步的方式进行。</p>
+<h3 id="安装配置">安装配置</h3>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">python2: pip install -U channels
+python3: pip3 install -U channels
+
+# 添加到yourproject.settings
+INSTALLED_APPS = (
+    &#39;django.contrib.auth&#39;,
+    &#39;django.contrib.contenttypes&#39;,
+    &#39;django.contrib.sessions&#39;,
+    &#39;django.contrib.sites&#39;,
+    ...
+    &#39;channels&#39;,
+)
+
+# yourproject/routing.py
+from channels.routing import ProtocolTypeRouter
+
+application = ProtocolTypeRouter({
+    # Empty for now (http-&gt;django views is added by default)
+})
+
+# 修改settings文件，yourproject/settings,添加下面一行内容
+
+ASGI_APPLICATION = &#34;yourproject.routing.application&#34;
+
+</code></pre></div><p>启用之后，通道就会将自己集成到Django中，并控制runserver命令</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 启动之后命令行变成 ASGI/channels
+Starting ASGI/Channels version 2.4.0 development server at https://127.0.0.1:8000/
+</code></pre></div><p>下面是在实际中编写的一个模块，主要用websocket连接通道，然后服务端主动推送消息.聊天室的例子大家可以在网上搜一下有很多，我在这里就不多做描写了。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 目录结构
+yourproject/
+ - yourproject/
+    - asgi.py
+    - routing.py
+    - wsgi.py
+    - settings.py
+    - urls.py
+ - chat/
+    - routing.py
+    - consumers.py
+    - controller.py
+ - manage.py
+
+# youproject/routing.py
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.conf.urls import url
+from chat import routing
+application = ProtocolTypeRouter({
+    # 没有做权限校验
+    &#34;websocket&#34;: URLRouter(
+      chat.routing.websocket_urlpatterns
+    )
+})
+
+# chat/routing.py
+from django.conf.urls import re_path
+from monitor.consumers import AsyncConsumer
+
+websocket_urlpatterns = [
+    # api router setting
+    re_path(r&#39;ws/chat/&#39;, AsyncConsumer)
+]
+
+# 官方文档一般建议使用AsyncWebsocketConsumer
+# 原文默认情况下编写SyncConsumers，并且仅在以下情况下使用AsyncConsumers：通过异步处理来改善的事情
+# 如果想要在其他模块主动推送消息给客户端，必须使用通道，通道分为Redis和内存通道（生产中不建议使用）
+# 配置通道层
+# yourproject/settings.py
+CHANNEL_LAYERS = {
+    &#34;default&#34;: {
+        &#34;BACKEND&#34;: &#34;channels_redis.core.RedisChannelLayer&#34;,
+        &#34;CONFIG&#34;: {
+            &#34;hosts&#34;: [(&#34;127.0.0.1&#34;, 6379)],
+        },
+    },
+}
+# chat/consumers.py
+from channels.generic.websocket import AsyncWebsocketConsumer
+from monitor import CHANNEL_NAME
+from redis_cache import REDIS_CONN
+import json
+
+class AsyncConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        &#34;&#34;&#34;
+        连接时触发 并且分配一个self.channel_name名称可以存数据库
+        这里我存入redis 主要方便
+        &#34;&#34;&#34;
+        REDIS_CONN.lpush(CHANNEL_NAME, self.channel_name)
+        await self.accept()
+
+    # Receive message from WebSocket
+    async def receive(self, text_data=None, bytes_data=None):
+
+        # text_data_json = json.loads(text_data)
+        # message = text_data_json[&#39;message&#39;]
+        # 接受信息并回复
+        await self.send(text_data = json.dumps(text_data))
+
+    async def disconnect(self, close_code):
+        # 将关闭的连接从群组中移除
+        results = REDIS_CONN.lrange(CHANNEL_NAME, 0, REDIS_CONN.llen(CHANNEL_NAME))
+        for index, item in enumerate(results):
+            if self.channel_name == item:
+                REDIS_CONN.lrem(CHANNEL_NAME, index, item)
+        await self.close()
+
+    # 主动推送的事件处理方法
+    async def push_message(self, event):
+        data = json.dumps(event[&#34;text&#34;])
+        await self.send(text_data = data)
+
+# chat/controller.py
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from monitor import CHANNEL_NAME
+from redis_cache import REDIS_CONN
+# 官方例子，异步推送消息
+channel_layer = get_channel_layer()
+await channel_layer.send(&#34;channel_name&#34;, {
+    &#34;type&#34;: &#34;chat.message&#34;,
+    &#34;text&#34;: &#34;Hello there!&#34;,
+})
+# 同步推送消息，调用函数即可推送
+def push_chat_message(data):
+    &#34;&#34;&#34;
+    从redis拿到已经连接的通道名称
+    &#34;&#34;&#34;
+    channel_layer = get_channel_layer()
+    # 循环redis中的channel_name，并且推送消息
+    results = REDIS_CONN.lrange(CHANNEL_NAME, 0, REDIS_CONN.llen(CHANNEL_NAME))
+    for channel in results:
+        async_to_sync(channel_layer.send)(channel,
+            {
+                # consumer中的事件处理方法,建议为事件类型加上前缀如`push.`避免冲突.
+                &#34;type&#34;: &#34;push.message&#34;,
+                &#34;text&#34;: data,
+            }
+        )
+</code></pre></div><p>以上就是单通道推送消息的例子，第一次使用也有很多地方不清楚，这块只是做个记录，根据网上看到的一些资料，再总结一下。如果想要了解聊天室的例子，大家可以去网上搜一下，有很多，官方文档也有<a href="https://channels.readthedocs.io/en/latest/tutorial/index.html">chan_examplte</a>.还望大佬们轻拍.</p>
+		</div>
+
+		<div class="post-tags">
+			
+				
+					<nav class="nav tags">
+							<ul class="flat">
+								
+								<li><a href="/tags/python">Python</a></li>
+								
+								<li><a href="/tags/django">Django</a></li>
+								
+								<li><a href="/tags/websocket">Websocket</a></li>
+								
+								<li><a href="/tags/channel">Channel</a></li>
+								
+							</ul>
+					</nav>
+				
+			
+		</div>
+		</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+</html>
