@@ -1,9 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" itemscope itemtype="http://schema.org/WebPage">
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>XMLHTTPRequest状态status完整列表 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="XMLHTTPRequest状态status完整列表" />
+  <meta name="generator" content="Hugo 0.85.0" />
+  <meta charset="utf-8">
+  <title>XMLHTTPRequest状态status完整列表 · AuuuNya Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）
+" />
+
+  <meta name="keywords" content="Hugo, blog, auuunya, zyy, auuunya blog, AuuuNya" />
+
+<link rel="canonical" href="https://auuunya.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/" />
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<link rel="stylesheet" href="https://auuunya.github.io/css/den.css">
+
+
+
+
+<meta property="og:title" content="XMLHTTPRequest状态status完整列表" />
 <meta property="og:description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）" />
 <meta property="og:type" content="article" />
@@ -11,69 +27,113 @@
 <meta property="article:published_time" content="2018-04-05T12:58:36+08:00" />
 <meta property="article:modified_time" content="2018-04-05T12:58:36+08:00" />
 
-<meta name="twitter:card" content="summary"/>
+<meta itemprop="name" content="XMLHTTPRequest状态status完整列表">
+<meta itemprop="description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）"><meta itemprop="datePublished" content="2018-04-05T12:58:36+08:00" />
+<meta itemprop="dateModified" content="2018-04-05T12:58:36+08:00" />
+<meta itemprop="wordCount" content="3627">
+<meta itemprop="keywords" content="HTTP," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="XMLHTTPRequest状态status完整列表"/>
 <meta name="twitter:description" content="AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）"/>
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom-dark.css"  />
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
 	
-	<script src="https://auuunya.github.io/js/main.js"></script>
-	<script src="https://auuunya.github.io/js/abc.js"></script>
-	<script src="https://auuunya.github.io/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 </head>
-
 <body>
-	<div class="container wrapper post">
-		<div class="header">
-	<h1 class="site-title"><a href="https://auuunya.github.io/">Auuu Nya Blog</a></h1>
-	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
-			<ul class="flat"></ul>
-		</nav>
-	</div>
-
-	<nav class="nav">
-		<ul class="flat">
-			
-			<li>
-				<a href="/">Home</a>
-			</li>
-			
-			<li>
-				<a href="/post">All posts</a>
-			</li>
-			
-			<li>
-				<a href="/about/about/">About</a>
-			</li>
-			
-			<li>
-				<a href="/tags">Tags</a>
-			</li>
-			
-			<li>
-				<a href="/links/links/">Links</a>
-			</li>
-			
-		</ul>
-	</nav>
+  
+  <div class="header-container gradient">
+  <div class="container">
+  <nav class="header-nav navbar navbar-expand-md navbar-dark light-dark">
+    <div class="header-logo navbar-brand">
+      
+        <a class="float-left" href="https://auuunya.github.io/">
+      
+        
+        
+          AuuuNya
+         
+      </a>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="nav-menu collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/">Home</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/about/about/">About</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/tags">Tags</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/links/links/">Links</a>
+              
+            
+          </li>
+        
+        
+      </ul>
+    </div>
+  </nav>
 </div>
 
+<div class="container header-wrapper">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="header-content">
+        <h1 class="header-title">XMLHTTPRequest状态status完整列表</h1>
+        <p class="header-date">
+        2018-04-05
+        <div class="header-underline"></div>
+        
+          <div class="clearfix"></div>
+          <p class="float-right header-tags">
+              <i class="fas fa-tags" aria-hidden="true"></i>
+              <a href="https://auuunya.github.io/tags/http/">HTTP</a>
+          </p>
+        
+        
 
-		<div class="post-header">
-			<h1 class="title">XMLHTTPRequest状态status完整列表</h1>
-			<div class="meta">Posted at &mdash; Apr 5, 2018</div>
-		</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-		<div class="markdown">
-			<p>AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+  </div>
+  <main>
+<div class="container content">
+  <article>
+  <p>AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
 当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）</p>
 <p>Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
 状态行包含HTTP版本、状态代码、与状态代码对应的简短说明信息。在大多数情况下，除了Content-Type之外的所有应答头都是可选的。但Content-Type是必需的，它描述的是后面文档的MIME类型。虽然大多数应答都包含一个文档，但也有一些不包含，例如对HEAD请求的应答永远不会附带文档。有许多状态代码实际上用来标识一次失败的请求，这些应答也不包含文档（或只包含一个简短的错误信息说明）。 
@@ -215,41 +275,63 @@
 <li>504 - Gateway Timeout 网关超时，由作为代理或网关的服务器使用，表示不能及时地从远程服务器获得应答。（HTTP 1.1新）。</li>
 <li>505 - HTTP Version Not Supported 服务器不支持请求中所指明的HTTP版本。</li>
 </ul>
-		</div>
+  </article>
 
-		<div class="post-tags">
-			
-				
-					<nav class="nav tags">
-							<ul class="flat">
-								
-								<li><a href="/tags/http">HTTP</a></li>
-								
-							</ul>
-					</nav>
-				
-			
-		</div>
-		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
-	</nav>
+  
+  
+    
+  
+  
+
+
 </div>
 
-
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-123-45', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+  </main><div class="footer gradient-2">
+  <div class="container footer-container ">
+    <div class="row">
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        <div class="footer-title">Sitemap</div>
+        <ul class="list-unstyled">
+            
+              
+                <li><a href="https://auuunya.github.io/tags/">Tags</a></li>
+              
+              
+            
+            
+            
+            <li><a rel="alternate" type="application/rss&#43;xml" href="https://auuunya.github.io/index.xml"><i class="fas fa-rss-square"></i> RSS Feed</a></li>
+            
+            
+            
+        </ul>
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div> 
+      <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+        <p class="pull-right text-right">
+          <small><em>Proudly powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo</a></em></small><br/>
+          <small><em>Theme - <a href="https://github.com/shaform/hugo-theme-den" rel="noopener" target="_blank">Den</a></em></small><br/>
+          <small>
+            &copy; 
+            AuuuNya
+            
+              2018 -
+            2021
+          </small>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
 </body>
 </html>

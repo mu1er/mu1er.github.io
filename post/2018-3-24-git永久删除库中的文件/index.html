@@ -1,117 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" itemscope itemtype="http://schema.org/WebPage">
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Git永久删除库中的文件 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="Git永久删除库中的文件" />
+  <meta name="generator" content="Hugo 0.85.0" />
+  <meta charset="utf-8">
+  <title>Git永久删除库中的文件 · AuuuNya Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用git rm删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用git clone的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。
+" />
+
+  <meta name="keywords" content="Hugo, blog, auuunya, zyy, auuunya blog, AuuuNya" />
+
+<link rel="canonical" href="https://auuunya.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/" />
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<link rel="stylesheet" href="https://auuunya.github.io/css/den.css">
+
+
+
+
+<meta property="og:title" content="Git永久删除库中的文件" />
 <meta property="og:description" content="如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用git rm删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用git clone的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://auuunya.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2018-03-24T13:50:33+08:00" />
 <meta property="article:modified_time" content="2018-03-24T13:50:33+08:00" />
 
-<meta name="twitter:card" content="summary"/>
+<meta itemprop="name" content="Git永久删除库中的文件">
+<meta itemprop="description" content="如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用git rm删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用git clone的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。"><meta itemprop="datePublished" content="2018-03-24T13:50:33+08:00" />
+<meta itemprop="dateModified" content="2018-03-24T13:50:33+08:00" />
+<meta itemprop="wordCount" content="483">
+<meta itemprop="keywords" content="git," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Git永久删除库中的文件"/>
 <meta name="twitter:description" content="如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用git rm删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用git clone的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。"/>
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
-
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom-dark.css"  />
-
-	
-	<script src="https://auuunya.github.io/js/main.js"></script>
-	<script src="https://auuunya.github.io/js/abc.js"></script>
-	<script src="https://auuunya.github.io/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-</head>
-
-<body>
-	<div class="container wrapper post">
-		<div class="header">
-	<h1 class="site-title"><a href="https://auuunya.github.io/">Auuu Nya Blog</a></h1>
-	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
-			<ul class="flat"></ul>
-		</nav>
-	</div>
-
-	<nav class="nav">
-		<ul class="flat">
-			
-			<li>
-				<a href="/">Home</a>
-			</li>
-			
-			<li>
-				<a href="/post">All posts</a>
-			</li>
-			
-			<li>
-				<a href="/about/about/">About</a>
-			</li>
-			
-			<li>
-				<a href="/tags">Tags</a>
-			</li>
-			
-			<li>
-				<a href="/links/links/">Links</a>
-			</li>
-			
-		</ul>
-	</nav>
-</div>
-
-
-		<div class="post-header">
-			<h1 class="title">Git永久删除库中的文件</h1>
-			<div class="meta">Posted at &mdash; Mar 24, 2018</div>
-		</div>
-
-		<div class="markdown">
-			<p>如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用<code>git rm</code>删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用<code>git clone</code>的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。</p>
-<h3 id="解决办法">解决办法</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">#1. 确定文件从哪个commit引入的</span>
-git log --pretty<span style="color:#719e07">=</span>oneline --branches -- bigfile
-
-<span style="color:#586e75">#2. 让git重写每一个分支, 删除bigfile</span>
-git filter-branch --force --index-filter <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#34;git rm --cached --ignore-unmatch BIGFILE&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--prune-empty --tag-name-filter cat -- --all
-
-<span style="color:#586e75">#3. 推送修改</span>
-git push --all --force
-</code></pre></div><h3 id="参数说明">参数说明</h3>
-<p><code>filter-branch</code> 是让git重写每一个分支，</p>
-<p><code>--force</code> 假如遇到冲突也让git强制执行， <code>--index-filter</code> 选项指定重写的时候应该执行什么命令，要执行的命令紧跟在它的后面，在这里就是<code>git rm --cached --ignore-unmatch bigfile</code> ，让git删除掉缓存的文件，如果有匹配的话。</p>
-<p><code>--prune-empty</code> 选项告诉git，如果因为重写导致某些<strong>commit</strong>变成了空（比如修改的文件全部被删除），那么忽略掉这个commit。</p>
-<p><code>--tag-name-filter</code> 表示对每一个tag如何重命名，重命名的命令紧跟在后面，当前的tag名会从标注输入送给后面的命令，用cat就表示保持tag名不变。</p>
-<p>紧跟着的<code>--</code> 表示分割符，最后的<code>--all</code> 表示对所有的文件都考虑在内。</p>
-		</div>
-
-		<div class="post-tags">
-			
-				
-					<nav class="nav tags">
-							<ul class="flat">
-								
-								<li><a href="/tags/git">git</a></li>
-								
-							</ul>
-					</nav>
-				
-			
-		</div>
-		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
-	</nav>
-</div>
-
-
 
 <script type="application/javascript">
 var doNotTrack = false;
@@ -123,7 +44,167 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+</head>
+<body>
+  
+  <div class="header-container gradient">
+  <div class="container">
+  <nav class="header-nav navbar navbar-expand-md navbar-dark light-dark">
+    <div class="header-logo navbar-brand">
+      
+        <a class="float-left" href="https://auuunya.github.io/">
+      
+        
+        
+          AuuuNya
+         
+      </a>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="nav-menu collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/">Home</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/about/about/">About</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/tags">Tags</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/links/links/">Links</a>
+              
+            
+          </li>
+        
+        
+      </ul>
+    </div>
+  </nav>
+</div>
 
+<div class="container header-wrapper">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="header-content">
+        <h1 class="header-title">Git永久删除库中的文件</h1>
+        <p class="header-date">
+        2018-03-24
+        <div class="header-underline"></div>
+        
+          <div class="clearfix"></div>
+          <p class="float-right header-tags">
+              <i class="fas fa-tags" aria-hidden="true"></i>
+              <a href="https://auuunya.github.io/tags/git/">git</a>
+          </p>
+        
+        
+
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+  <main>
+<div class="container content">
+  <article>
+  <p>如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用<code>git rm</code>删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用<code>git clone</code>的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。</p>
+<h3 id="解决办法">解决办法</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#1. 确定文件从哪个commit引入的</span>
+git log --pretty<span class="o">=</span>oneline --branches -- bigfile
+
+<span class="c1">#2. 让git重写每一个分支, 删除bigfile</span>
+git filter-branch --force --index-filter <span class="se">\
+</span><span class="se"></span><span class="s2">&#34;git rm --cached --ignore-unmatch BIGFILE&#34;</span> <span class="se">\
+</span><span class="se"></span>--prune-empty --tag-name-filter cat -- --all
+
+<span class="c1">#3. 推送修改</span>
+git push --all --force
+</code></pre></div><h3 id="参数说明">参数说明</h3>
+<p><code>filter-branch</code> 是让git重写每一个分支，</p>
+<p><code>--force</code> 假如遇到冲突也让git强制执行， <code>--index-filter</code> 选项指定重写的时候应该执行什么命令，要执行的命令紧跟在它的后面，在这里就是<code>git rm --cached --ignore-unmatch bigfile</code> ，让git删除掉缓存的文件，如果有匹配的话。</p>
+<p><code>--prune-empty</code> 选项告诉git，如果因为重写导致某些<strong>commit</strong>变成了空（比如修改的文件全部被删除），那么忽略掉这个commit。</p>
+<p><code>--tag-name-filter</code> 表示对每一个tag如何重命名，重命名的命令紧跟在后面，当前的tag名会从标注输入送给后面的命令，用cat就表示保持tag名不变。</p>
+<p>紧跟着的<code>--</code> 表示分割符，最后的<code>--all</code> 表示对所有的文件都考虑在内。</p>
+  </article>
+
+  
+  
+    
+  
+  
+
+
+</div>
+
+  </main><div class="footer gradient-2">
+  <div class="container footer-container ">
+    <div class="row">
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        <div class="footer-title">Sitemap</div>
+        <ul class="list-unstyled">
+            
+              
+                <li><a href="https://auuunya.github.io/tags/">Tags</a></li>
+              
+              
+            
+            
+            
+            <li><a rel="alternate" type="application/rss&#43;xml" href="https://auuunya.github.io/index.xml"><i class="fas fa-rss-square"></i> RSS Feed</a></li>
+            
+            
+            
+        </ul>
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div> 
+      <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+        <p class="pull-right text-right">
+          <small><em>Proudly powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo</a></em></small><br/>
+          <small><em>Theme - <a href="https://github.com/shaform/hugo-theme-den" rel="noopener" target="_blank">Den</a></em></small><br/>
+          <small>
+            &copy; 
+            AuuuNya
+            
+              2018 -
+            2021
+          </small>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
 </body>
 </html>

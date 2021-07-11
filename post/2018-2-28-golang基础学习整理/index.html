@@ -1,84 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" itemscope itemtype="http://schema.org/WebPage">
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Golang基础学习整理 - Auuu Nya Blog</title><link rel="icon" type="image/png" href=icons/myicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="Golang基础学习整理" />
+  <meta name="generator" content="Hugo 0.85.0" />
+  <meta charset="utf-8">
+  <title>Golang基础学习整理 · AuuuNya Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="" />
+
+  <meta name="keywords" content="Hugo, blog, auuunya, zyy, auuunya blog, AuuuNya" />
+
+<link rel="canonical" href="https://auuunya.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/" />
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<link rel="stylesheet" href="https://auuunya.github.io/css/den.css">
+
+
+
+
+<meta property="og:title" content="Golang基础学习整理" />
 <meta property="og:description" content="" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://auuunya.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2018-02-28T13:20:36+08:00" />
 <meta property="article:modified_time" content="2018-02-28T13:20:36+08:00" />
 
-<meta name="twitter:card" content="summary"/>
+<meta itemprop="name" content="Golang基础学习整理">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2018-02-28T13:20:36+08:00" />
+<meta itemprop="dateModified" content="2018-02-28T13:20:36+08:00" />
+<meta itemprop="wordCount" content="2055">
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Golang基础学习整理"/>
 <meta name="twitter:description" content=""/>
-<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://auuunya.github.io/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom.css" />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/dark.css"  />
-	<link rel="stylesheet" type="text/css" href="https://auuunya.github.io/css/custom-dark.css"  />
-
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-123-45', 'auto');
 	
-	<script src="https://auuunya.github.io/js/main.js"></script>
-	<script src="https://auuunya.github.io/js/abc.js"></script>
-	<script src="https://auuunya.github.io/js/xyz.js"></script>
-	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 </head>
-
 <body>
-	<div class="container wrapper post">
-		<div class="header">
-	<h1 class="site-title"><a href="https://auuunya.github.io/">Auuu Nya Blog</a></h1>
-	<div class="site-description"><h2>只会写Hello,World的菜鸟</h2><nav class="nav social">
-			<ul class="flat"></ul>
-		</nav>
-	</div>
-
-	<nav class="nav">
-		<ul class="flat">
-			
-			<li>
-				<a href="/">Home</a>
-			</li>
-			
-			<li>
-				<a href="/post">All posts</a>
-			</li>
-			
-			<li>
-				<a href="/about/about/">About</a>
-			</li>
-			
-			<li>
-				<a href="/tags">Tags</a>
-			</li>
-			
-			<li>
-				<a href="/links/links/">Links</a>
-			</li>
-			
-		</ul>
-	</nav>
+  
+  <div class="header-container gradient">
+  <div class="container">
+  <nav class="header-nav navbar navbar-expand-md navbar-dark light-dark">
+    <div class="header-logo navbar-brand">
+      
+        <a class="float-left" href="https://auuunya.github.io/">
+      
+        
+        
+          AuuuNya
+         
+      </a>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="nav-menu collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/">Home</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/about/about/">About</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/tags">Tags</a>
+              
+            
+          </li>
+        
+          <li class="nav-item">
+            
+              
+                <a class="nav-link" href="https://auuunya.github.io/links/links/">Links</a>
+              
+            
+          </li>
+        
+        
+      </ul>
+    </div>
+  </nav>
 </div>
 
+<div class="container header-wrapper">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="header-content">
+        <h1 class="header-title">Golang基础学习整理</h1>
+        <p class="header-date">
+        2018-02-28
+        <div class="header-underline"></div>
+        
+          <div class="clearfix"></div>
+          <p class="float-right header-tags">
+              <i class="fas fa-tags" aria-hidden="true"></i>
+              <a href="https://auuunya.github.io/tags/golang/">golang</a>
+          </p>
+        
+        
 
-		<div class="post-header">
-			<h1 class="title">Golang基础学习整理</h1>
-			<div class="meta">Posted at &mdash; Feb 28, 2018</div>
-		</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-		<div class="markdown">
-			<ol>
+  </div>
+  <main>
+<div class="container content">
+  <article>
+  <ol>
 <li><code>iota</code> iota是golang的一个关键字，此关键字用来声明enum的时候采用，默认从0开始，每遇到一个类似const就会重置为0。</li>
 <li>通过开头字母大小写来实现变量和函数的公有私有。例:</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">//公有
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> Name <span style="color:#dc322f">string</span>
-<span style="color:#586e75">//私有
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> name <span style="color:#dc322f">string</span>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//公有
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">Name</span> <span class="kt">string</span>
+<span class="c1">//私有
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">name</span> <span class="kt">string</span>
 </code></pre></div><ol start="3">
 <li>将数组作为函数参数进行传递时，实际传入的是该数组的副本。</li>
 <li>由于初始化数组时无法预知定义多大的空间，就需要使用类似动态数组的结构，go语言中采用<code>slice</code>来实现数组的切片，类似<strong>python</strong>中的切片，
@@ -132,50 +190,50 @@ const(
 </ul>
 <h5 id="指针">指针</h5>
 <p>var 变量名 <code>*类型</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">eg:var ptr [MAX]*int    //指向数组的指针
+<pre><code>eg:var ptr [MAX]*int    //指向数组的指针
 /*
 默认值 nil,没有NULL值
-&#34;&amp;&#34;取变量地址,“*”通过指针访问目标对象
+&quot;&amp;&quot;取变量地址,“*”通过指针访问目标对象
 不能对指针做加减乘除运算
 不存在函数的指针
 */
 var ptr *[3]int      //数组指针,保存了一个数组地址
 var ptr [3]*int      //指针数组,每元素都是指针
-</code></pre></div><h5 id="type自定义类型">type自定义类型</h5>
+</code></pre><h5 id="type自定义类型">type自定义类型</h5>
 <p>type 类型名字 底层类型</p>
 <h5 id="switch">Switch</h5>
 <p>只有在case中明确添加<strong>fallthrough</strong>关键字，才会继续执行下一个case
 不带条件表达式的<code>Switch</code>与<strong>if&hellip;else</strong>相同，遇到<code>false</code>停止</p>
 <h5 id="数组">数组</h5>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> 数组名 [长度]类型
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">数组名</span> <span class="p">[</span><span class="nx">长度</span><span class="p">]</span><span class="nx">类型</span>
 </code></pre></div><h6 id="数组切片">数组切片</h6>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> 数组切片 []类型      <span style="color:#586e75">//声明无需定义长度
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">数组切片</span> <span class="p">[]</span><span class="nx">类型</span>      <span class="c1">//声明无需定义长度
 </span></code></pre></div><p>直接创建切片</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#b58900">make</span>([]Type,len[,cap])
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nb">make</span><span class="p">([]</span><span class="nx">Type</span><span class="p">,</span><span class="nx">len</span><span class="p">[,</span><span class="nx">cap</span><span class="p">])</span>
 </code></pre></div><p>切片可遍历，可修改，不可比较</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">slice.<span style="color:#b58900">copy</span>(slice1,slice2)    <span style="color:#586e75">//slice2赋值给slice1
-</span><span style="color:#586e75"></span><span style="color:#2aa198">```go
-</span><span style="color:#2aa198">  包       功能
-</span><span style="color:#2aa198">`</span>strings<span style="color:#2aa198">`  提供了字符串查询、替换、比较、截断、拆分和合并等功能。
-</span><span style="color:#2aa198">`</span>bytes<span style="color:#2aa198">`    提供了很多与strings包类似的功能。因为字符串是只读的，逐步构建字符串会导致很多分配和复制，这种情况下，使用bytes.Buffer类型将会更有效。
-</span><span style="color:#2aa198">`</span>strconv<span style="color:#2aa198">`  提供了布尔类型、整数、浮点数和对应字符串的相互转换，还提供了双引号转义相关的转换。
-</span><span style="color:#2aa198">`</span>unicode<span style="color:#2aa198">`  提供了IsDigit、IsLetter、IsUpper和IsLower等功能，用于给字符分类。
-</span><span style="color:#2aa198">##### 映射
-</span><span style="color:#2aa198">声明:var 映射名称 map[键]值
-</span><span style="color:#2aa198">只是声明一个map，它的初始值是nil，也就是没有引用任何哈希表。所以不能向一个nil值的map存入元素
-</span><span style="color:#2aa198">创建:
-</span><span style="color:#2aa198">```</span><span style="color:#719e07">go</span>
-<span style="color:#b58900">make</span>(<span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">int</span>)
-<span style="color:#b58900">make</span>(<span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">int</span>,<span style="color:#2aa198">100</span>)  <span style="color:#586e75">//初始存储能力100
-</span><span style="color:#586e75"></span><span style="color:#b58900">make</span>(<span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">&#34;key&#34;</span>:value,<span style="color:#2aa198">&#34;key&#34;</span>:value})
-<span style="color:#586e75">//添加
-</span><span style="color:#586e75"></span>Map[<span style="color:#2aa198">&#34;key&#34;</span>]=value
-<span style="color:#586e75">//删除
-</span><span style="color:#586e75"></span><span style="color:#b58900">delete</span>(<span style="color:#268bd2">map</span>,<span style="color:#2aa198">&#34;key&#34;</span>)
-<span style="color:#586e75">//查看是否存在此key
-</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> v,ok <span style="color:#719e07">:=</span> Map[key];!ok{
-not key
-}
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">slice</span><span class="p">.</span><span class="nb">copy</span><span class="p">(</span><span class="nx">slice1</span><span class="p">,</span><span class="nx">slice2</span><span class="p">)</span>    <span class="c1">//slice2赋值给slice1
+</span><span class="c1"></span><span class="s">```go
+</span><span class="s">  包       功能
+</span><span class="s">`</span><span class="nx">strings</span><span class="s">`  提供了字符串查询、替换、比较、截断、拆分和合并等功能。
+</span><span class="s">`</span><span class="nx">bytes</span><span class="s">`    提供了很多与strings包类似的功能。因为字符串是只读的，逐步构建字符串会导致很多分配和复制，这种情况下，使用bytes.Buffer类型将会更有效。
+</span><span class="s">`</span><span class="nx">strconv</span><span class="s">`  提供了布尔类型、整数、浮点数和对应字符串的相互转换，还提供了双引号转义相关的转换。
+</span><span class="s">`</span><span class="nx">unicode</span><span class="s">`  提供了IsDigit、IsLetter、IsUpper和IsLower等功能，用于给字符分类。
+</span><span class="s">##### 映射
+</span><span class="s">声明:var 映射名称 map[键]值
+</span><span class="s">只是声明一个map，它的初始值是nil，也就是没有引用任何哈希表。所以不能向一个nil值的map存入元素
+</span><span class="s">创建:
+</span><span class="s">```</span><span class="k">go</span>
+<span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">)</span>
+<span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>  <span class="c1">//初始存储能力100
+</span><span class="c1"></span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{</span><span class="s">&#34;key&#34;</span><span class="p">:</span><span class="nx">value</span><span class="p">,</span><span class="s">&#34;key&#34;</span><span class="p">:</span><span class="nx">value</span><span class="p">})</span>
+<span class="c1">//添加
+</span><span class="c1"></span><span class="nx">Map</span><span class="p">[</span><span class="s">&#34;key&#34;</span><span class="p">]=</span><span class="nx">value</span>
+<span class="c1">//删除
+</span><span class="c1"></span><span class="nb">delete</span><span class="p">(</span><span class="kd">map</span><span class="p">,</span><span class="s">&#34;key&#34;</span><span class="p">)</span>
+<span class="c1">//查看是否存在此key
+</span><span class="c1"></span><span class="k">if</span> <span class="nx">v</span><span class="p">,</span><span class="nx">ok</span> <span class="o">:=</span> <span class="nx">Map</span><span class="p">[</span><span class="nx">key</span><span class="p">];!</span><span class="nx">ok</span><span class="p">{</span>
+<span class="nx">not</span> <span class="nx">key</span>
+<span class="p">}</span>
 </code></pre></div><h5 id="函数">函数</h5>
 <p>func 函数名([形参列表])[返回值列表]{
 //函数体
@@ -191,50 +249,72 @@ func Sum(vals &hellip;int)int{
 }
 <code>defer</code>通常用于 <strong>open/close</strong>, <strong>connect/disconnect</strong>, <strong>lock/unlock</strong> 等这些成对的操作, 来保证在任何情况下资源都被正确释放</p>
 <h5 id="结构体">结构体</h5>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> 类型名称 <span style="color:#268bd2">struct</span>{
-<span style="color:#586e75">//成员列表
-</span><span style="color:#586e75"></span>}
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">类型名称</span> <span class="kd">struct</span><span class="p">{</span>
+<span class="c1">//成员列表
+</span><span class="c1"></span><span class="p">}</span>
 </code></pre></div><h6 id="方法">方法</h6>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span>  (变量名 类型)方法名称( [形参列表] ) [返回值列表]{
-  <span style="color:#586e75">// 方法体
-</span><span style="color:#586e75"></span>}
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span>  <span class="p">(</span><span class="nx">变量名</span> <span class="nx">类型</span><span class="p">)</span><span class="nx">方法名称</span><span class="p">(</span> <span class="p">[</span><span class="nx">形参列表</span><span class="p">]</span> <span class="p">)</span> <span class="p">[</span><span class="nx">返回值列表</span><span class="p">]{</span>
+  <span class="c1">// 方法体
+</span><span class="c1"></span><span class="p">}</span>
 </code></pre></div><h6 id="接口-interface">接口 <code>interface</code></h6>
 <p>一个类型如果拥有一个接口需要的所有方法，那么这个类型就实现了这个接口。</p>
-		</div>
+  </article>
 
-		<div class="post-tags">
-			
-				
-					<nav class="nav tags">
-							<ul class="flat">
-								
-								<li><a href="/tags/golang">golang</a></li>
-								
-							</ul>
-					</nav>
-				
-			
-		</div>
-		</div>
-	<div class="footer wrapper">
-	<nav class="nav">
-		<div> © Copyright AuuuNya |  <a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div>
-	</nav>
+  
+  
+    
+  
+  
+
+
 </div>
 
-
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-123-45', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+  </main><div class="footer gradient-2">
+  <div class="container footer-container ">
+    <div class="row">
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        <div class="footer-title">Sitemap</div>
+        <ul class="list-unstyled">
+            
+              
+                <li><a href="https://auuunya.github.io/tags/">Tags</a></li>
+              
+              
+            
+            
+            
+            <li><a rel="alternate" type="application/rss&#43;xml" href="https://auuunya.github.io/index.xml"><i class="fas fa-rss-square"></i> RSS Feed</a></li>
+            
+            
+            
+        </ul>
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div>
+      <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+        
+      </div> 
+      <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+        <p class="pull-right text-right">
+          <small><em>Proudly powered by <a href="https://gohugo.io/" rel="noopener" target="_blank">Hugo</a></em></small><br/>
+          <small><em>Theme - <a href="https://github.com/shaform/hugo-theme-den" rel="noopener" target="_blank">Den</a></em></small><br/>
+          <small>
+            &copy; 
+            AuuuNya
+            
+              2018 -
+            2021
+          </small>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
 </body>
 </html>

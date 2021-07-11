@@ -1,20 +1,171 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:webfeeds="http://webfeeds.org/rss/1.0">
   <channel>
-    <title>Auuu Nya Blog</title>
+    <title>AuuuNya Blog</title>
     <link>https://auuunya.github.io/</link>
-    <description>Recent content on Auuu Nya Blog</description>
+    <description>Recent content on AuuuNya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-an</language>
-    <copyright>© Copyright AuuuNya</copyright>
-    <lastBuildDate>Thu, 09 Apr 2020 23:59:15 +0800</lastBuildDate><atom:link href="https://auuunya.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-cn</language>
+    <copyright>AuuuNya</copyright>
+    <lastBuildDate>Thu, 09 Apr 2020 23:59:15 +0800</lastBuildDate>
+    
+    <atom:link href="https://auuunya.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Django使用Websocket,Channel初体验</title>
       <link>https://auuunya.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</link>
       <pubDate>Thu, 09 Apr 2020 23:59:15 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/django%E4%BD%BF%E7%94%A8websocketchannel%E5%88%9D%E4%BD%93%E9%AA%8C/</guid>
-      <description>&lt;p&gt;很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;很久都没更新文章了，最近恰好在做了一个服务端主动推送消息给客户端的需求，因为是第一次使用Channels模块，踩了不少坑，在这里记录一下。&lt;/p&gt;
+&lt;h3 id=&#34;什么是websocket&#34;&gt;什么是Websocket&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://baike.baidu.com/item/WebSocket/1953845?fr=aladdin&#34;&gt;websocket的介绍&lt;/a&gt;
+&lt;a href=&#34;http://www.ruanyifeng.com/blog/2017/05/websocket.html&#34;&gt;WebSocket-阮一峰老师&lt;/a&gt;
+通俗的来说Websocket就是一个双向通道，客户端可以主动给服务端发消息，服务端也可以主动给客户端发送消息。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://channels.readthedocs.io/en/latest/index.html&#34;&gt;Channels&lt;/a&gt;是Django里面可以构建websocket的模块，官方文档里说了很清晰了，就是一个以处理WebSocket，聊天协议，IoT协议的模块，基于称为ASGI的Python规范构建。它可以以异步的方式进行。&lt;/p&gt;
+&lt;h3 id=&#34;安装配置&#34;&gt;安装配置&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;python2: pip install -U channels
+python3: pip3 install -U channels
+
+# 添加到yourproject.settings
+INSTALLED_APPS = (
+    &#39;django.contrib.auth&#39;,
+    &#39;django.contrib.contenttypes&#39;,
+    &#39;django.contrib.sessions&#39;,
+    &#39;django.contrib.sites&#39;,
+    ...
+    &#39;channels&#39;,
+)
+
+# yourproject/routing.py
+from channels.routing import ProtocolTypeRouter
+
+application = ProtocolTypeRouter({
+    # Empty for now (http-&amp;gt;django views is added by default)
+})
+
+# 修改settings文件，yourproject/settings,添加下面一行内容
+
+ASGI_APPLICATION = &amp;quot;yourproject.routing.application&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;启用之后，通道就会将自己集成到Django中，并控制runserver命令&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 启动之后命令行变成 ASGI/channels
+Starting ASGI/Channels version 2.4.0 development server at https://127.0.0.1:8000/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;下面是在实际中编写的一个模块，主要用websocket连接通道，然后服务端主动推送消息.聊天室的例子大家可以在网上搜一下有很多，我在这里就不多做描写了。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 目录结构
+yourproject/
+ - yourproject/
+    - asgi.py
+    - routing.py
+    - wsgi.py
+    - settings.py
+    - urls.py
+ - chat/
+    - routing.py
+    - consumers.py
+    - controller.py
+ - manage.py
+
+# youproject/routing.py
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.conf.urls import url
+from chat import routing
+application = ProtocolTypeRouter({
+    # 没有做权限校验
+    &amp;quot;websocket&amp;quot;: URLRouter(
+      chat.routing.websocket_urlpatterns
+    )
+})
+
+# chat/routing.py
+from django.conf.urls import re_path
+from monitor.consumers import AsyncConsumer
+
+websocket_urlpatterns = [
+    # api router setting
+    re_path(r&#39;ws/chat/&#39;, AsyncConsumer)
+]
+
+# 官方文档一般建议使用AsyncWebsocketConsumer
+# 原文默认情况下编写SyncConsumers，并且仅在以下情况下使用AsyncConsumers：通过异步处理来改善的事情
+# 如果想要在其他模块主动推送消息给客户端，必须使用通道，通道分为Redis和内存通道（生产中不建议使用）
+# 配置通道层
+# yourproject/settings.py
+CHANNEL_LAYERS = {
+    &amp;quot;default&amp;quot;: {
+        &amp;quot;BACKEND&amp;quot;: &amp;quot;channels_redis.core.RedisChannelLayer&amp;quot;,
+        &amp;quot;CONFIG&amp;quot;: {
+            &amp;quot;hosts&amp;quot;: [(&amp;quot;127.0.0.1&amp;quot;, 6379)],
+        },
+    },
+}
+# chat/consumers.py
+from channels.generic.websocket import AsyncWebsocketConsumer
+from monitor import CHANNEL_NAME
+from redis_cache import REDIS_CONN
+import json
+
+class AsyncConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        &amp;quot;&amp;quot;&amp;quot;
+        连接时触发 并且分配一个self.channel_name名称可以存数据库
+        这里我存入redis 主要方便
+        &amp;quot;&amp;quot;&amp;quot;
+        REDIS_CONN.lpush(CHANNEL_NAME, self.channel_name)
+        await self.accept()
+
+    # Receive message from WebSocket
+    async def receive(self, text_data=None, bytes_data=None):
+
+        # text_data_json = json.loads(text_data)
+        # message = text_data_json[&#39;message&#39;]
+        # 接受信息并回复
+        await self.send(text_data = json.dumps(text_data))
+
+    async def disconnect(self, close_code):
+        # 将关闭的连接从群组中移除
+        results = REDIS_CONN.lrange(CHANNEL_NAME, 0, REDIS_CONN.llen(CHANNEL_NAME))
+        for index, item in enumerate(results):
+            if self.channel_name == item:
+                REDIS_CONN.lrem(CHANNEL_NAME, index, item)
+        await self.close()
+
+    # 主动推送的事件处理方法
+    async def push_message(self, event):
+        data = json.dumps(event[&amp;quot;text&amp;quot;])
+        await self.send(text_data = data)
+
+# chat/controller.py
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from monitor import CHANNEL_NAME
+from redis_cache import REDIS_CONN
+# 官方例子，异步推送消息
+channel_layer = get_channel_layer()
+await channel_layer.send(&amp;quot;channel_name&amp;quot;, {
+    &amp;quot;type&amp;quot;: &amp;quot;chat.message&amp;quot;,
+    &amp;quot;text&amp;quot;: &amp;quot;Hello there!&amp;quot;,
+})
+# 同步推送消息，调用函数即可推送
+def push_chat_message(data):
+    &amp;quot;&amp;quot;&amp;quot;
+    从redis拿到已经连接的通道名称
+    &amp;quot;&amp;quot;&amp;quot;
+    channel_layer = get_channel_layer()
+    # 循环redis中的channel_name，并且推送消息
+    results = REDIS_CONN.lrange(CHANNEL_NAME, 0, REDIS_CONN.llen(CHANNEL_NAME))
+    for channel in results:
+        async_to_sync(channel_layer.send)(channel,
+            {
+                # consumer中的事件处理方法,建议为事件类型加上前缀如`push.`避免冲突.
+                &amp;quot;type&amp;quot;: &amp;quot;push.message&amp;quot;,
+                &amp;quot;text&amp;quot;: data,
+            }
+        )
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以上就是单通道推送消息的例子，第一次使用也有很多地方不清楚，这块只是做个记录，根据网上看到的一些资料，再总结一下。如果想要了解聊天室的例子，大家可以去网上搜一下，有很多，官方文档也有&lt;a href=&#34;https://channels.readthedocs.io/en/latest/tutorial/index.html&#34;&gt;chan_examplte&lt;/a&gt;.还望大佬们轻拍.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -23,8 +174,104 @@
       <pubDate>Tue, 07 Jan 2020 23:23:19 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2019%E5%B9%B4%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%90%E4%BA%8B/</guid>
-      <description>&lt;p&gt;眨眼就到2020年了,不由得感慨时间过得真快,回想这一年来发生的事,那可真谓是丰富多彩,多滋多味.(不知道18年立的Flag实现了多少???)&lt;/p&gt;
-&lt;p&gt;成长不少,难过也不见得少&amp;hellip;&amp;hellip;&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;眨眼就到2020年了,不由得感慨时间过得真快,回想这一年来发生的事,那可真谓是丰富多彩,多滋多味.(不知道18年立的Flag实现了多少???)&lt;/p&gt;
+&lt;p&gt;成长不少,难过也不见得少&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;时间飞快&#34;&gt;时间飞快&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;19/01.05：好朋友结婚,做伴郎&lt;/li&gt;
+&lt;li&gt;19/02.20：去往成都游玩了几天&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;怀疑了自己三个月&lt;/del&gt;&lt;/li&gt;
+&lt;li&gt;19/05.01：入职新公司,区块链安全行业,主要做后台开发&lt;/li&gt;
+&lt;li&gt;19/07.01：入职后的第一个项目试运营,不过此时的水平能自己一个人单独做出来前后端已经很不错了&lt;/li&gt;
+&lt;li&gt;19/09：公司搬家,并且第一个团建,大家一起吃了个饭,此时已经开始慢慢融入团队&lt;/li&gt;
+&lt;li&gt;19/10中：招进来前端妹子,UI妹子(终于不是一群大老爷们了^ ^~&lt;/li&gt;
+&lt;li&gt;19/11初：此时觉得自己很牛,开始不再考虑业务上的东西,都去看什么所谓的高端技术了(这个时候是真2逼~~&lt;/li&gt;
+&lt;li&gt;19/11.01：和四叶草团队一起团建,爬了一次秦岭&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;ul&gt;
+&lt;li&gt;19/12初：调整状态&lt;/li&gt;
+&lt;li&gt;19/12中：开始尝试更多东西,做自己喜欢做的事&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;流水账&#34;&gt;流水账&lt;/h3&gt;
+&lt;p&gt;    这一年确实挺丰富,一月份认识十几年的好友兼技术大佬结婚,有幸当了一回伴郎,和非正常人类研究中心的小伙伴们见了一面,坐在一起来了几把开心五黑,辅助莫甘娜带飞四个菜,闹伴郎那天着实有点开心.后来挺后悔之前没有出去外面工作.&lt;/p&gt;
+&lt;p&gt;    二月份的时候有天晚上在一块喝酒,桌上有个友人随口说了一句不如我们去成都玩一次.于是当晚拍板买了去成都的票,什么计划也没有做,第二天匆匆去北站坐车赶去了成都.在成都这几天可真是火辣辣的生活,天天都是火锅.- -.以至于我现在看到太辣的东西都不想动筷子.两天半的时间我们去了宽窄巷子、春熙路、大熊猫繁育基地,晚上去了一次酒吧街,不过没有进去消费,也不知道是怕啥?&amp;hellip;&lt;/p&gt;
+&lt;p&gt;    回来之后消失了一段时间.沉迷了一段时间.每天都过的非常焦虑,天天怀疑自己.也挺感谢在这段时间帮助过我的朋友,由衷的感谢.&lt;/p&gt;
+&lt;p&gt;    四月下旬的时候与邓哥和琨哥聊的时候都感觉到挺合拍,于是五月份入职.一开始的时候挺怀疑自己,接手的项目是一套后端用的Python,前端用的Vue.自己一个人在哪琢磨修改了差不多两个多月吧,搞完.在这期间是真的觉得自己技术成长了,并且顺利学会了Vue&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;    接下来的日子就是守规守据的度过一天又一天的工作,期间招过一个前端,结果确定了入职后,前端回家结婚了- -,然后又是我自己在那依靠着我这仅有的一丝审美去做一些前端上的事情.这段时间在前端方向的道路是越走越远,有点迷幻.&lt;/p&gt;
+&lt;p&gt;    九月份公司搬家了,之后工作效率感到明显的提升,多多少少做了五/六个项目,基本都是&lt;code&gt;Go + Vue&lt;/code&gt;前后端分离.估计也是心态膨胀了,听到需求之后就直接上手撸代码,没有好好梳理过自己的思路,没有考虑过如果去构思一个项目的框架,包括注释也是写的乱七八糟,没有一个好的规范.那几天满脑子骚操作什么&lt;code&gt;RPC 微服务 并发&lt;/code&gt;啥的,现在想想都没多少用户,考虑那么多干啥,真2逼~.于是在做完这几个项目之后,恰好公司招进来几个伙伴.然后自己更多的是考虑微小功能的实现点,去思考业务原型,在某个业务模块停留很长时间,去尝试十几遍,怎么修改它会提升效率,或者让代码看起来更美观一点.&lt;/p&gt;
+&lt;p&gt;    十一月份和四叶草的小伙伴一起爬了一次秦岭,早晨八点去,晚上十点回.累也开心.&lt;/p&gt;
+&lt;p&gt;    emmmmmm&amp;hellip;&lt;del&gt;这段时间删掉&lt;/del&gt; 祝万事胜意.&lt;/p&gt;
+&lt;p&gt;    十二月份是一个繁忙的月份,一小半在工作,一大半在生活&amp;hellip;去听了辉子的LiveHouse,现场听了&lt;!-- raw HTML omitted --&gt;,去了两三次漫巷,买了一些书回来看,在南门LEGO店,买了一盒乐高,熬夜拼了三个小时.看了几场电影,强推《触不可及》,美版/法版都推给你们.买了一根横笛本来想买唢呐怕扰民,不过买回来还没吹过一次,看来要找时间学学.这个月萌发了很多奇奇怪怪的想法,谢谢那些能陪我去尝试的人,感谢我身边出现的每个人,每位朋友.&lt;/p&gt;
+&lt;p&gt;    雪融化之后,是春天&lt;/p&gt;
+&lt;h3 id=&#34;阅读&#34;&gt;阅读&lt;/h3&gt;
+&lt;p&gt;没读完的也算里面&amp;hellip;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;《设计模式》&lt;/li&gt;
+&lt;li&gt;《Python基础教程》&lt;/li&gt;
+&lt;li&gt;《Vue实战》&lt;/li&gt;
+&lt;li&gt;《Go程序设计语言》&lt;/li&gt;
+&lt;li&gt;《PythonWeb学习开发》&lt;/li&gt;
+&lt;li&gt;《HTML5/CSS3开发实战》&lt;/li&gt;
+&lt;li&gt;《禅者的初心》&lt;/li&gt;
+&lt;li&gt;《天才在左，疯子在右》&lt;/li&gt;
+&lt;li&gt;《流言》 -张爱玲&lt;/li&gt;
+&lt;li&gt;《重返边城》 -张爱玲&lt;/li&gt;
+&lt;li&gt;《看过无数的云，却只爱过一个你》 -沈从文&lt;/li&gt;
+&lt;li&gt;《沈从文自传》 -沈从文&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;电影&#34;&gt;电影&lt;/h3&gt;
+&lt;p&gt;这一年看过的电影太多了,除过影院上映过的,我就推一些我觉得有必要多看几遍的电影&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;《触不可及》&lt;/li&gt;
+&lt;li&gt;《万箭穿心》&lt;/li&gt;
+&lt;li&gt;《我们俩》&lt;/li&gt;
+&lt;li&gt;《失孤》&lt;/li&gt;
+&lt;li&gt;《守望者》&lt;/li&gt;
+&lt;li&gt;《亲爱的,不要跨过那条江》&lt;/li&gt;
+&lt;li&gt;《好兆头》&lt;/li&gt;
+&lt;li&gt;《诺丁山》&lt;/li&gt;
+&lt;li&gt;《真爱至上》&lt;/li&gt;
+&lt;li&gt;《天空之上三公尺》&lt;/li&gt;
+&lt;li&gt;《海蒂与爷爷》&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;另外一提,漫威宇宙太强了,国内的动漫也崛起了,国漫加油.内心os：&lt;!-- raw HTML omitted --&gt;I Like BiliBili&lt;!-- raw HTML omitted --&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;工作&#34;&gt;工作&lt;/h3&gt;
+&lt;p&gt;    没有在学习什么新的技术,更多的是业务水平方向的成长,能更好的去从一个用户的方向去理解某个功能模块的作用,和同事配合方向更默契了,在细节上下的功夫比较多.要说学习的话,成功转型成了前端算不算&amp;hellip;&lt;/p&gt;
+&lt;h3 id=&#34;感情&#34;&gt;感情&lt;/h3&gt;
+&lt;p&gt;    你好,我姓张&lt;/p&gt;
+&lt;h3 id=&#34;遗憾&#34;&gt;遗憾&lt;/h3&gt;
+&lt;p&gt;    腹肌没有达到八块,好气!!!!!&lt;/p&gt;
+&lt;h3 id=&#34;我又来立新的flag了&#34;&gt;我又来立新的Flag了!!!&lt;/h3&gt;
+&lt;h5 id=&#34;学习学个屁--_-&#34;&gt;学习(学个屁 &#39; _ &#39;&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;React,Redux&lt;/li&gt;
+&lt;li&gt;Docker,K8s&lt;/li&gt;
+&lt;li&gt;看看微服务&lt;/li&gt;
+&lt;li&gt;Java,Go&lt;/li&gt;
+&lt;li&gt;数据库相关&lt;/li&gt;
+&lt;li&gt;重心主要放在后端&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;生活&#34;&gt;生活&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;看完目前手上的书&lt;/li&gt;
+&lt;li&gt;学会一种乐器&lt;/li&gt;
+&lt;li&gt;培养自己的审美&lt;/li&gt;
+&lt;li&gt;拥有自己的穿衣风格&lt;/li&gt;
+&lt;li&gt;养成健康的生活行为&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;其他&#34;&gt;其他&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;遇到好的电影一定会去看&lt;/li&gt;
+&lt;li&gt;去自己喜欢的演出现场&lt;/li&gt;
+&lt;li&gt;旅游&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;总结&#34;&gt;总结&lt;/h3&gt;
+&lt;p&gt;    2020年希望可以把工作和生活融合在一起,去尝试自己脑海里的想法.&lt;/p&gt;
+&lt;p&gt;向之前的自己说声辛苦了,&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -33,8 +280,46 @@
       <pubDate>Tue, 21 May 2019 22:45:12 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/element-ui%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E6%A0%B7%E5%BC%8F/</guid>
-      <description>&lt;p&gt;最新在修改一个用户中心，前台是用Vue+Nuxt+ElementUI写的，在修改过程中发现不管样式怎么写，加父标签，elementui加载都会使用它自己的样式，于是看了看代码，
-在这里记录下我是怎么修改它的默认样式的。&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;最新在修改一个用户中心，前台是用Vue+Nuxt+ElementUI写的，在修改过程中发现不管样式怎么写，加父标签，elementui加载都会使用它自己的样式，于是看了看代码，
+在这里记录下我是怎么修改它的默认样式的。&lt;/p&gt;
+&lt;p&gt;例如：这是一段Tabs选项卡组建的代码&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;template&amp;gt;
+  &amp;lt;el-tabs v-model=&amp;quot;activeName&amp;quot; @tab-click=&amp;quot;handleClick&amp;quot;&amp;gt;
+    &amp;lt;el-tab-pane label=&amp;quot;用户管理&amp;quot; name=&amp;quot;first&amp;quot;&amp;gt;用户管理&amp;lt;/el-tab-pane&amp;gt;
+    &amp;lt;el-tab-pane label=&amp;quot;配置管理&amp;quot; name=&amp;quot;second&amp;quot;&amp;gt;配置管理&amp;lt;/el-tab-pane&amp;gt;
+    &amp;lt;el-tab-pane label=&amp;quot;角色管理&amp;quot; name=&amp;quot;third&amp;quot;&amp;gt;角色管理&amp;lt;/el-tab-pane&amp;gt;
+    &amp;lt;el-tab-pane label=&amp;quot;定时任务补偿&amp;quot; name=&amp;quot;fourth&amp;quot;&amp;gt;定时任务补偿&amp;lt;/el-tab-pane&amp;gt;
+  &amp;lt;/el-tabs&amp;gt;
+&amp;lt;/template&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;它在编译后生成的代码&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;el-tabs el-tabs--top&amp;quot;&amp;gt;
+    &amp;lt;div class=&amp;quot;el-tabs__header is-top&amp;quot;&amp;gt;
+        &amp;lt;div class=&amp;quot;el-tabs__nav-wrap is-top&amp;quot;&amp;gt;
+            &amp;lt;div class=&amp;quot;el-tabs__nav-scroll&amp;quot;&amp;gt;
+                &amp;lt;div role=&amp;quot;tablist&amp;quot; class=&amp;quot;el-tabs__nav is-top&amp;quot; style=&amp;quot;transform: translateX(0px);&amp;quot;&amp;gt;
+                    ......
+                &amp;lt;/div&amp;gt;
+            &amp;lt;/div&amp;gt;
+        &amp;lt;/div&amp;gt;
+    &amp;lt;/div&amp;gt;
+    &amp;lt;div class=&amp;quot;el-tabs__content&amp;quot;&amp;gt;
+        ......
+    &amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后打开页面，打开开发者工具，查看生成编译后的代码，它会带有一些默认&lt;code&gt;class&lt;/code&gt;属性名，然后我们可以在&lt;strong&gt;Chrome&lt;/strong&gt;调整它的样式，觉得可以了连带&lt;strong&gt;class&lt;/strong&gt;属性名复制到组建里面的&lt;code&gt;&amp;lt;style&amp;gt;&amp;lt;/style&amp;gt;&lt;/code&gt;里面,如果要修改相同的样式后面一定要加&lt;code&gt;!important&lt;/code&gt;，不然它是不会重写这个样式的.
+例如:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 修改前
+.el-tabs el-tabs--top{
+    background:#eee;
+}
+# 修改后
+.el-tabs el-tabs--top{
+    border:1px solid #eee;     // 默认样式没有的属性
+    background:#fff !important;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在网上还看到有人说关于&lt;code&gt;&amp;lt;style&amp;gt;&lt;/code&gt;后面要不要加&lt;code&gt;scoped&lt;/code&gt;这个属性，在官方看了一下这个属性是关于全局和局部渲染的选项，加了之后你组建的样式只会渲染你当前组建里面的样式，不加的话，其他地方也用到这个样式的话，会对你当前组建有一定的影响，当然如果你全局样式也改得和局部一样的话，那么影响是不存在的。&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -43,7 +328,9 @@
       <pubDate>Sat, 19 Jan 2019 23:43:39 +0800</pubDate>
       
       <guid>https://auuunya.github.io/tags/tags/</guid>
-      <description></description>
+      
+        <description></description>
+      
     </item>
     
     <item>
@@ -52,7 +339,23 @@
       <pubDate>Sat, 19 Jan 2019 23:43:26 +0800</pubDate>
       
       <guid>https://auuunya.github.io/links/links/</guid>
-      <description>Friends Tuuu Nya&amp;rsquo;s Blog 4uuu Nya&amp;rsquo;s Blog Nuuu Nya&amp;rsquo;s Blog Muuu Nya&amp;rsquo;s Blog Ruuu Nya&amp;rsquo;s Blog Mosuan&amp;rsquo;s Blog 谭师傅 云谷计算 X0chitl&amp;rsquo;s Blog TMazie&amp;rsquo;s Blog Groups MooFish摸鱼俱乐部 安全盒子 </description>
+      
+        <description>&lt;h3 id=&#34;friends&#34;&gt;Friends&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.hackersb.cn/&#34;&gt;Tuuu Nya&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;https://qvq.im/&#34;&gt;4uuu Nya&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;https://notes.getshell.net/&#34;&gt;Nuuu Nya&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;https://lvm.me/&#34;&gt;Muuu Nya&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;https://vulhub.pw/#/&#34;&gt;Ruuu Nya&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;http://www.0aa.me/&#34;&gt;Mosuan&amp;rsquo;s   Blog&lt;/a&gt;      
+&lt;a href=&#34;http://pvp.im&#34;&gt;谭师傅&lt;/a&gt;      
+&lt;a href=&#34;http://us.ygjs.tech/&#34;&gt;云谷计算&lt;/a&gt;      
+&lt;a href=&#34;http://90x0chitl.lofter.com/&#34;&gt;X0chitl&amp;rsquo;s Blog&lt;/a&gt;      
+&lt;a href=&#34;http://blog.tmaize.net/&#34;&gt;TMazie&amp;rsquo;s  Blog&lt;/a&gt;      &lt;/p&gt;
+&lt;h3 id=&#34;groups&#34;&gt;Groups&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://moo.fish/&#34;&gt;MooFish摸鱼俱乐部&lt;/a&gt;      
+&lt;a href=&#34;www.secbox.cn&#34;&gt;安全盒子&lt;/a&gt;      &lt;/p&gt;
+</description>
+      
     </item>
     
     <item>
@@ -61,11 +364,36 @@
       <pubDate>Sat, 19 Jan 2019 23:41:35 +0800</pubDate>
       
       <guid>https://auuunya.github.io/about/about/</guid>
-      <description>ID：张阳阳_Auuu
-目前在西安这座古城辛勤搬砖 会使用不同语言编写Hello,World的一只小菜鸟 想好好搞技术，但是看啥都很吃力(太不友好了@ @ 联系方式   QQ：937576339
-  Email：ma1ive@qq.com
-  其他社交   Telegram#AuuuNya
-  Weibo</description>
+      
+        <description>&lt;p&gt;ID：&lt;a href=&#34;https://mu1er.cn&#34;&gt;张阳阳_Auuu&lt;/a&gt;&lt;/p&gt;
+&lt;h5 id=&#34;目前在西安这座古城辛勤搬砖&#34;&gt;目前在西安这座古城辛勤搬砖&lt;/h5&gt;
+&lt;h5 id=&#34;会使用不同语言编写helloworld的一只小菜鸟&#34;&gt;会使用不同语言编写&lt;code&gt;Hello,World&lt;/code&gt;的一只小菜鸟&lt;/h5&gt;
+&lt;h5 id=&#34;想好好搞技术但是看啥都很吃力太不友好了-&#34;&gt;想好好搞技术，但是看啥都很吃力(太不友好了@ @&lt;/h5&gt;
+&lt;h3 id=&#34;联系方式&#34;&gt;联系方式&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;QQ：937576339&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Email：&lt;a href=&#34;mailto:ma1ive@qq.com&#34;&gt;ma1ive@qq.com&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;其他社交&#34;&gt;其他社交&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://t.me/AuuuNya&#34;&gt;Telegram#AuuuNya&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://weibo.com/Ymalive&#34;&gt;Weibo&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;LAST：&lt;/p&gt;
+&lt;p&gt;想好好学习深入一门语言&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-golang&#34; data-lang=&#34;golang&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Hello,World!&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      
     </item>
     
     <item>
@@ -74,12 +402,24 @@
       <pubDate>Wed, 02 Jan 2019 13:00:50 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2019-1-02-%E7%94%A8ssh%E5%92%8Csocat%E5%88%86%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9Alinux%E5%90%84%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/</guid>
-      <description>&lt;h3 id=&#34;本地端口映射&#34;&gt;本地端口映射&lt;/h3&gt;
+      
+        <description>&lt;h3 id=&#34;本地端口映射&#34;&gt;本地端口映射&lt;/h3&gt;
 &lt;p&gt;小明写了一个Web服务，监听hosta上8080端口，小王现在想访问这个服务，有没有快速的方法? 
 &lt;img src=&#34;http://ygjs-static-hz.oss-cn-beijing.aliyuncs.com/images/2018-1-17/4.jpg&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
 &lt;p&gt;其实很简单，小明只需要做这两件事情：&lt;/p&gt;
 &lt;p&gt;申请一台带公网IP的公有云服务器&lt;code&gt;hostb&lt;/code&gt;，我们假设ip地址是&lt;code&gt;12.34.56.78&lt;/code&gt;
-在hosta上执行下面的命令，它会建立一个从hosta到hostb的ssh会话，同时将8080端口映射到hostb的1080端口。&lt;/p&gt;</description>
+在hosta上执行下面的命令，它会建立一个从hosta到hostb的ssh会话，同时将8080端口映射到hostb的1080端口。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;ssh -R 1080:localhost:8080 root@12.34.56.78
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样，小王就可以愉快的用&lt;code&gt;http://12.34.66.78:1080&lt;/code&gt;访问小明的服务了。&lt;/p&gt;
+&lt;p&gt;远程Unix Socket映射
+除了将我们本地服务通过端口映射提供给其它人访问，我们还可以通过端口转发玩一些更high的。比如下面这条命令，它把监听在远程主机12.34.56.78上的mysql服务unix socket映射到本地的/var/run/mysqld.temp.sock，这样，小明就可以用mysql -S /var/run/mysqld/mysqld.temp.sock来访问远程主机的mysql服务了。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;socat &amp;quot;UNIX-LISTEN:/var/run/mysqld.temp.sock,reuseaddr,fork&amp;quot; EXEC:&amp;quot;ssh root@12.34.56.78 socat STDIO UNIX-CONNECT:/var/run/mysqld/mysqld.sock&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;当然，小明如果不喜欢本地unix socket，他还可以用下面的命令把&lt;code&gt;12.34.56.78&lt;/code&gt;上的mysql映射到本地的5500端口，然后使用&lt;code&gt;mysql -p 5500&lt;/code&gt;命令访问。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;socat TCP-LISTEN:5500 EXEC:&#39;ssh root@12.34.56.78 &amp;quot;socat STDIO UNIX-CONNECT:/var/run/mysqld/mysqld.sock&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;UDP也不在话下，比如下面这条命令可以把12.34.56.78的udp 161端口映射到本地的1611端口：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;socat udp-listen:1611 system:&#39;ssh root@12.34.56.78 &amp;quot;socat stdio udp-connect:remotetarget:161&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;</description>
+      
     </item>
     
     <item>
@@ -88,9 +428,172 @@
       <pubDate>Sat, 09 Jun 2018 13:01:06 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-06-09-%E7%94%A8go%E7%BC%96%E5%86%99%E5%B0%81%E8%A3%85%E8%87%AA%E5%B7%B1%E7%9A%84%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97/</guid>
-      <description>&lt;p&gt;今天为大家带来一篇用Go如何封装自己的日志模块。orz~&lt;/p&gt;
+      
+        <description>&lt;p&gt;今天为大家带来一篇用Go如何封装自己的日志模块。orz~&lt;/p&gt;
 &lt;p&gt;既然是日志模块，第一步肯定是定义日志级别，不然什么消息都打印，对资源消耗很大。
-这里使用&lt;code&gt;iota&lt;/code&gt;常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。&lt;/p&gt;</description>
+这里使用&lt;code&gt;iota&lt;/code&gt;常量计数器定义了四个级别,使用iota能简化定义，在定义枚举时很有用。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;###&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;定义日志级别&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;LevelError&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;iota&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;LevelWarning&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;LevelInfo&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;LevelDebug&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//定义日志结构体
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logging&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;  &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;File&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//定义logging类型变量
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logging&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;等级设置我们使用了一个函数.参数必须为&lt;code&gt;int&lt;/code&gt;类型&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setLevel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;初始化&#34;&gt;初始化&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//Logger类型表示一个活动状态的记录日志的对象，它会生成一行行的输出写入一个io.Writer接口。
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Logger&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//初始化
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;init&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//初始化级别为LevelDebug
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelDebug&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//这块直接 log.New
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//创建一个Logger。参数out设置日志信息写入的目的地。参数prefix会添加到生成的每一条日志前面。参数flag定义日志的属性(时间、文件等等)
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//`prefix`在这块留空，下面输出函数可以设置为级别,减少了代码的冗杂
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Stdout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Llongfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Ltime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Ldate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;输出函数定义&#34;&gt;输出函数定义&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//获取当前函数所在的路径，文件名和行号
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// func CallerFunc() string {
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 	filename, file, line, ok := runtime.Caller(0)
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 	if !ok {
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 		return &amp;#34;&amp;#34;
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 	}
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 	return &amp;#34;FileName:&amp;#34; + runtime.FuncForPC(filename).Name() + &amp;#34; Path:&amp;#34; + file + &amp;#34; Line:&amp;#34; + strconv.Itoa(line)
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// }
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 当时`info`级别想要输出文件名，路径，错误行号等用了上面的函数，结果周师傅说，`log`包里面有个New函数，里面可以直接定义上面需要的信息
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//按照格式打印日志
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Debugf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelDebug&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//log里的函数都自带有mutex
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;//这里获取一次锁
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[DEBUG] &amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Infof
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Infof&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelInfo&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[INFO] &amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Warningf
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Warningf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelWarning&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[WARNING] &amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Errorf
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelError&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[ERROR] &amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//标准输出
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//Println存在输出会换行
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//这里采用Print输出方式
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelDebug&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[DEBUG] &amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Info
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Info&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelInfo&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[INFO] &amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Warning
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Warning&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelWarning&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[DEBUG] &amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Error
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LevelError&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;[DEBUG] &amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;输出到文件&#34;&gt;输出到文件&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//获取当前程序所在的路径
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Getwd Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;logs&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MkdirAll&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mo&#34;&gt;0755&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create Dirs Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//创建日志文件
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//制定创建路径和日志名
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Init&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create File Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;
+		&lt;span class=&#34;nf&#34;&gt;setLevel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MkdirAll&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mo&#34;&gt;0644&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create Dirs Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;logs.log&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create File Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;
+		&lt;span class=&#34;nf&#34;&gt;setLevel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MkdirAll&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mo&#34;&gt;0644&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create Dirs Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepathstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;logname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Create File Error:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logfile&lt;/span&gt;
+		&lt;span class=&#34;nf&#34;&gt;setLevel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//log.Llongfile|log.Ltime|log.Ldata 返回文件信息，时间和代码信息不需要重新写函数获取
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//初始化一个*log.Logger
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;loggerf&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;logFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Llongfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Ltime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Ldate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以上代码大家可以再整合或者再次封装，可能会更方便快捷。我这里只是提供了一个我自己在封装日志模块所考虑的地方与最后的思路.
+&lt;a href=&#34;https://github.com/auuunya/gomini/blob/master/logger&#34;&gt;详细代码地址&lt;/a&gt;&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -99,8 +602,59 @@
       <pubDate>Wed, 09 May 2018 12:10:56 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-05-09-golang%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E6%96%87%E4%BB%B6/</guid>
-      <description>&lt;p&gt;最近要在dingo添加一个功能，就是一键导出文章静态页面，在网上搜了很多，也请教了很多人，不过碍于自己的技术太菜听不怎么太明白，后来搜到一片文章，借用此篇文章和自己的一些测试终究是完成了这个功能。
-文章作者写的生成器git地址:&lt;a href=&#34;https://github.com/zupzup/blog-generator&#34;&gt;blog-generator&lt;/a&gt;&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;最近要在dingo添加一个功能，就是一键导出文章静态页面，在网上搜了很多，也请教了很多人，不过碍于自己的技术太菜听不怎么太明白，后来搜到一片文章，借用此篇文章和自己的一些测试终究是完成了这个功能。
+文章作者写的生成器git地址:&lt;a href=&#34;https://github.com/zupzup/blog-generator&#34;&gt;blog-generator&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;定义要渲染的模板路径&#34;&gt;定义要渲染的模板路径&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getTemplate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Path is Error&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;使用filepath包把当前路径和模板路径拼接在一起&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;templatePath&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;staticPost&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;template.html&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;New&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;template.html&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;ParseFiles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;templatePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;error reading template %v&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面代码定义好要渲染的模板，如果有模板函数可以在&lt;code&gt;template.New()&lt;/code&gt;后面&lt;code&gt;Funcs&lt;/code&gt;注入模板函数&lt;/p&gt;
+&lt;h3 id=&#34;根据文章名称保存&#34;&gt;根据文章名称保存&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;WriteIndexHTML&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;post&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;model&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Post&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getTemplate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;当时想一次创建好&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;，&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;结果发现os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;create不能创建目录&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;，&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;所以又用mkdirall创建好所需要的目录&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MkdirAll&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;staticPost&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;PostsView&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;mo&#34;&gt;0777&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;panic&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;根据文章名称保存到指定路径&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;staticPost&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;PostsView&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;index.html&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;创建文章&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;error creating file %s: %v&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;bufio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;NewWriter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;td&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;是我想要传送给前台需要渲染的文章参数&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;td&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;interface&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{}{&lt;/span&gt;
+		&lt;span class=&#34;s&#34;&gt;&amp;#34;Title&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;   &lt;span class=&#34;nx&#34;&gt;post&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Title&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;s&#34;&gt;&amp;#34;Post&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;    &lt;span class=&#34;nx&#34;&gt;post&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;s&#34;&gt;&amp;#34;Content&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;post&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Execute&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;td&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;error executing template %s: %v&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Flush&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Errorf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;error writing file %s: %v&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;当时看上面大佬的写的代码有些复杂，有很多细节都写到了。在这块我只是简单把需要用的代码抠出来再做一次简化，如果有兴趣可以去看看上面git，做这个功能在网上泡了好几天，一直没有头绪，看了代码之后也就1~2个小时就把90%写出来了。&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -109,9 +663,53 @@
       <pubDate>Fri, 20 Apr 2018 11:20:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-04-20-golang%E7%94%9F%E6%88%90ssl%E8%AF%81%E4%B9%A6%E4%BB%A5%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A7%81%E9%92%A5/</guid>
-      <description>&lt;p&gt;SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
+      
+        <description>&lt;p&gt;SSL 证书X.509 是国际电信联盟电信标准化部门（ ITU-T ）为公钥基础设施制定的一个标准，这个标准包含了公钥证书的标准格式。
 一个 X.509 证书（简称 SSL 证书）实际上就是一个经过编码的 ASN.1( Abstract Syntax Notation One,抽象语法表示法／1 ）格式的电子文档。 ASN.1 既是一个标准，也是一种表示法，它描述了表示电信以及
-计算机网络数据的规则和结构。&lt;/p&gt;</description>
+计算机网络数据的规则和结构。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;X.509 证书可以使用多种格式编码，其中一种编码格式是 BER ( Basic Encoding Rules ，基本编码规
+则）。 BER 格式指定了一种自解释并且自定义的格式用于对 ASN.1 数据结构进行编码，而 DER 格式则是
+BER 的一个子集。 DER 只提供了一种编码 ASN.1 值的方法，这种方法被广泛地应用于密码学当中，尤其是对 X.509 证书进行加密。56 第 3 章接收请求SSL 证书可以以多种不同的格式保存，其中一种是 PEM (Privacy Enhanced Email ，隐私增强邮件 ）格式，这种格式会对 DER 格式的 X.509 证书实施Base64 编码，并且这种格式的文件都以一一BEGINCERTIFICATE一开头，以一一END CERTIF工CATE一结尾｛除了用作文件格式之外 ， PEM和此处讨论的 SSL 证书关系并不大）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;生成证书的方法并不复杂,因为 SSL 证书实际上就是一个将扩展密钥用
+法（extended key usage）设置成了服务器身份验证操作的&lt;code&gt;X.509&lt;/code&gt;证书&lt;/p&gt;
+&lt;h3 id=&#34;配置证书信息&#34;&gt;配置证书信息&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//生成一个比较长的随机整数来做序列号
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;max&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;new&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;big&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Lsh&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;big&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;NewInt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;128&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;seriaNumber&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;rand&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;rand&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Reader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//生成证书标题
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;subject&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;pkix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;Organization&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;       &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Mu1er.cn&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;OrganizationalUnit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;mu1er&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;CommonName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;s&#34;&gt;&amp;#34;mu1er.cn&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Certificate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;SerialNumber&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;seriaNumber&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;Subject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;      &lt;span class=&#34;nx&#34;&gt;subject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;NotBefore&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;    &lt;span class=&#34;nx&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Now&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//有效期
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;NotAfter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Now&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Add&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;365&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;24&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Hour&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//用x509证书来验证
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;KeyUsage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;KeyUsageKeyEncipherment&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;KeyUsageDigitalSignature&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;ExtKeyUsage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ExtKeyUsage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ExtKeyUsageServerAuth&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//运行地址
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;IPAddresses&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;ParseIP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;127.0.0.1&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)},&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;生成-rsa-私钥&#34;&gt;生成 RSA 私钥&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;rsa&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;GenerateKey&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;rand&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Reader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2048&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;私钥结构里面包含了一个能够公开访问的公钥，随后创建SSL证书的时候会用到&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;derBytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;CreateCertificate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;rand&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Reader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;PublicKey&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;CreateCertificate&lt;/code&gt;函数接受&lt;code&gt;Certificate&lt;/code&gt;结构、公钥和私钥等多个参数，创建出一个经过 DER 编码格式化的字节切片 。后续代码的意图也非常简单明了，它们首先使用&lt;code&gt;encoding/pem&lt;/code&gt;标准库将证书编码到&lt;code&gt;cert.pem&lt;/code&gt;文件里面&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;certOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cert.pem&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;pem&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Encode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;certOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pem&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Block&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;CERTIFICATE&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;derBytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;certOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后继续以 PEM 编码的方式把之前生成的密钥编码并保存到&lt;code&gt;key.pem&lt;/code&gt;文件里面：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;keyOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;key.pem&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;pem&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Encode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;keyOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pem&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Block&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;RSA PRIVATE KEY&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;x509&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MarshalPKCS1PrivateKey&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)})&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;keyOut&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最后需要提醒的是，如果证书是由&lt;code&gt;CA&lt;/code&gt;签发的，那么证书文件中将同时包含服务器签名以及&lt;code&gt;CA&lt;/code&gt;签名，其中服务器签名在前,&lt;code&gt;CA&lt;/code&gt;签名在后.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -120,8 +718,150 @@
       <pubDate>Thu, 05 Apr 2018 12:58:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-4-4-xmlhttprequest%E7%8A%B6%E6%80%81status%E5%AE%8C%E6%95%B4%E5%88%97%E8%A1%A8/</guid>
-      <description>&lt;p&gt;AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
-当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;AJAX中请求远端文件、或在检测远端文件是否掉链时，都需要了解到远端服务器反馈的状态以确定文件的存在 与否。
+当然，在我们平常浏览网页时，也会发现一些文件不存在时显示为“404错误”，这就是常见的Http请求状态（status）&lt;/p&gt;
+&lt;p&gt;Web服务器响应浏览器或其他客户程序的请求时，其应答一般由以下几个部分组成：一个状态行，几个应答头，一个空行，内容文档。下面是一个最简单的应答：
+状态行包含HTTP版本、状态代码、与状态代码对应的简短说明信息。在大多数情况下，除了Content-Type之外的所有应答头都是可选的。但Content-Type是必需的，它描述的是后面文档的MIME类型。虽然大多数应答都包含一个文档，但也有一些不包含，例如对HEAD请求的应答永远不会附带文档。有许多状态代码实际上用来标识一次失败的请求，这些应答也不包含文档（或只包含一个简短的错误信息说明）。 
+　　当用户试图通过 HTTP 访问一台正在运行 Internet 信息服务 (IIS) 的服务器上的内容时，IIS 返回一个表示该请求的状态的数字代码。状态代码可以指明具体请求是否已成功，还可以揭示请求失败的确切原因。&lt;/p&gt;
+&lt;h3 id=&#34;1xx---信息提示&#34;&gt;1xx - 信息提示&lt;/h3&gt;
+&lt;p&gt;这些状态代码表示临时的响应。客户端在收到常规响应之前，应准备接收一个或多个 1xx 响应。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0 - 本地响应成功。&lt;/li&gt;
+&lt;li&gt;100 - Continue 初始的请求已经接受，客户应当继续发送请求的其余部分。（HTTP 1.1新）&lt;/li&gt;
+&lt;li&gt;101 - Switching Protocols 服务器将遵从客户的请求转换到另外一种协议（HTTP 1.1新）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;2xx---成功&#34;&gt;2xx - 成功&lt;/h3&gt;
+&lt;p&gt;这类状态代码表明服务器成功地接受了客户端请求。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;200 - OK 一切正常，对GET和POST请求的应答文档跟在后面。&lt;/li&gt;
+&lt;li&gt;201 - Created 服务器已经创建了文档，Location头给出了它的URL。&lt;/li&gt;
+&lt;li&gt;202 - Accepted 已经接受请求，但处理尚未完成。&lt;/li&gt;
+&lt;li&gt;203 - Non-Authoritative Information 文档已经正常地返回，但一些应答头可能不正确，因为使用的是文档的拷贝，非权威性信息（HTTP 1.1新）。&lt;/li&gt;
+&lt;li&gt;204 - No Content 没有新文档，浏览器应该继续显示原来的文档。如果用户定期地刷新页面，而Servlet可以确定用户文档足够新，这个状态代码是很有用的。&lt;/li&gt;
+&lt;li&gt;205 - Reset Content 没有新的内容，但浏览器应该重置它所显示的内容。用来强制浏览器清除表单输入内容（HTTP 1.1新）。&lt;/li&gt;
+&lt;li&gt;206 - Partial Content 客户发送了一个带有Range头的GET请求，服务器完成了它（HTTP 1.1新）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;3xx---重定向&#34;&gt;3xx - 重定向&lt;/h3&gt;
+&lt;p&gt;客户端浏览器必须采取更多操作来实现请求。例如，浏览器可能不得不请求服务器上的不同的页面，或通过&lt;!-- raw HTML omitted --&gt;代理服务器重复该请求。&lt;!-- raw HTML omitted --&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;300 - Multiple Choices 客户请求的文档可以在多个位置找到，这些位置已经在返回的文档内列出。如果服务器要提出优先选择，则应该在Location应答头指明。&lt;/li&gt;
+&lt;li&gt;301 - Moved Permanently 客户请求的文档在其他地方，新的URL在Location头中给出，浏览器应该自动地访问新的URL。&lt;/li&gt;
+&lt;li&gt;302 - Found 类似于301，但新的URL应该被视为临时性的替代，而不是永久性的。注意，在HTTP1.0中对应的状态信息是“Moved Temporatily”。出现该状态代码时，浏览器能够自动访问新的URL，因此它是一个很有用的状态代码。注意这个状态代码有时候可以和301替换使用。例如，如果浏览器错误地请求 http://host/~user （缺少了后面的斜杠），有的服务器返回301，有的则返回302。严格地说，我们只能假定只有当原来的请求是GET时浏览器才会自动重定向。请参见307。&lt;/li&gt;
+&lt;li&gt;303 - See Other 类似于301/302，不同之处在于，如果原来的请求是POST，Location头指定的重定向目标文档应该通过GET提取（HTTP 1.1新）。&lt;/li&gt;
+&lt;li&gt;304 - Not Modified 客户端有缓冲的文档并发出了一个条件性的请求（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。&lt;/li&gt;
+&lt;li&gt;305 - Use Proxy 客户请求的文档应该通过Location头所指明的代理服务器提取（HTTP 1.1新）。&lt;/li&gt;
+&lt;li&gt;307 - Temporary Redirect 和302（Found）相同。许多浏览器会错误地响应302应答进行重定向，即使原来的请求是POST，即使它实际上只能在POST请求的应答是303时才能重定向。由于这个原因，HTTP 1.1新增了307，以便更加清除地区分几个状态代码：当出现303应答时，浏览器可以跟随重定向的GET和POST请求；如果是307应答，则浏览器只能跟随对GET请求的重定向。（HTTP 1.1新）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;4xx---客户端错误&#34;&gt;4xx - 客户端错误&lt;/h3&gt;
+&lt;p&gt;发生错误，客户端似乎有问题。例如，客户端请求不存在的页面，客户端未提供有效的身份验证信息。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;400 - Bad Request 请求出现语法错误。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;401 - Unauthorized 访问被拒绝，客户试图未经授权访问受密码保护的页面。应答中会包含一个WWW-Authenticate头，浏览器据此显示用户名字/密码对话框，然后在填写合适的Authorization头后再次发出请求。IIS 定义了许多不同的 401 错误，它们指明更为具体的错误原因。这些具体的错误代码在浏览器中显示，但不在 IIS 日志中显示：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;401.1 - 登录失败。&lt;/li&gt;
+&lt;li&gt;401.2 - 服务器配置导致登录失败。&lt;/li&gt;
+&lt;li&gt;401.3 - 由于 ACL 对资源的限制而未获得授权。&lt;/li&gt;
+&lt;li&gt;401.4 - 筛选器授权失败。&lt;/li&gt;
+&lt;li&gt;401.5 - ISAPI/CGI 应用程序授权失败。&lt;/li&gt;
+&lt;li&gt;401.7 – 访问被 Web 服务器上的 URL 授权策略拒绝。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;403 - Forbidden 资源不可用。服务器理解客户的请求，但拒绝处理它。通常由于服务器上文件或目录的权限设置导致。禁止访问：IIS 定义了许多不同的 403 错误，它们指明更为具体的错误原因：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;403.1 - 执行访问被禁止。&lt;/li&gt;
+&lt;li&gt;403.2 - 读访问被禁止。&lt;/li&gt;
+&lt;li&gt;403.3 - 写访问被禁止。&lt;/li&gt;
+&lt;li&gt;403.4 - 要求 SSL。&lt;/li&gt;
+&lt;li&gt;403.5 - 要求 SSL 128。&lt;/li&gt;
+&lt;li&gt;403.6 - IP 地址被拒绝。&lt;/li&gt;
+&lt;li&gt;403.7 - 要求客户端证书。&lt;/li&gt;
+&lt;li&gt;403.8 - 站点访问被拒绝。&lt;/li&gt;
+&lt;li&gt;403.9 - 用户数过多。&lt;/li&gt;
+&lt;li&gt;403.10 - 配置无效。&lt;/li&gt;
+&lt;li&gt;403.11 - 密码更改。&lt;/li&gt;
+&lt;li&gt;403.12 - 拒绝访问映射表。&lt;/li&gt;
+&lt;li&gt;403.13 - 客户端证书被吊销。&lt;/li&gt;
+&lt;li&gt;403.14 - 拒绝目录列表。&lt;/li&gt;
+&lt;li&gt;403.15 - 超出客户端访问许可。&lt;/li&gt;
+&lt;li&gt;403.16 - 客户端证书不受信任或无效。&lt;/li&gt;
+&lt;li&gt;403.17 - 客户端证书已过期或尚未生效。&lt;/li&gt;
+&lt;li&gt;403.18 - 在当前的应用程序池中不能执行所请求的 URL。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;403.19 - 不能为这个应用程序池中的客户端执行 CGI。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;403.20 - Passport 登录失败。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;404 - Not Found 无法找到指定位置的资源。这也是一个常用的应答。&lt;/li&gt;
+&lt;li&gt;404.0 -（无） – 没有找到文件或目录。&lt;/li&gt;
+&lt;li&gt;404.1 - 无法在所请求的端口上访问 Web 站点。&lt;/li&gt;
+&lt;li&gt;404.2 - Web 服务扩展锁定策略阻止本请求。&lt;/li&gt;
+&lt;li&gt;404.3 - MIME 映射策略阻止本请求。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;405 - Method Not Allowed请求方法（GET、POST、HEAD、DELETE、PUT、TRACE等）对指定的资源不适用，用来访问本页面的 HTTP 谓词不被允许（方法不被允许）（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;406 - Not Acceptable 指定的资源已经找到，但它的MIME类型和客户在Accpet头中所指定的不兼容，客户端浏览器不接受所请求页面的 MIME 类型（HTTP 1.1新）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;407 - Proxy Authentication Required 要求进行代理身份验证，类似于401，表示客户必须先经过代理服务器的授权。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;408 - Request Timeout 在服务器许可的等待时间内，客户一直没有发出任何请求。客户可以在以后重复同一请求。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;409 - Conflict 通常和PUT请求有关。由于请求和资源的当前状态相冲突，因此请求不能成功。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;410 - Gone 所请求的文档已经不再可用，而且服务器不知道应该重定向到哪一个地址。它和404的不同在于，返回407表示文档永久地离开了指定的位置，而404表示由于未知的原因文档不可用。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;411 - Length Required 服务器不能处理请求，除非客户发送一个Content-Length头。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;412 - Precondition Failed 请求头中指定的一些前提条件失败（HTTP 1.1新）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;413 – Request Entity Too Large 目标文档的大小超过服务器当前愿意处理的大小。如果服务器认为自己能够稍后再处理该请求，则应该提供一个Retry-After头（HTTP 1.1新）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;414 - Request URI Too Long URI太长（HTTP 1.1新）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;415 – 不支持的媒体类型。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;416 – Requested Range Not Satisfiable 服务器不能满足客户在请求中指定的Range头。（HTTP 1.1新）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;417 – 执行失败。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;423 – 锁定的错误。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;5xx---服务器错误&#34;&gt;5xx - 服务器错误&lt;/h3&gt;
+&lt;p&gt;服务器由于遇到错误而不能完成该请求。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;500 - Internal Server Error 服务器遇到了意料不到的情况，不能完成客户的请求。&lt;/li&gt;
+&lt;li&gt;500.12 - 应用程序正忙于在 Web 服务器上重新启动。&lt;/li&gt;
+&lt;li&gt;500.13 - Web 服务器太忙。&lt;/li&gt;
+&lt;li&gt;500.15 - 不允许直接请求 Global.asa。&lt;/li&gt;
+&lt;li&gt;500.16 – UNC 授权凭据不正确。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;500.18 – URL 授权存储不能打开。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;500.100 - 内部 ASP 错误。&lt;/li&gt;
+&lt;li&gt;501 - Not Implemented 服务器不支持实现请求所需要的功能，页眉值指定了未实现的配置。例如，客户发出了一个服务器不支持的PUT请求。&lt;/li&gt;
+&lt;li&gt;502 - Bad Gateway 服务器作为网关或者代理时，为了完成请求访问下一个服务器，但该服务器返回了非法的应答。 亦说Web 服务器用作网关或代理服务器时收到了无效响应。&lt;/li&gt;
+&lt;li&gt;502.1 - CGI 应用程序超时。&lt;/li&gt;
+&lt;li&gt;502.2 - CGI 应用程序出错。&lt;/li&gt;
+&lt;li&gt;503 - Service Unavailable 服务不可用，服务器由于维护或者负载过重未能应答。例如，Servlet可能在数据库连接池已满的情况下返回503。服务器返回503时可以提供一个Retry-After头。这个错误代码为 IIS 6.0 所专用。&lt;/li&gt;
+&lt;li&gt;504 - Gateway Timeout 网关超时，由作为代理或网关的服务器使用，表示不能及时地从远程服务器获得应答。（HTTP 1.1新）。&lt;/li&gt;
+&lt;li&gt;505 - HTTP Version Not Supported 服务器不支持请求中所指明的HTTP版本。&lt;/li&gt;
+&lt;/ul&gt;</description>
+      
     </item>
     
     <item>
@@ -130,9 +870,195 @@
       <pubDate>Tue, 27 Mar 2018 15:11:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-3-27-vmware%E4%B8%8B%E6%89%A9%E5%B1%95ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%88%86%E5%8C%BA/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;原文链接&lt;/strong&gt;：&lt;a href=&#34;http://t.cn/RzCP9E2&#34;&gt;http://t.cn/RzCP9E2&lt;/a&gt;
+      
+        <description>&lt;p&gt;&lt;strong&gt;原文链接&lt;/strong&gt;：&lt;a href=&#34;http://t.cn/RzCP9E2&#34;&gt;http://t.cn/RzCP9E2&lt;/a&gt;
 作者输入命令时都用“sudo bash”，用sudo或者su就可以了。
-涉及到磁盘分区表删除，最好先备份整个虚拟机！&lt;/p&gt;</description>
+涉及到磁盘分区表删除，最好先备份整个虚拟机！&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;检查文件系统&#34;&gt;检查文件系统：&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cruz@ubuntu:~$ sudo bash
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;sudo&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; cruz: 
+root@ubuntu:~# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       9.0G  2.7G  5.9G  32% /
+udev            488M  4.0K  488M   1% /dev
+tmpfs           199M  800K  198M   1% /run
+none            5.0M     &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  5.0M   0% /run/lock
+none            497M   76K  496M   1% /run/shm
+root@ubuntu:~# 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;检查磁盘分区表&#34;&gt;检查磁盘分区表：&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;root@ubuntu:~# fdisk -l /dev/sda
+Disk /dev/sda: 10.7 GB, &lt;span class=&#34;m&#34;&gt;10737418240&lt;/span&gt; bytes
+&lt;span class=&#34;m&#34;&gt;255&lt;/span&gt; heads, &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; sectors/track, &lt;span class=&#34;m&#34;&gt;1305&lt;/span&gt; cylinders, total &lt;span class=&#34;m&#34;&gt;20971520&lt;/span&gt; sectors
+&lt;span class=&#34;nv&#34;&gt;Units&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; sectors of &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; * &lt;span class=&#34;nv&#34;&gt;512&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Sector size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;logical/physical&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+I/O size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;minimum/optimal&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Disk identifier: 0x00001dec
+
+Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *        &lt;span class=&#34;m&#34;&gt;2048&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;18874367&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;9436160&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;83&lt;/span&gt;  Linux
+/dev/sda2        &lt;span class=&#34;m&#34;&gt;18876414&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;20969471&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;1046529&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;5&lt;/span&gt;  Extended
+/dev/sda5        &lt;span class=&#34;m&#34;&gt;18876416&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;20969471&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;1046528&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;82&lt;/span&gt;  Linux swap / Solaris
+root@ubuntu:~# 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;记住上面显示的交换分区大小（Blocks的数目），这里就是1046528。如果交换分区和根目录不在一个磁盘(比如/dev/sdb），就不要记了。在本文，交换分区在/dev/sda，需要重新分区。&lt;/p&gt;
+&lt;h3 id=&#34;先关闭linux&#34;&gt;先关闭linux：&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;root@ubuntu:~# shutdown -h now
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在虚拟机设置，硬盘，实用工具下选择扩展。扩展虚拟机的最大磁盘大小，这里将磁盘设置为15G，然后重启。&lt;/p&gt;
+&lt;p&gt;重新设置分区表要删除所有的旧分区、关闭系统的swap:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cruz@ubuntu:~$ sudo bash
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;sudo&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; cruz: 
+root@ubuntu:~# free -m
+             total       used       free     shared    buffers     cached
+Mem:           &lt;span class=&#34;m&#34;&gt;992&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;924&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;67&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;43&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;426&lt;/span&gt;
+ -/+ buffers/cache:        &lt;span class=&#34;m&#34;&gt;454&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;537&lt;/span&gt;
+Swap:         &lt;span class=&#34;m&#34;&gt;1021&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1021&lt;/span&gt;
+root@ubuntu:~# swapoff -a
+root@ubuntu:~# free -m
+             total       used       free     shared    buffers     cached
+Mem:           &lt;span class=&#34;m&#34;&gt;992&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;924&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;67&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;43&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;426&lt;/span&gt;
+ -/+ buffers/cache:        &lt;span class=&#34;m&#34;&gt;454&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;537&lt;/span&gt;
+Swap:            &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+root@ubuntu:~# 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;接下来的步骤会删除/dev/sda1和/dev/sda2，一定要记住分区表的起始位置，这里是2048！&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;root@ubuntu:~# fdisk /dev/sda
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: p
+
+Disk /dev/sda: 16.1 GB, &lt;span class=&#34;m&#34;&gt;16106127360&lt;/span&gt; bytes
+&lt;span class=&#34;m&#34;&gt;255&lt;/span&gt; heads, &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; sectors/track, &lt;span class=&#34;m&#34;&gt;1958&lt;/span&gt; cylinders, total &lt;span class=&#34;m&#34;&gt;31457280&lt;/span&gt; sectors
+&lt;span class=&#34;nv&#34;&gt;Units&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; sectors of &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; * &lt;span class=&#34;nv&#34;&gt;512&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Sector size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;logical/physical&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+I/O size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;minimum/optimal&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Disk identifier: 0x00001dec
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *        &lt;span class=&#34;m&#34;&gt;2048&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;18874367&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;9436160&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;83&lt;/span&gt;  Linux
+/dev/sda2        &lt;span class=&#34;m&#34;&gt;18876414&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;20969471&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;1046529&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;5&lt;/span&gt;  Extended
+/dev/sda5        &lt;span class=&#34;m&#34;&gt;18876416&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;20969471&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;1046528&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;82&lt;/span&gt;  Linux swap / Solaris
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: d
+Partition number &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1-5&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: d
+Partition number &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1-5&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: p
+
+Disk /dev/sda: 16.1 GB, &lt;span class=&#34;m&#34;&gt;16106127360&lt;/span&gt; bytes
+&lt;span class=&#34;m&#34;&gt;255&lt;/span&gt; heads, &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; sectors/track, &lt;span class=&#34;m&#34;&gt;1958&lt;/span&gt; cylinders, total &lt;span class=&#34;m&#34;&gt;31457280&lt;/span&gt; sectors
+&lt;span class=&#34;nv&#34;&gt;Units&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; sectors of &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; * &lt;span class=&#34;nv&#34;&gt;512&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Sector size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;logical/physical&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+I/O size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;minimum/optimal&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Disk identifier: 0x00001dec
+
+   Device Boot      Start         End      Blocks   Id  System
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;不要退出fdisk，接着创建新分区&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: n
+Partition type:
+   p   primary &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; primary, &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; extended, &lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; free&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+   e   extended
+Select &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;default p&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: p
+Partition number &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1-4, default 1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+First sector &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;2048-31457279, default 2048&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: 
+Using default value &lt;span class=&#34;m&#34;&gt;2048&lt;/span&gt;
+Last sector, +sectors or +size&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;K,M,G&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;2048-31457279, default 31457279&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;30410751&lt;/span&gt;
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: n
+Partition type:
+   p   primary &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; primary, &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; extended, &lt;span class=&#34;m&#34;&gt;3&lt;/span&gt; free&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+   e   extended
+Select &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;default p&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: p
+Partition number &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1-4, default 2&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: 
+Using default value &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+First sector &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;30410752-31457279, default 30410752&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: 
+Using default value &lt;span class=&#34;m&#34;&gt;30410752&lt;/span&gt;
+Last sector, +sectors or +size&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;K,M,G&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;30410752-31457279, default 31457279&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: 
+Using default value &lt;span class=&#34;m&#34;&gt;31457279&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意记得创建交换分区，大小别搞错，这里是1046528（31457279-30410571=1046528），即要留一部分block用于创建swap。修改sda2的分区类型为82，即交换分区。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: p
+
+Disk /dev/sda: 16.1 GB, &lt;span class=&#34;m&#34;&gt;16106127360&lt;/span&gt; bytes
+&lt;span class=&#34;m&#34;&gt;255&lt;/span&gt; heads, &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; sectors/track, &lt;span class=&#34;m&#34;&gt;1958&lt;/span&gt; cylinders, total &lt;span class=&#34;m&#34;&gt;31457280&lt;/span&gt; sectors
+&lt;span class=&#34;nv&#34;&gt;Units&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; sectors of &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; * &lt;span class=&#34;nv&#34;&gt;512&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Sector size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;logical/physical&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+I/O size &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;minimum/optimal&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes / &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; bytes
+Disk identifier: 0x00001dec
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1            &lt;span class=&#34;m&#34;&gt;2048&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;30410751&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;15204352&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;83&lt;/span&gt;  Linux
+/dev/sda2        &lt;span class=&#34;m&#34;&gt;30410752&lt;/span&gt;    &lt;span class=&#34;m&#34;&gt;31457279&lt;/span&gt;      &lt;span class=&#34;m&#34;&gt;523264&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;83&lt;/span&gt;  Linux
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: t
+Partition number &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1-4&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+Hex code &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt; L to list codes&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;82&lt;/span&gt;
+Changed system &lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt; of partition &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; to &lt;span class=&#34;m&#34;&gt;82&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Linux swap / Solaris&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+
+Command &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;m &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: w
+The partition table has been altered!
+
+Calling ioctl&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; to re-read partition table.
+
+WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
+The kernel still uses the old table. The new table will be used at
+the next reboot or after you run partprobe&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; or kpartx&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+Syncing disks.
+root@ubuntu:~# 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;重启虚拟机&#34;&gt;重启虚拟机：&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;root@ubuntu:~# shutdown -r now
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;交换分区挂载需要UUID标识符。创建新的交换分区不会匹配旧的UUID，导致重启无法挂载swap分区。这里主要有两种解决方法：在/etc/fstab里写入新的UUID，或者直接将旧的UUID覆盖在新分区上，这里选择后者。 awk命令用来显示旧的UUID，dd命令确保分区没数据。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cruz@ubuntu:~$ sudo bash
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;sudo&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; cruz: 
+root@ubuntu:~#  awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;/swap/ { print $1 }&amp;#39;&lt;/span&gt; /etc/fstab
+&lt;span class=&#34;c1&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;UUID&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;8bb62351-4436-47df-92fe-af2865f03461
+root@ubuntu:~# swapoff -a
+root@ubuntu:~# free -m
+             total       used       free     shared    buffers     cached
+Mem:           &lt;span class=&#34;m&#34;&gt;992&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;695&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;296&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;23&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;325&lt;/span&gt;
+-/+ buffers/cache:        &lt;span class=&#34;m&#34;&gt;346&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;645&lt;/span&gt;
+Swap:            &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+root@ubuntu:~# dd &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&#34;nv&#34;&gt;of&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/dev/sda2
+dd: writing to &lt;span class=&#34;s1&#34;&gt;&amp;#39;/dev/sda2&amp;#39;&lt;/span&gt;: No space left on device
+1046529+0 records in
+1046528+0 records out
+&lt;span class=&#34;m&#34;&gt;535822336&lt;/span&gt; bytes &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;536&lt;/span&gt; MB&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; copied, 11.9388 s, 44.9 MB/s
+root@ubuntu:~# mkswap -U 8bb62351-4436-47df-92fe-af2865f03461 /dev/sda2
+Setting up swapspace version 1, &lt;span class=&#34;nv&#34;&gt;size&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;523260&lt;/span&gt; KiB
+no label, &lt;span class=&#34;nv&#34;&gt;UUID&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;8bb62351-4436-47df-92fe-af2865f03461
+root@ubuntu:~# swapon -a
+root@ubuntu:~# free -m
+             total       used       free     shared    buffers     cached
+Mem:           &lt;span class=&#34;m&#34;&gt;992&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;693&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;298&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;         &lt;span class=&#34;m&#34;&gt;23&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;325&lt;/span&gt;
+-/+ buffers/cache:        &lt;span class=&#34;m&#34;&gt;345&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;646&lt;/span&gt;
+Swap:          &lt;span class=&#34;m&#34;&gt;510&lt;/span&gt;          &lt;span class=&#34;m&#34;&gt;7&lt;/span&gt;        &lt;span class=&#34;m&#34;&gt;503&lt;/span&gt;
+root@ubuntu:~#
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;最后调整分区大小&#34;&gt;最后，调整分区大小：&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;root@ubuntu:~# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       9.0G  2.8G  5.8G  33% /
+udev            488M  4.0K  488M   1% /dev
+tmpfs           199M  788K  198M   1% /run
+none            5.0M     &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  5.0M   0% /run/lock
+none            497M  200K  496M   1% /run/shm
+root@ubuntu:~# resize2fs /dev/sda1
+resize2fs 1.42 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;29-Nov-2011&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+Filesystem at /dev/sda1 is mounted on /&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; on-line resizing required
+&lt;span class=&#34;nv&#34;&gt;old_desc_blocks&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 1, &lt;span class=&#34;nv&#34;&gt;new_desc_blocks&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+Performing an on-line resize of /dev/sda1 to &lt;span class=&#34;m&#34;&gt;3801088&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;4k&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; blocks.
+The filesystem on /dev/sda1 is now &lt;span class=&#34;m&#34;&gt;3801088&lt;/span&gt; blocks long.
+
+root@ubuntu:~# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        15G  2.8G   11G  21% /
+udev            488M  4.0K  488M   1% /dev
+tmpfs           199M  788K  198M   1% /run
+none            5.0M     &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  5.0M   0% /run/lock
+none            497M  200K  496M   1% /run/shm
+root@ubuntu:~# 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      
     </item>
     
     <item>
@@ -141,7 +1067,26 @@
       <pubDate>Sat, 24 Mar 2018 13:50:33 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-3-24-git%E6%B0%B8%E4%B9%85%E5%88%A0%E9%99%A4%E5%BA%93%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
-      <description>&lt;p&gt;如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用&lt;code&gt;git rm&lt;/code&gt;删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用&lt;code&gt;git clone&lt;/code&gt;的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用&lt;code&gt;git rm&lt;/code&gt;删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用&lt;code&gt;git clone&lt;/code&gt;的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。&lt;/p&gt;
+&lt;h3 id=&#34;解决办法&#34;&gt;解决办法&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#1. 确定文件从哪个commit引入的&lt;/span&gt;
+git log --pretty&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;oneline --branches -- bigfile
+
+&lt;span class=&#34;c1&#34;&gt;#2. 让git重写每一个分支, 删除bigfile&lt;/span&gt;
+git filter-branch --force --index-filter &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;git rm --cached --ignore-unmatch BIGFILE&amp;#34;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;--prune-empty --tag-name-filter cat -- --all
+
+&lt;span class=&#34;c1&#34;&gt;#3. 推送修改&lt;/span&gt;
+git push --all --force
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;参数说明&#34;&gt;参数说明&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;filter-branch&lt;/code&gt; 是让git重写每一个分支，&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--force&lt;/code&gt; 假如遇到冲突也让git强制执行， &lt;code&gt;--index-filter&lt;/code&gt; 选项指定重写的时候应该执行什么命令，要执行的命令紧跟在它的后面，在这里就是&lt;code&gt;git rm --cached --ignore-unmatch bigfile&lt;/code&gt; ，让git删除掉缓存的文件，如果有匹配的话。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--prune-empty&lt;/code&gt; 选项告诉git，如果因为重写导致某些&lt;strong&gt;commit&lt;/strong&gt;变成了空（比如修改的文件全部被删除），那么忽略掉这个commit。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--tag-name-filter&lt;/code&gt; 表示对每一个tag如何重命名，重命名的命令紧跟在后面，当前的tag名会从标注输入送给后面的命令，用cat就表示保持tag名不变。&lt;/p&gt;
+&lt;p&gt;紧跟着的&lt;code&gt;--&lt;/code&gt; 表示分割符，最后的&lt;code&gt;--all&lt;/code&gt; 表示对所有的文件都考虑在内。&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -150,7 +1095,137 @@
       <pubDate>Wed, 28 Feb 2018 13:20:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-28-golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/</guid>
-      <description></description>
+      
+        <description>&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;iota&lt;/code&gt; iota是golang的一个关键字，此关键字用来声明enum的时候采用，默认从0开始，每遇到一个类似const就会重置为0。&lt;/li&gt;
+&lt;li&gt;通过开头字母大小写来实现变量和函数的公有私有。例:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//公有
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//私有
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;将数组作为函数参数进行传递时，实际传入的是该数组的副本。&lt;/li&gt;
+&lt;li&gt;由于初始化数组时无法预知定义多大的空间，就需要使用类似动态数组的结构，go语言中采用&lt;code&gt;slice&lt;/code&gt;来实现数组的切片，类似&lt;strong&gt;python&lt;/strong&gt;中的切片，
+&lt;code&gt;slice&lt;/code&gt;是一个引用类型，它总是指向一个底层的&lt;strong&gt;array&lt;/strong&gt;，&lt;code&gt;slice&lt;/code&gt;的声明类似&lt;strong&gt;array&lt;/strong&gt;，只是不需要长度。当引用改变其中的元素时，其他所有的引用也会相应改变。
+常用内置函数: &lt;strong&gt;len&lt;/strong&gt;获取长度，&lt;strong&gt;cap&lt;/strong&gt;获取容量，&lt;strong&gt;append&lt;/strong&gt;追加元素，并返回一个和&lt;code&gt;slice&lt;/code&gt;一样类型的&lt;code&gt;slice&lt;/code&gt;，&lt;strong&gt;copy&lt;/strong&gt;函数从源&lt;code&gt;slice&lt;/code&gt;的&lt;strong&gt;src&lt;/strong&gt;中复制元素到目标dst，并且返回复制的元素个数。&lt;/li&gt;
+&lt;li&gt;map类似python中的字典，格式为map[keyType]valueType。map无序，必须通过key去获取。长度不固定，是一种引用类型。len函数
+map不是安全的，在多个goroutine中使用时必须使用mutex lock&lt;/li&gt;
+&lt;li&gt;make用于内建类型（map，slice，channel）的内存分配。new用于各种类型的内存分配。&lt;/li&gt;
+&lt;li&gt;go中&lt;code&gt;switch&lt;/code&gt;默认相当于每个&lt;code&gt;case&lt;/code&gt;后面都加了&lt;code&gt;break&lt;/code&gt;。但是可以通过加&lt;code&gt;fallthrough&lt;/code&gt;强制执行后后面的代码。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;main&lt;/code&gt;函数和&lt;code&gt;init&lt;/code&gt;函数，在定义时不能有任何参数和返回值。&lt;/li&gt;
+&lt;li&gt;导入包时加前缀_是为了引入该包，而不直接使用包里面的函数，只是调用包中的init函数。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;interface&lt;/code&gt;是一组method签名的集合，可以通过&lt;code&gt;interface&lt;/code&gt;来定义对象的一组行为。若某个对象实现了某个接口的所有方法，那么这个对象就实现了此接口。如果定义一个interface的变量，那么这个变量里面可以存实现这个interface的任意类型的对象。空interface可以存储任何类型的数值。
+element.(type)只能在switch中使用，其他地方不能使用。&lt;/li&gt;
+&lt;li&gt;golang中的反射机制，就是能够检查程序在运行时的状态。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;函数声明&#34;&gt;函数声明&lt;/h3&gt;
+&lt;p&gt;func 函数名(参数列表)(返回值列表){
+//函数体
+}&lt;/p&gt;
+&lt;h5 id=&#34;变量声明&#34;&gt;变量声明&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;var 变量名 类型 = 表达式(类型和表达式可以省略其中一个)&lt;/li&gt;
+&lt;li&gt;多个变量声明: 
+var (
+变量名 类型
+变量名 类型
+)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;赋值&#34;&gt;赋值&lt;/h5&gt;
+&lt;p&gt;变量 = 表达式
+&lt;code&gt;_&lt;/code&gt;可以丢弃不需要的值&lt;/p&gt;
+&lt;h5 id=&#34;常量&#34;&gt;常量&lt;/h5&gt;
+&lt;p&gt;const 常量名 = 表达式
+const(
+常量名 类型
+常量名 类型
+)
+批量声明的常量，除第一个外其它的常量的右边的初始化表达式都可以省略，默认使用前面常量的初始化表达式写法
+&lt;code&gt;iota&lt;/code&gt;常用语定义枚举值&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;总结:var 声明变量，const声明常量。声明时可以带类型。也可以不带类型，通过右推断.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h5 id=&#34;位运算&#34;&gt;位运算&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;amp;&lt;/code&gt; 位与and (左侧和右侧都为1，则为1；否则为0)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;|&lt;/code&gt; 位或 or(左侧或右侧只要有一个为1，结果为1；都为0结果才为0)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;^&lt;/code&gt; 位异或 xor (相同为0，不同为1)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&amp;amp;^&lt;/code&gt; 位清空and not(右侧是0，左侧数不变;右侧是1，则左侧数清零)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;&amp;lt;&lt;/code&gt; 左移&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&amp;gt;&amp;gt;&lt;/code&gt; 右移&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;指针&#34;&gt;指针&lt;/h5&gt;
+&lt;p&gt;var 变量名 &lt;code&gt;*类型&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;eg:var ptr [MAX]*int    //指向数组的指针
+/*
+默认值 nil,没有NULL值
+&amp;quot;&amp;amp;&amp;quot;取变量地址,“*”通过指针访问目标对象
+不能对指针做加减乘除运算
+不存在函数的指针
+*/
+var ptr *[3]int      //数组指针,保存了一个数组地址
+var ptr [3]*int      //指针数组,每元素都是指针
+&lt;/code&gt;&lt;/pre&gt;&lt;h5 id=&#34;type自定义类型&#34;&gt;type自定义类型&lt;/h5&gt;
+&lt;p&gt;type 类型名字 底层类型&lt;/p&gt;
+&lt;h5 id=&#34;switch&#34;&gt;Switch&lt;/h5&gt;
+&lt;p&gt;只有在case中明确添加&lt;strong&gt;fallthrough&lt;/strong&gt;关键字，才会继续执行下一个case
+不带条件表达式的&lt;code&gt;Switch&lt;/code&gt;与&lt;strong&gt;if&amp;hellip;else&lt;/strong&gt;相同，遇到&lt;code&gt;false&lt;/code&gt;停止&lt;/p&gt;
+&lt;h5 id=&#34;数组&#34;&gt;数组&lt;/h5&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;数组名&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;长度&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;类型&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h6 id=&#34;数组切片&#34;&gt;数组切片&lt;/h6&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;数组切片&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;类型&lt;/span&gt;      &lt;span class=&#34;c1&#34;&gt;//声明无需定义长度
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;直接创建切片&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([]&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cap&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;切片可遍历，可修改，不可比较&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;slice&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;slice1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;slice2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;    &lt;span class=&#34;c1&#34;&gt;//slice2赋值给slice1
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;```go
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;  包       功能
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;strings&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`  提供了字符串查询、替换、比较、截断、拆分和合并等功能。
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`    提供了很多与strings包类似的功能。因为字符串是只读的，逐步构建字符串会导致很多分配和复制，这种情况下，使用bytes.Buffer类型将会更有效。
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;strconv&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`  提供了布尔类型、整数、浮点数和对应字符串的相互转换，还提供了双引号转义相关的转换。
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;unicode&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;`  提供了IsDigit、IsLetter、IsUpper和IsLower等功能，用于给字符分类。
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;##### 映射
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;声明:var 映射名称 map[键]值
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;只是声明一个map，它的初始值是nil，也就是没有引用任何哈希表。所以不能向一个nil值的map存入元素
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;创建:
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;```&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;//初始存储能力100
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;key&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;key&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//添加
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;key&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;value&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//删除
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;delete&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;key&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//查看是否存在此key
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];!&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;key&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h5 id=&#34;函数&#34;&gt;函数&lt;/h5&gt;
+&lt;p&gt;func 函数名([形参列表])[返回值列表]{
+//函数体
+}&lt;/p&gt;
+&lt;h6 id=&#34;可变参数&#34;&gt;可变参数&lt;/h6&gt;
+&lt;p&gt;可接收任意数量的该类型参数
+func Sum(vals &amp;hellip;int)int{
+//函数体
+}&lt;/p&gt;
+&lt;h6 id=&#34;错误处理&#34;&gt;错误处理&lt;/h6&gt;
+&lt;p&gt;func Foo(参数列表)(res list,err error){
+//&amp;hellip;
+}
+&lt;code&gt;defer&lt;/code&gt;通常用于 &lt;strong&gt;open/close&lt;/strong&gt;, &lt;strong&gt;connect/disconnect&lt;/strong&gt;, &lt;strong&gt;lock/unlock&lt;/strong&gt; 等这些成对的操作, 来保证在任何情况下资源都被正确释放&lt;/p&gt;
+&lt;h5 id=&#34;结构体&#34;&gt;结构体&lt;/h5&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;类型名称&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;//成员列表
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h6 id=&#34;方法&#34;&gt;方法&lt;/h6&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;变量名&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;类型&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;方法名称&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;形参列表&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;返回值列表&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]{&lt;/span&gt;
+  &lt;span class=&#34;c1&#34;&gt;// 方法体
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h6 id=&#34;接口-interface&#34;&gt;接口 &lt;code&gt;interface&lt;/code&gt;&lt;/h6&gt;
+&lt;p&gt;一个类型如果拥有一个接口需要的所有方法，那么这个类型就实现了这个接口。&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -159,9 +1234,119 @@
       <pubDate>Tue, 27 Feb 2018 18:20:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-27-golang%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E4%B8%83%E7%89%9B%E4%BA%91%E5%82%A8%E5%AD%98/</guid>
-      <description>&lt;hr&gt;
+      
+        <description>&lt;hr&gt;
 &lt;p&gt;最近老大说要在网站的后台里做一个OSS配置，后台写好，图片直接上传到云储存里面，小生不才，查资料看文章，改了N多BUG之后才做了一个基本的上传系统,下面是一些在敲代码中经历的BUG或者对一些方法的见解&lt;/p&gt;
-&lt;hr&gt;</description>
+&lt;hr&gt;
+&lt;h3 id=&#34;获取&#34;&gt;获取&lt;/h3&gt;
+&lt;p&gt;首先要获取的是七牛云官方的SDK&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;get&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;u&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;github&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;com&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;qiniu&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;api&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v7&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;七牛云&#34;&gt;七牛云&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.qiniu.com/&#34;&gt;七牛云&lt;/a&gt;没有帐号的去注册一个帐号。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://portal.qiniu.com/user/key&#34;&gt;个人中心&lt;/a&gt;有账号的直接进个人中心，去查看秘钥	AccessKey/SecretKey&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;代码&#34;&gt;代码&lt;/h3&gt;
+&lt;p&gt;一些常变量&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//本地保存的文件夹名称
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;upload_path&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;/files/&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//BUCKET是你在存储空间的名称
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;ACCESS_KEY&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;******EA09VCy5EfN_*******************&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;SECRET_KEY&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;******-yvwcYwImN6F*******************&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;BUCKET&lt;/span&gt;     &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;bucket&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h5 id=&#34;web端代码&#34;&gt;&lt;code&gt;WEB&lt;/code&gt;端代码&lt;/h5&gt;
+&lt;p&gt;&lt;strong&gt;获取上传的文件&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;uploadHandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ResponseWriter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//从请求当中判断方法
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Method&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;GET&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;tmp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;ParseFiles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;templates/upload.html&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;模版渲染失败&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;tmp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Execute&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//获取文件内容 要这样获取
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;FormFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//创建文件夹
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;pwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Getwd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//文件夹存在的话会返回一个错误，可以用`_`抛出去
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Mkdir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pwd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;upload_path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ModePerm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;dir is create Error&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pwd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upload_path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;文件创建失败&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//复制文件，保存到本地
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;文件保存失败&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//调用七牛上传函数
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nf&#34;&gt;upload_qiniu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;pwd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upload_path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Redirect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;/&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;StatusFound&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;七牛云上传函数&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;upload_qiniu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;key&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;github-x.png&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//上传凭证,关于凭证这块大家可以去看看官方文档
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;putPolicy&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;PutPolicy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;Scope&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;BUCKET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;mac&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;qbox&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;NewMac&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ACCESS_KEY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SECRET_KEY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;upToken&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;putPolicy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;UploadToken&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;mac&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;cfg&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Config&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//空间对应机房
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//其中关于Zone对象和机房的关系如下：
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//	机房	Zone对象
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//	华东	storage.ZoneHuadong
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//	华北	storage.ZoneHuabei
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//	华南	storage.ZoneHuanan
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//	北美	storage.ZoneBeimei
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//七牛云存储空间设置首页有存储区域
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;cfg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Zone&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ZoneHuanan&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//不启用HTTPS域名
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;cfg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;UseHTTPS&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//不使用CND加速
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;cfg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;UseCdnDomains&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//构建上传表单对象
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;formUploader&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;NewFormUploader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cfg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;ret&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;PutRet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;// 可选
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;putExtra&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;PutExtra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;Params&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;s&#34;&gt;&amp;#34;x:name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;github logo&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;formUploader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;PutFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Background&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ret&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upToken&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filePath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;putExtra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ret&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ret&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Hash&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;整个代码最主要的是存储在本地的路径，然后在上传函数里面读取路径上传文件&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可能还会有其他的方便，快捷的方法，我也还在摸索中，这个算是这几天学习的一个总结，后续还会修改代码，做一些扩展&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/ma1ive/Go/blob/master/qiniu/main.go&#34;&gt;完整代码地址&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description>
+      
     </item>
     
     <item>
@@ -170,7 +1355,29 @@
       <pubDate>Thu, 22 Feb 2018 13:58:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-22-%E5%85%AC%E9%92%A5%E6%93%8D%E4%BD%9C&#43;-git%E6%90%AD%E8%BD%BD%E6%96%B0%E9%A1%B9%E7%9B%AE/</guid>
-      <description></description>
+      
+        <description>&lt;h3 id=&#34;一公钥操作&#34;&gt;一.公钥操作：&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;生成公钥&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;ssh-keygen -t rsa -C &lt;span class=&#34;s2&#34;&gt;&amp;#34;ma1ive@qq.com&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.查看公钥&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cat ~/.ssh/id_rsa.pub
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;二git搭载新项目&#34;&gt;二.git搭载新项目：&lt;/h3&gt;
+&lt;p&gt;1.在服务器建立g该项目的git目录&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;mkdir 项目名称
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.初始化该目录&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git init --bare --shared
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.复制相似项目下的文件，至该项目下&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;.git clone git@git.wiapp.cn&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.复制.gititnory&lt;/p&gt;
+&lt;p&gt;5.修改项目中的config.py,使项目名称保持一致&lt;/p&gt;
+&lt;p&gt;6.进入根目录下的/etc/lighttpd/conf-enabled/中，复制一个.conf 文件并进行修改&lt;/p&gt;
+&lt;p&gt;7.删除该文件下的model文件夹，复制引用同一数据库下项目中的modle&lt;/p&gt;
+&lt;p&gt;8.更改权限&lt;/p&gt;
+&lt;p&gt;9.git add 该项目文件，后git add .ignory&lt;/p&gt;
+&lt;p&gt;10.进行端口匹配&lt;/p&gt;</description>
+      
     </item>
     
     <item>
@@ -179,7 +1386,21 @@
       <pubDate>Tue, 13 Feb 2018 17:58:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-13-gravatar%E4%B8%BA%E7%94%A8%E6%88%B7%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E5%A4%B4%E5%83%8F/</guid>
-      <description>&lt;p&gt;今天在群里看到有人发这个Gravatar为用户随机生成图像的方法,索性干脆记下来,为防止以后要用找不到&lt;/p&gt;</description>
+      
+        <description>&lt;p&gt;今天在群里看到有人发这个Gravatar为用户随机生成图像的方法,索性干脆记下来,为防止以后要用找不到&lt;/p&gt;
+&lt;h1 id=&#34;what-is-gravatar&#34;&gt;What Is Gravatar?&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;http://cn.gravatar.com/&#34;&gt;Gravatar&lt;/a&gt;是Globally Recognized Avatar的缩写,是gravatar推出的一项服务，意为“全球通用头像”。如果在Gravatar的服务器上放置了你自己的头像，那么在任何支持Gravatar的blog或者留言本上留言时，只要提供你与这个头像关联的email地址，就能够显示出你的Gravatar头像来。&lt;/p&gt;
+&lt;h3 id=&#34;例&#34;&gt;例:&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.gravatar.com/avatar/11?s=256&amp;amp;d=identicon&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;http://www.gravatar.com/avatar/13?s=256&amp;amp;d=monsterid&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;http://www.gravatar.com/avatar/14?s=256&amp;amp;d=retro&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;只需 HTTP 请求 &lt;code&gt;http://www.gravatar.com/avatar/{hash}?s=256&amp;amp;d=identicon&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;hash&lt;/code&gt;: 一个随机数&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;s&lt;/code&gt; : 图片像素&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;d&lt;/code&gt; : 图片风格(当前可选:identicon、monsterid、wavatar、retro、robohash 等)&lt;/li&gt;
+&lt;/ul&gt;</description>
+      
     </item>
     
     <item>
@@ -188,7 +1409,84 @@
       <pubDate>Sun, 11 Feb 2018 12:08:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-11-nginx%E9%83%A8%E7%BD%B2lets-encrypt%E5%85%8D%E8%B4%B9ssl%E8%AF%81%E4%B9%A6%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/</guid>
-      <description></description>
+      
+        <description>&lt;h3 id=&#34;申请lets-encrypt永久免费ssl证书&#34;&gt;申请Let&amp;rsquo;s Encrypt永久免费SSL证书&lt;/h3&gt;
+&lt;h4 id=&#34;lets-encrypt简介&#34;&gt;Let&amp;rsquo;s Encrypt简介&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&#34;https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F&#34;&gt;Let&amp;rsquo;s Encrypt&lt;/a&gt;公共且免费SSL的项目&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://link.jianshu.com?t=https%3A%2F%2Fletsencrypt.org%2F&#34;&gt;Let&amp;rsquo;s Encrypt免费SSL&lt;/a&gt;支持包括FireFox、Chrome在内的主流浏览器的兼容和支持，虽然目前是公测阶段，但是也有不少的用户在自有网站项目中正式使用起来。&lt;/p&gt;
+&lt;h4 id=&#34;步骤如下&#34;&gt;步骤如下：&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;第一、安装Let&amp;rsquo;s Encrypt前的准备工作&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#检查系统是否安装git&lt;/span&gt;
+git  --version 
+&lt;span class=&#34;c1&#34;&gt;#git 安装&lt;/span&gt;
+yum install git
+&lt;span class=&#34;c1&#34;&gt;#查看python版本,尽量保证在2.7以上&lt;/span&gt;
+python -v 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;第二、获取Let&amp;rsquo;s Encrypt免费SSL证书&lt;/strong&gt;
+//当时配置的时候,碰到好多错误,还好网上都有了解决办法,大家出错的时候可以看看letsencrypt下面的日志,里面报错内容都有,把错误尽量都解决了,再安装,不然错一次申请一次证书,次数用完,就要在等一周才能申请了.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#获取letsencrypt&lt;/span&gt;
+git clone https://github.com/letsencrypt/letsencrypt
+&lt;span class=&#34;c1&#34;&gt;#进入letsencrypt目录&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; letsencrypt
+&lt;span class=&#34;c1&#34;&gt;#生成证书1&lt;/span&gt;
+//可以填两个域名，也可以填一个
+./letsencrypt-auto certonly --standalone --email your_email@address -d your_url_address -d www.your_url_address
+
+&lt;span class=&#34;c1&#34;&gt;#生成证书2&lt;/span&gt;
+//我一般用这个
+./letsencrypt-auto
+1. 填入邮箱地址
+2. 选择A
+3. 选择Y
+4. 填入域名地址    //多域名用空格或者/或者,隔开
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;第三、Let&amp;rsquo;s Encrypt免费SSL证书获取与应用&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;在完成Let&amp;rsquo;s Encrypt证书的生成之后，我们会在&amp;quot;/etc/letsencrypt/live/your_url_address/&amp;ldquo;域名目录下有4个文件就是生成的密钥证书文件。&lt;/p&gt;
+&lt;p&gt;cert.pem - Apache服务器端证书
+chain.pem - Apache根证书和中继证书
+fullchain.pem - Nginx所需要ssl_certificate文件
+privkey.pem - 安全证书KEY文件&lt;/p&gt;
+&lt;p&gt;如果我们使用的Nginx环境，那就需要用到fullchain.pem和privkey.pem两个证书文件，在部署Nginx的时候需要用到。在Nginx环境中，只要将对应的ssl_certificate和ssl_certificate_key路径设置成我们生成的2个文件就可以。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#打开linux配置文件，找到HTTPS 443端口配置的server,如果有以下文件就不需要再添加了，没有的话就添加上&lt;/span&gt;
+ ssl_certificate /etc/letsencrypt/live/your_url_address/fullchain.pem&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+ ssl_certificate_key /etc/letsencrypt/live/your_url_address/privkey.pem&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;第四、解决Let&amp;rsquo;s Encrypt免费SSL证书有效期问题&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s Encrypt证书是有效期90天的，需要我们自己手工更新续期才可以。
+手工续期命令如下：_&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;./letsencrypt-auto certonly --renew-by-default --email your_email@address -d your_url_address -d www.your_url_address
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样我们就可以续期,当然我们也可以写一个&lt;code&gt;cron&lt;/code&gt;脚本让他自动续期&lt;/p&gt;
+&lt;h3 id=&#34;从证书中删除域名&#34;&gt;从证书中删除域名&lt;/h3&gt;
+&lt;p&gt;Let’s Encrypt目前并不提供从证书中删除域名的功能,所以我们只是把证书删除后重新申请.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;证书每周申请数量有限,不要一直删了申请&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;删除证书的时候，需要删除archive中的文件和live中的符号链接，同时还需要删除证书更新的配置文件：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;rm -rf /etc/letsencrypt/live/www.example.com/
+rm -rf /etc/letsencrypt/archive/www.example.com/
+rm /etc/letsencrypt/renewal/www.example.com.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;删除后，重新申请证书，这里给出的是webroot方式，当然你也可以用上面的方法:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;letsencrypt certonly --webroot -w /var/www/example -d your_url_address -d www.your_url_address
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;自动续期脚本&#34;&gt;自动续期脚本&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;//这个脚本放在和let&lt;span class=&#34;s1&#34;&gt;&amp;#39;s encrypt目录同级的目录下
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;#!/bin/sh
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;# This script renews all the Let&amp;#39;&lt;/span&gt;s Encrypt certificates with a validity &amp;lt; &lt;span class=&#34;m&#34;&gt;30&lt;/span&gt; days
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; ! /opt/letsencrypt/letsencrypt-auto renew &amp;gt; /var/log/letsencrypt/renew.log 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; Automated renewal failed:
+    cat /var/log/letsencrypt/renew.log
+    &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;权限&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;chmod +x renewCerts.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;cron脚本&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;//每个月凌晨1点运行
+&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; * * /bin/sh /opt/renewCerts.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;坑&#34;&gt;坑：&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;每周申请次数有限&lt;/li&gt;
+&lt;li&gt;国内服务器要放行443端口,然后重启服务器,不然访问不到,(当时国外两个服务器很快就配置好了,国内服务器一直出错出错,后来问了几个表哥,原来是阿里云要放行一下443端口.)&lt;/li&gt;
+&lt;li&gt;如果用以上第二种方法申请,nginx服务器默认的配置在删除证书文件后还存在.&lt;/li&gt;
+&lt;/ul&gt;</description>
+      
     </item>
     
     <item>
@@ -197,11 +1495,61 @@
       <pubDate>Fri, 09 Feb 2018 16:05:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E6%89%AB%E6%8F%8F%E7%A1%AC%E7%9B%98%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6/</guid>
-      <description>&lt;h3 id=&#34;用到的包&#34;&gt;用到的包&lt;/h3&gt;
+      
+        <description>&lt;h3 id=&#34;用到的包&#34;&gt;用到的包&lt;/h3&gt;
 &lt;p&gt;&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.4.html&#34;&gt;regexp&lt;/a&gt;
 &lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter06/06.1.html&#34;&gt;os&lt;/a&gt;
 &lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.1.html&#34;&gt;string&lt;/a&gt;
-&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.3.html&#34;&gt;strconv&lt;/a&gt;&lt;/p&gt;</description>
+&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter02/02.3.html&#34;&gt;strconv&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;扫描路径函数&#34;&gt;扫描路径函数&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getFilelist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;re&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Walk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;FileInfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;IsDir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//正则匹配路径名和需要查找的文件名
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;regexp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;MatchString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;re&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+				&lt;span class=&#34;nx&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;append&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nf&#34;&gt;WriteFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//for k,v:=range list{
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;//	fmt.Println(k,&amp;#34;==&amp;gt; 查找路径:&amp;#34;,v)
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;//}
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;filepath.Walk() returned %v\n&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;写入文件保存&#34;&gt;写入文件保存&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;WriteFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//保存文件名
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;filename&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;./output.txt&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//判断文件是否存在，存在即删除
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Stat&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Remove&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//打开此文件
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;OpenFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;O_RDWR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;O_CREATE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;O_APPEND&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mo&#34;&gt;0644&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//循环值并且转换类型
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;range&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;content&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;strings&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;strconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Itoa&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;==&amp;gt; 查找路径:&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;\n&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;byte&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;content&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Write&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;入口函数&#34;&gt;入口函数&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter13/13.1.html&#34;&gt;flag包详解&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Parse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;re&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;nf&#34;&gt;getFilelist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;re&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      
     </item>
     
     <item>
@@ -210,35 +1558,43 @@
       <pubDate>Fri, 09 Feb 2018 12:05:36 +0800</pubDate>
       
       <guid>https://auuunya.github.io/post/2018-2-9-go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86demo/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>nginx自定义日志记录完整的请求</title>
-      <link>https://auuunya.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</link>
-      <pubDate>Thu, 25 Jan 2018 12:05:36 +0800</pubDate>
       
-      <guid>https://auuunya.github.io/post/2018-01-25-nginx%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%AE%8C%E6%95%B4%E7%9A%84%E8%AF%B7%E6%B1%82/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>CentOS 7安装jekyll静态博客并通过git自动发布</title>
-      <link>https://auuunya.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</link>
-      <pubDate>Wed, 17 Jan 2018 12:05:36 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;主函数&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//传递一个string类型，在这里我们传入需要扫描的路径
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getFilelist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;//package_name:path/filepath
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;//go doc filepath.Walk 查看这个函数的文档
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Walk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;FileInfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//如果f等于空，返回err错误
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;//func IsDir() bool  // abbreviation for Mode().IsDir()
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;IsDir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;filepath.Walk() returned %v\n&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;main入口函数:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://books.studygolang.com/The-Golang-Standard-Library-by-Example/chapter13/13.1.html&#34;&gt;flag&lt;/a&gt;-命令行参数解析&lt;/p&gt;
+&lt;p&gt;在写命令行程序（工具、server）时，对命令参数进行解析是常见的需求。各种语言一般都会提供解析命令行参数的方法或库，以方便程序员使用。如果命令行参数纯粹自己写代码解析，对于比较复杂的，还是挺费劲的。在 go 标准库中提供了一个包：flag，方便进行命令行解析&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注:区分几个概念&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;命令行参数（或参数）：是指运行程序提供的参数&lt;/li&gt;
+&lt;li&gt;已定义命令行参数：是指程序中通过flag.Xxx等这种形式定义了的参数&lt;/li&gt;
+&lt;li&gt;非flag（non-flag）命令行参数（或保留的命令行参数）：后文解释&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Parse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;root&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;nf&#34;&gt;getFilelist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;运行实例:&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;run&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;filepath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;\
+&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
       
-      <guid>https://auuunya.github.io/post/2018-1-17-centos-7%E5%AE%89%E8%A3%85jekyll%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E9%80%9A%E8%BF%87git%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>(爬虫学习)40行代码爬取猫眼电影TOP100</title>
-      <link>https://auuunya.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</link>
-      <pubDate>Fri, 12 Jan 2018 15:05:36 +0800</pubDate>
-      
-      <guid>https://auuunya.github.io/post/2018-1-12-%E7%88%AC%E8%99%AB%E5%AD%A6%E4%B9%A040%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%88%AC%E5%8F%96%E7%8C%AB%E7%9C%BC%E7%94%B5%E5%BD%B1top100/</guid>
-      <description>&lt;p&gt;最近一直在学习爬虫方面的知识，在网上也找了很多书和视频来看，原来Web比爬虫简单多了，建议大家如果想快速上手Python的话先从Web方面入手应该会比较快。&lt;/p&gt;
-&lt;p&gt;废话不多说，这篇文章是我学爬虫来踩的第一个坑，但绝不是最后一个,俗话说在失败中学习进步。从第一个错误到成功运行也是下了蛮大的功夫。&lt;/p&gt;</description>
     </item>
     
   </channel>

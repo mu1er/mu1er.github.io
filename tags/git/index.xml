@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>git on Auuu Nya Blog</title>
+    <title>git on AuuuNya Blog</title>
     <link>https://auuunya.github.io/tags/git/</link>
-    <description>Recent content in git on Auuu Nya Blog</description>
+    <description>Recent content in git on AuuuNya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-an</language>
-    <copyright>© Copyright AuuuNya</copyright>
+    <language>zh-cn</language>
+    <copyright>AuuuNya</copyright>
     <lastBuildDate>Sat, 24 Mar 2018 13:50:33 +0800</lastBuildDate><atom:link href="https://auuunya.github.io/tags/git/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Git永久删除库中的文件</title>

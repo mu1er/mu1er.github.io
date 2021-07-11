@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Abouts on Auuu Nya Blog</title>
+    <title>Abouts on AuuuNya Blog</title>
     <link>https://auuunya.github.io/about/</link>
-    <description>Recent content in Abouts on Auuu Nya Blog</description>
+    <description>Recent content in Abouts on AuuuNya Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-an</language>
-    <copyright>© Copyright AuuuNya</copyright>
+    <language>zh-cn</language>
+    <copyright>AuuuNya</copyright>
     <lastBuildDate>Sat, 19 Jan 2019 23:41:35 +0800</lastBuildDate><atom:link href="https://auuunya.github.io/about/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>About Me</title>
@@ -14,11 +14,7 @@
       <pubDate>Sat, 19 Jan 2019 23:41:35 +0800</pubDate>
       
       <guid>https://auuunya.github.io/about/about/</guid>
-      <description>ID：张阳阳_Auuu
-目前在西安这座古城辛勤搬砖 会使用不同语言编写Hello,World的一只小菜鸟 想好好搞技术，但是看啥都很吃力(太不友好了@ @ 联系方式   QQ：937576339
-  Email：ma1ive@qq.com
-  其他社交   Telegram#AuuuNya
-  Weibo</description>
+      <description>ID：张阳阳_Auuu 目前在西安这座古城</description>
     </item>
     
   </channel>
