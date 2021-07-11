@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Git永久删除库中的文件 · AuuuNya Blog</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta name="description" content="如果使用git不小心提交了一个类似debug或者.swp的临时文件，即使用git rm删除，只会向版本库中新增一条删除记录，之前提交的文件物理上还保存在版本库中，每次用git clone的时候都会下载，时间久了，这样的文件多了，就会使得整个版本库庞大无比,所以需要找到将这些文件从版本库中物理删除的办法。
 " />
 
